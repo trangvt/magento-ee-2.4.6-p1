@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminCreateCartPriceRuleWithCustomerSegmentActionGroup">
+        <remove keyForRemoval="selectCustomerGroup"/>
+        <click selector="{{AdminCartPriceRulesFormSection.customerGroups}}" after="selectWebsites" stepKey="expandCustomerGroups"/>
+        <click selector="{{AdminCartPriceRulesFormSection.selectAllCustomerGroup}}" after="expandCustomerGroups" stepKey="clickSelectAll"/>
+        <click selector="{{AdminCartPriceRulesFormSection.pressCustomerGroupDoneBtn}}" after="clickSelectAll" stepKey="clickDone"/>
+    </actionGroup>
+</actionGroups>

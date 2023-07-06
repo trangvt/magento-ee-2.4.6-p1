@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminProductWithAssociatedSharedCatalogTest">
+        <annotations>
+            <features value="Shared Catalog"/>
+            <stories value="Customer groups"/>
+            <title value="Verify product associated with Shared Catalog"/>
+            <description value="Create product and verify product associated with Shared Catalog"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-19944"/>
+            <group value="sharedCatalog"/>
+            <group value="Company"/>
+            <group value="company"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <comment userInput="Enable company and shared catalog configs" stepKey="commentEnableConfigs"/>
+            <magentoCLI command="config:set btob/website_configuration/company_active 1" stepKey="enableCompany"/>
+            <magentoCLI command="config:set btob/website_configuration/sharedcatalog_active 1" stepKey="enableSharedCatalog"/>
+            <createData entity="NewSharedCatalog" stepKey="sharedCatalog1"/>
+            <createData entity="FirstSharedCatalog" stepKey="sharedCatalog2"/>
+            <createData entity="SecondSharedCatalog" stepKey="sharedCatalog3"/>
+            <createData entity="_defaultCategory" stepKey="createPreReqCategory"/>
+            <createData entity="SimpleProduct" stepKey="simpleProduct">
+                <requiredEntity createDataKey="createPreReqCategory"/>
+            </createData>
+        </before>
+        <after>
+            <comment userInput="Disable company and shared catalog configs" stepKey="commentDisableConfigs"/>
+            <magentoCLI command="config:set btob/website_configuration/company_active 0" stepKey="disableCompany"/>
+            <magentoCLI command="config:set btob/website_configuration/sharedcatalog_active 0" stepKey="disableSharedCatalog"/>
+            <deleteData createDataKey="sharedCatalog1" stepKey="deleteSharedCatalog1"/>
+            <deleteData createDataKey="sharedCatalog2" stepKey="deleteSharedCatalog2"/>
+            <deleteData createDataKey="sharedCatalog3" stepKey="deleteSharedCatalog3"/>
+            <deleteData createDataKey="simpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createPreReqCategory" stepKey="deletePreReqCategory"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdmin"/>
+
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+        </after>
+        <comment userInput="Assign shared catalog to products" stepKey="commentAssignSharedCatalog"/>
+        <amOnPage url="{{AdminProductEditPage.url($$simpleProduct.id$$)}}" stepKey="goToProductPage1"/>
+        <waitForPageLoad stepKey="waitForProductPageLoad"/>
+        <actionGroup ref="AdminAssignSharedCatalogToProductActionGroup" stepKey="assignSharedCatalog1ToProduct">
+            <argument name="catalog" value="NewSharedCatalog.name"/>
+        </actionGroup>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProduct"/>
+        <comment userInput="Verify shared catalog added to products" stepKey="commentVerifySharedCatalog"/>
+        <amOnPage url="{{AdminProductEditPage.url($$simpleProduct.id$$)}}" stepKey="goToProductPage2"/>
+        <waitForPageLoad stepKey="waitForProductPageLoad2"/>
+        <actionGroup ref="AdminVerifySharedCatalogProductActionGroup" stepKey="verifySharedCatalog">
+            <argument name="catalog1" value="NewSharedCatalog.name"/>
+            <argument name="catalog2" value="FirstSharedCatalog.name"/>
+            <argument name="catalog3" value="SecondSharedCatalog.name"/>
+        </actionGroup>
+    </test>
+</tests>

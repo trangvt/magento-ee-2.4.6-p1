@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAddCartItemToNewRequisitionListActionGroup">
+        <annotations>
+            <description>Adds $product to a new requisition list specified by $requisitionListName.  Assumes you are currently on checkout cart page (CheckoutCartPage.url).</description>
+        </annotations>
+        <arguments>
+            <argument name="product" type="entity"/>
+            <argument name="requisitionListName" type="string" />
+        </arguments>
+        <waitForElementVisible selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton(product.sku)}}" stepKey="waitForCartItemAddToRequisitionListButton"/>
+        <click selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton(product.sku)}}" stepKey="clickCartItemAddToRequisitionListButton"/>
+        <waitForElementVisible selector="{{CheckoutCartProductSection.cartItemCreateNewRequisitionListButtonInPopup(product.sku)}}" stepKey="waitForCreateNewRequisitionListButton"/>
+        <click selector="{{CheckoutCartProductSection.cartItemCreateNewRequisitionListButtonInPopup(product.sku)}}" stepKey="clickCreateNewRequisitionListButton"/>
+        <waitForPageLoad stepKey="waitForRequisitionListCreationForm"/>
+        <waitForElementVisible selector="{{CheckoutCartProductSection.requisitionListNameInput}}" stepKey="waitForRequisitionListNameInputField"/>
+        <fillField selector="{{CheckoutCartProductSection.requisitionListNameInput}}" userInput="{{requisitionListName}}" stepKey="fillInRequisitionListNameInputField"/>
+        <click selector="{{CheckoutCartProductSection.addToNewRequisitionListModalButton}}" stepKey="saveNewRequisitionList"/>
+        <waitForPageLoad stepKey="waitForCartItemToBeAddedToTheRequisitionList"/>
+        <waitForText selector="{{StorefrontMessagesSection.success}}" userInput='{{product.name}} has been added to the "{{requisitionListName}}" requisition list.' stepKey="seeSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

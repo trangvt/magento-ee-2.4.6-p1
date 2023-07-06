@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" extends="StorefrontNavigateToMyPurchaseOrdersPageActionGroup">
+        <annotations>
+            <description>Navigates to the user's My Purchase Orders page and select Purchase Orders that require my approval on the storefront using the UI. Must be within a user's Account Details on storefront.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderGridSection.purchaseOrderGridTab('approval')}}" stepKey="waitForApprovalPurchaseOrdersTab" after="seePageTitle"/>
+        <comment userInput="BIC workaround: unify step key name for inherited action group" stepKey="selectApprovalPurchaseOrdersTab" after="waitForApprovalPurchaseOrdersTab"/>
+        <click selector="{{StorefrontPurchaseOrderGridSection.purchaseOrderGridTab('approval')}}" stepKey="selectPurchaseOrdersTab" after="selectApprovalPurchaseOrdersTab"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderGridSection.purchaseOrderGrid('approval')}}" stepKey="waitForGrid"/>
+    </actionGroup>
+</actionGroups>

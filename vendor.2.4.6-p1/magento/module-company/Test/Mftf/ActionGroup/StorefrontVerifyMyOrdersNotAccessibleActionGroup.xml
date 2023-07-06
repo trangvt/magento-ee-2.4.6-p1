@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontVerifyMyOrdersNotAccessibleActionGroup">
+        <annotations>
+            <description>Verifies my orders link on the sidebar and recent orders widgets are not accessible on the storefront. Must be on my account page</description>
+        </annotations>
+        <waitForElementNotVisible selector="{{StorefrontCustomerSidebarSection.sidebarTab('My Orders')}}" stepKey="waitForMyOrdersLinkNotVisible"/>
+        <waitForElementNotVisible selector="{{StorefrontCustomerResentOrdersSection.blockResentOrders}}" stepKey="waitForRecentOrdersNotVisible"/>
+    </actionGroup>
+</actionGroups>

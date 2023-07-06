@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontQuickOrderPartialSearchTest">
+        <annotations>
+            <features value="Quick Order"/>
+            <stories value="Quick Order partial search"/>
+            <title value="Storefront quick order partial search"/>
+            <description value="Quick order autocomplete suggestion is not coming as expected"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-41554"/>
+            <useCaseId value="MC-41283"/>
+            <group value="quickOrder"/>
+        </annotations>
+        <before>
+            <!-- Enable Quick order functionality -->
+            <createData entity="B2BEnabledQuickOrderConfig" stepKey="enabledQuickOrderConfig"/>
+            <!-- Create a product -->
+            <createData entity="SimpleProduct2" stepKey="createProduct"/>
+        </before>
+        <after>
+            <!-- Set b2b config to default-->
+            <createData entity="B2BDefaultConfig" stepKey="defaultB2BConfig"/>
+            <!-- Delete created data-->
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+        </after>
+
+        <!-- Go to Quick order and enter the product-->
+        <amOnPage url="{{StorefrontQuickOrderPage.url}}" stepKey="goQuickOrderPage"/>
+        <see selector="{{StorefrontQuickOrderSection.skuOrNameTitle}}" userInput="Enter SKU or search by Product Name" stepKey="assertTitle"/>
+        <!-- Check that product is founded by partial search by SKU -->
+        <actionGroup ref="StorefrontQuickOrderPartialSearchActionGroup" stepKey="quickOrderPartialSearch">
+            <argument name="productSku" value="$createProduct.sku$"/>
+            <argument name="productName" value="$createProduct.name$"/>
+        </actionGroup>
+    </test>
+</tests>

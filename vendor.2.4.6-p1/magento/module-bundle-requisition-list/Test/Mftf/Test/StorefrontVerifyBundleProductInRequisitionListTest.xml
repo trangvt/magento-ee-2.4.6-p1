@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyBundleProductInRequisitionListTest">
+        <annotations>
+            <features value="Bundle"/>
+            <stories value="Verify Updating Bundle Product In The Requisition List Leads No Error"/>
+            <title value="Verify Updating Bundle Product In The Requisition List Leads No Error"/>
+            <description value="Verify Customer Can Update Bundle Product In The Requisition List Successfully"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-39917"/>
+            <useCaseId value="MC-39580"/>
+            <group value="bundleRequisitionList"/>
+        </annotations>
+        <before>
+            <!--Enable Requisition Config Setting -->
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <!--Step1. Create new customer, new category and two simple products-->
+            <createData entity="Simple_US_Customer_CA" stepKey="createCustomer"/>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct2" stepKey="simpleProduct1">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <!--Step2. Create bundle product page-->
+            <createData entity="FixedBundleProductCustomDescription" stepKey="createFixedBundle"/>
+            <createData entity="DropDownBundleOption" stepKey="fixedBundleOption">
+                <requiredEntity createDataKey="createFixedBundle"/>
+            </createData>
+            <createData entity="ApiBundleLink" stepKey="createFixedBundleLink">
+                <requiredEntity createDataKey="createFixedBundle"/>
+                <requiredEntity createDataKey="fixedBundleOption"/>
+                <requiredEntity createDataKey="simpleProduct1"/>
+            </createData>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value="cataloginventory_stock catalog_product_price"/>
+            </actionGroup>
+            <!--Step3. Login as Admin-->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="login"/>
+        </before>
+        <after>
+            <!--Step10. Logout from customer account-->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <!--Step11. Enable Default Requisition Config -->
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <!--Step12. Delete Customers, category and products-->
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="simpleProduct1" stepKey="deleteSimpleProduct1"/>
+            <deleteData createDataKey="createFixedBundle" stepKey="deleteFixedBundleProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <!--Step13. Clear admin filters-->
+            <actionGroup ref="AdminClearFiltersActionGroup" stepKey="clearFiltersAfter"/>
+            <!--Step14. Logout from admin-->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <!--Step4. Sign in by created Customer to Storefront-->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCustomerOnStorefront">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <!--Step5. Go to storefront bundle product-->
+        <actionGroup ref="StorefrontOpenHomePageActionGroup" stepKey="goToHomePage"/>
+        <actionGroup ref="StorefrontCheckQuickSearchStringActionGroup" stepKey="quickSearchBundleProduct">
+            <argument name="phrase" value="$$createFixedBundle.name$$"/>
+        </actionGroup>
+        <click selector="{{StorefrontCategoryMainSection.productLink}}" stepKey="openSearchedProduct"/>
+        <waitForPageLoad stepKey="waitForStorefront"/>
+        <!--Step6. Add bundle product to the cart-->
+        <actionGroup ref="StorefrontSelectCustomizeAndAddToTheCartButtonActionGroup" stepKey="clickOnCustomizeAndAddToCartButton"/>
+        <actionGroup ref="StorefrontEnterProductQuantityAndAddToTheCartActionGroup" stepKey="enterProductQuantityAndAddToTheCart">
+            <argument name="quantity" value="1"/>
+        </actionGroup>
+        <!--Step7. Create a requisition list and add bundle product to a new requisition list-->
+        <actionGroup ref="StorefrontOpenHomePageActionGroup" stepKey="goToHomePageAgain"/>
+        <actionGroup ref="StorefrontCheckQuickSearchStringActionGroup" stepKey="quickSearchBundleProductAgain">
+            <argument name="phrase" value="$$createFixedBundle.name$$"/>
+        </actionGroup>
+        <click selector="{{StorefrontCategoryMainSection.productLink}}" stepKey="openSearchedProductAgain"/>
+        <waitForPageLoad stepKey="waitForStorefront2"/>
+        <actionGroup ref="StorefrontCreateRequisitionListForBundleProductActionGroup" stepKey="createRequisitionList">
+            <argument name="requisitionList" value="$$createFixedBundle$$"/>
+            <argument name="product" value="$$createFixedBundle$$"/>
+        </actionGroup>
+        <!--Step8. Assert product in requisition list page-->
+        <amOnPage url="{{StorefrontRequisitionListIndexPage.url}}" stepKey="goToRequisitionListsPage"/>
+        <waitForPageLoad stepKey="waitForRequisitionListsIndexPageLoad"/>
+        <actionGroup ref="StorefrontClickViewRequisitionListActionGroup" stepKey="viewRequisitionList">
+            <argument name="requisitionList" value="$$createFixedBundle$$"/>
+        </actionGroup>
+        <!--Step9. Verify edit bundle product successfully load the page-->
+        <actionGroup ref="StorefrontVerifyRequisitionListForBundleProductEditPageLoadActionGroup" stepKey="verifyEditRequisitionListLoadSuccessfully">
+            <argument name="product" value="$$createFixedBundle$$"/>
+        </actionGroup>
+    </test>
+</tests>

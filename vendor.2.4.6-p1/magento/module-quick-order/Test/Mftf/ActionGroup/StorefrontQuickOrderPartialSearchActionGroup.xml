@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontQuickOrderPartialSearchActionGroup">
+        <annotations>
+            <description>Check that product is founded by partial search</description>
+        </annotations>
+        <arguments>
+            <argument name="productSku" type="string"/>
+            <argument name="productName" type="string"/>
+            <argument name="index" defaultValue="1" type="string"/>
+        </arguments>
+
+        <!--Enter the product name-->
+        <clearField selector="{{StorefrontQuickOrderSection.enterSkuOrProductName}}" stepKey="cleaProductFieldSearch"/>
+        <fillField selector="{{StorefrontQuickOrderSection.enterSkuOrProductName}}" userInput="{{productSku}}" stepKey="setProductSku"/>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.firstFromListOfResults}}" stepKey="waitForFirstFromListOfResultsVisible"/>
+        <click selector="{{StorefrontQuickOrderSection.firstFromListOfResults}}" stepKey="clickFirstFromListOfResults"/>
+        <click selector="{{StorefrontQuickOrderSection.Qty}}" stepKey="clickToQty"/>
+        <waitForText selector="{{StorefrontQuickOrderSection.productNameByIndex(index)}}" userInput="{{productName}}" stepKey="waitForProductName"/>
+    </actionGroup>
+</actionGroups>

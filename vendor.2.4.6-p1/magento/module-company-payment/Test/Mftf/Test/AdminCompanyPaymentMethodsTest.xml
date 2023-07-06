@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCompanyPaymentMethodsTest">
+        <annotations>
+            <features value="Company Payment"/>
+            <stories value="Payment Methods"/>
+            <title value="Verify Company Payment Methods Configuration"/>
+            <description value="Verify that a merchant can set Payment methods for the store, for B2B, and for a
+            specific company. Verify storefront respects configuration settings"/>
+            <severity value="BLOCKER"/>
+            <group value="company"/>
+            <group value="company-payment"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies, Cash on Delivery, Bank Transfer, Purchase Order, & PayPal Express -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{CashOnDeliveryEnableConfigData.path}} {{CashOnDeliveryEnableConfigData.value}}" stepKey="enableCashOnDeliveryPaymentMethod"/>
+            <magentoCLI command="config:set {{BankTransferEnableConfigData.path}} {{BankTransferEnableConfigData.value}}" stepKey="enableBankTransferPaymentMethod"/>
+            <magentoCLI command="config:set {{PurchaseOrderEnableConfigData.path}} {{PurchaseOrderEnableConfigData.value}}" stepKey="enablePurchaseOrderPaymentMethod"/>
+            <magentoCLI command="config:set payment/wps_express/active 1" stepKey="enableWPSExpress"/>
+
+            <!-- Create Company Admin & 1 Product -->
+            <createData entity="CompanyAdminUser" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <createData entity="SimpleSubCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableCashOnDeliveryPaymentMethod.path}} {{DisableCashOnDeliveryPaymentMethod.value}}" stepKey="disableCashOnDeliveryPaymentMethod"/>
+            <magentoCLI command="config:set {{BankTransferDisabledConfigData.path}} {{BankTransferDisabledConfigData.value}}" stepKey="disableBankTransferPaymentMethod"/>
+            <magentoCLI command="config:set {{PurchaseOrderDisabledConfigData.path}} {{PurchaseOrderDisabledConfigData.value}}" stepKey="disablePurchaseOrderPaymentMethod"/>
+            <magentoCLI command="config:set payment/wps_express/active 0" stepKey="disableWPSExpress"/>
+            <magentoCLI command="config:set {{DisableSpecificPaymentMethod.path}} {{DisableSpecificPaymentMethod.value}}" stepKey="disableSpecificPaymentMethod"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogout"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+        </after>
+
+        <!-- Go To B2B Payment Methods Configuration -->
+        <actionGroup ref="AdminGoToExpandedB2BConfigPageActionGroup" stepKey="goToB2BPaymentMethodsConfigPage"/>
+
+        <!-- Confirm Default B2B Payment Configuration -->
+        <waitForElementVisible selector="{{AdminB2BConfigSection.applicablePaymentMethods}}" stepKey="waitForApplicablePaymentMethods"/>
+        <waitForElementVisible selector="{{AdminB2BConfigSection.availablePaymentMethodsDisabled}}" stepKey="waitForAvailablePaymentMethodsDisabled"/>
+        <seeInField selector="{{AdminB2BConfigSection.applicablePaymentMethods}}" userInput="All Payment Methods" stepKey="seeAllPaymentMethods"/>
+
+        <!-- Select Bank Transfer Payment, Cash On Delivery, Check / Money order, Credit Card (Payflow Link) (disabled) -->
+        <selectOption selector="{{AdminB2BConfigSection.applicablePaymentMethods}}" userInput="Selected Payment Methods" stepKey="selectSelectedPaymentMethods"/>
+        <dontSeeElementInDOM selector="{{AdminB2BConfigSection.availablePaymentMethodsDisabled}}" stepKey="dontSeePaymentMethodsDisabled"/>
+        <selectOption selector="{{AdminB2BConfigSection.availablePaymentMethods}}" parameterArray="[Bank Transfer Payment, Cash On Delivery, Check / Money order, Credit Card (Payflow Link) (disabled), PayPal Express Checkout]" stepKey="selectPaymentMethods"/>
+        <actionGroup ref="AdminSaveConfigActionGroup" stepKey="saveStoreConfiguration"/>
+
+        <!-- Go To Company Edit Page -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$createCompany.id$"/>
+            <argument name="companyName" value="$createCompany.company_name$"/>
+        </actionGroup>
+        <actionGroup ref="AdminExpandCompanyAdvancedSettingsSectionActionGroup" stepKey="expandCompanyAdvancedSettingsSection"/>
+
+        <!-- Confirm Default Company Payment Configuration -->
+        <waitForElementVisible selector="{{AdminCompanyEditSection.applicablePaymentMethodsCheckBox}}" stepKey="waitForPaymentMethodsCheckbox"/>
+        <seeCheckboxIsChecked selector="{{AdminCompanyEditSection.applicablePaymentMethodsCheckBox}}" stepKey="seePaymentMethodsCheckboxIsChecked"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.applicablePaymentMethodsDisabled}}" stepKey="waitForApplicablePaymentMethodsDisabled"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.availablePaymentMethodsDisabled}}" stepKey="waitForAvailablePaymentMethodsDisabled2"/>
+        <seeInField selector="{{AdminCompanyEditSection.applicablePaymentMethods}}" userInput="B2B Payment Methods" stepKey="seeB2BPaymentMethods"/>
+
+        <!-- Uncheck Use Config Settings -->
+        <uncheckOption selector="{{AdminCompanyEditSection.applicablePaymentMethodsCheckBox}}" stepKey="uncheckPaymentMethodsCheckbox"/>
+        <dontSeeElementInDOM selector="{{AdminCompanyEditSection.applicablePaymentMethodsDisabled}}" stepKey="dontSeeApplicablePaymentMethodsDisabled"/>
+        <seeElement selector="{{AdminCompanyEditSection.availablePaymentMethodsDisabled}}" stepKey="stillSeeAvailablePaymentMethodsDisabled"/>
+
+        <!-- Select All Enabled Payment Settings -->
+        <selectOption selector="{{AdminCompanyEditSection.applicablePaymentMethods}}" userInput="All Enabled Payment Methods" stepKey="selectAllEnabledPaymentMethods"/>
+        <seeElement selector="{{AdminCompanyEditSection.availablePaymentMethodsDisabled}}" stepKey="stillSeeAvailablePaymentMethodsDisabled2"/>
+
+        <!-- Select Selected Payment Settings -->
+        <selectOption selector="{{AdminCompanyEditSection.applicablePaymentMethods}}" userInput="Selected Payment Methods" stepKey="selectSelectedPaymentMethods2"/>
+        <dontSeeElementInDOM selector="{{AdminCompanyEditSection.availablePaymentMethodsDisabled}}" stepKey="dontSeeAvailablePaymentMethodsDisabled"/>
+
+        <!-- Verify Available Payment Methods is Required and Can't Save Company -->
+        <selectOption selector="{{AdminCompanyEditSection.availablePaymentMethods}}" userInput="Check / Money order" stepKey="selectCheckMoPayment"/>
+        <unselectOption selector="{{AdminCompanyEditSection.availablePaymentMethods}}" userInput="Check / Money order" stepKey="unselectCheckMoPayment"/>
+        <waitForText selector="{{AdminCompanyEditSection.availablePaymentMethodsRequiredMessage}}" userInput="This is a required field." stepKey="waitForRequiredFieldError"/>
+        <scrollToTopOfPage stepKey="scrollToTopOfPage"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.saveButton}}" stepKey="waitForSaveButton"/>
+        <click selector="{{AdminCompanyEditSection.saveButton}}" stepKey="clickSaveButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <!-- Select Cash On Delivery and PayPal Express Checkout and Save -->
+        <selectOption selector="{{AdminCompanyEditSection.availablePaymentMethods}}" parameterArray="[Cash On Delivery, PayPal Express Checkout]" stepKey="selectCashOnDeliverAndPaypal"/>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+
+        <!-- Go to Checkout Payment Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCustomer">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="goToProductPage">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProductToCart"/>
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+
+        <!-- Verify Only Cash on Delivery & PayPal Express Are Available -->
+        <waitForElementVisible selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Cash On Delivery')}}" stepKey="waitForCashOnDelivery"/>
+        <click selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Cash On Delivery')}}" stepKey="openCashOnDelivery"/>
+        <waitForElementVisible selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('PayPal Express Checkout')}}" stepKey="waitForWPSExpress"/>
+        <waitForPageLoad stepKey="waitForPageLoadBeforeSelectPaypal" />
+        <click selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('PayPal Express Checkout')}}" stepKey="openWPSExpress"/>
+        <dontSeeElementInDOM selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Check / Money order')}}" stepKey="checkIfCheckMoIsNotVisible"/>
+        <dontSeeElementInDOM selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Bank Transfer Payment')}}" stepKey="checkIfBankTransferPaymentIsNotVisible"/>
+        <dontSeeElementInDOM selector="{{StorefrontCheckoutPaymentMethodSection.checkPaymentMethodByName('Purchase Order')}}" stepKey="checkIfPurchaseOrderIsNotVisible"/>
+    </test>
+</tests>

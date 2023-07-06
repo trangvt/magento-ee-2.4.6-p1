@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminMultiWebsiteOrderBySKUWithQuickOrderEnabledTest">
+        <annotations>
+            <features value="Quick Order"/>
+            <title value="Admin create order by SKU in second website with Quick Order Enabled"/>
+            <stories value="Create order by SKU on second website with Quick Order Enabled"/>
+            <testCaseId value="AC-2491"/>
+            <useCaseId value="ACP2E-554"/>
+            <severity value="MAJOR"/>
+            <description value="Admin create order by SKU using second website with Quick order enabled should get appropriate response"/>
+            <group value="quickOrder"/>
+        </annotations>
+        <before>
+            <!-- Enable Quick order functionality -->
+            <createData entity="B2BEnabledQuickOrderConfig" stepKey="enabledQuickOrderConfig"/>
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="login"/>
+
+            <!-- Create product -->
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct"/>
+
+            <!-- Create new website, store and store view -->
+            <actionGroup ref="AdminSystemStoreOpenPageActionGroup" stepKey="goToAdminSystemStorePage"/>
+            <actionGroup ref="AdminCreateWebsiteActionGroup" stepKey="adminCreateNewWebsite">
+                <argument name="newWebsiteName" value="{{customWebsite.name}}"/>
+                <argument name="websiteCode" value="{{customWebsite.code}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateNewStoreGroupActionGroup" stepKey="adminCreateNewStore">
+                <argument name="website" value="{{customWebsite.name}}"/>
+                <argument name="storeGroupName" value="{{customStoreGroup.name}}"/>
+                <argument name="storeGroupCode" value="{{customStoreGroup.code}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="adminCreateNewStoreView">
+                <argument name="StoreGroup" value="customStoreGroup"/>
+                <argument name="customStore" value="customStore"/>
+            </actionGroup>
+
+            <!-- Create customer -->
+            <actionGroup ref="AdminCreateCustomerWithWebSiteAndGroupActionGroup" stepKey="createCustomer">
+                <argument name="website" value="{{customWebsite.name}}"/>
+                <argument name="storeView" value="{{customStore.name}}"/>
+            </actionGroup>
+
+            <magentoCLI command="config:set --scope=websites --scope-code={{customWebsite.code}} btob/website_configuration/quickorder_active 0"
+                        stepKey="enableQuickOrderForSecondWebsite" after="createCustomer"/>
+        </before>
+        <after>
+            <!-- Delete product -->
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+
+            <!-- Delete customer -->
+            <actionGroup ref="AdminDeleteCustomerActionGroup" stepKey="deleteCustomer">
+                <argument name="customerEmail" value="Simple_US_Customer.email"/>
+            </actionGroup>
+
+            <!-- Delete test website -->
+            <actionGroup ref="AdminDeleteWebsiteActionGroup" stepKey="deleteTestWebsite">
+                <argument name="websiteName" value="{{customWebsite.name}}"/>
+            </actionGroup>
+
+            <!-- Log out of admin -->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+
+            <createData entity="B2BDefaultConfig" stepKey="defaultB2BConfig"/>
+        </after>
+
+        <!-- Open Create New Order page -->
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="navigateToNewOrderPageWithExistingCustomer">
+            <argument name="customer" value="Simple_US_Customer"/>
+            <argument name="storeView" value="customStore"/>
+        </actionGroup>
+
+        <!-- Adding product to order for existing customer -->
+
+        <!-- Add Product to Order by Sku -->
+        <actionGroup ref="AdminAddProductToOrderBySKU" stepKey="addProductToOrderBySku">
+            <argument name="productSKU" value="$$createSimpleProduct.sku$$"/>
+            <argument name="productNumber" value="0"/>
+        </actionGroup>
+
+        <!-- Added product to order for existing customer -->
+
+        <!-- Validate and confirm error message -->
+        <see selector="{{AdminMessagesSection.noticeMessage}}" after="addProductToOrderBySku" userInput="This product is assigned to another website." stepKey="seeErrorMessage"/>
+    </test>
+</tests>

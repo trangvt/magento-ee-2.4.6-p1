@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontSharedCatalogExcludeWebsitesLoginPerWebsiteTest">
+        <annotations>
+            <features value="SharedCatalog"/>
+            <stories value="Shared Catalog"/>
+            <title value="Exclude websites from Shared Catalog"/>
+            <description value="Verify that Shared Catalog configuration Excluded Websites based on store_id assigned. (Customer Accounts Sharing is per Website)"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-41140"/>
+            <group value="b2b"/>
+            <group value="sharedCatalog"/>
+            <group value="multi-website"/>
+        </annotations>
+
+        <before>
+            <!-- Login to Admin Panel -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
+
+            <!-- Enable Shared Catalog and Companies -->
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Disable Global customer login -->
+            <magentoCLI command="config:set {{CustomerAccountShareGlobalConfigData.path}} {{CustomerAccountShareWebsiteConfigData.value}}" stepKey="shareCustomerAccountsDisable"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+
+            <!-- Create Customer For Main Website -->
+            <createData entity="CustomerEntityOne" stepKey="createCustomerMain"/>
+
+            <!-- Create Customer for US Website -->
+            <createData entity="Simple_Customer_Without_Address" stepKey="createCustomerUS"/>
+
+            <!-- Create Category and Products -->
+            <createData entity="_defaultCategory" stepKey="createCategoryMain"/>
+            <createData entity="SimpleProduct" stepKey="createProductMain">
+                <requiredEntity createDataKey="createCategoryMain"/>
+            </createData>
+            <createData entity="NewRootCategory" stepKey="createCategoryUS"/>
+            <createData entity="SimpleRootSubCategory" stepKey="createSubCategoryUS">
+                <requiredEntity createDataKey="createCategoryUS"/>
+            </createData>
+            <createData entity="SimpleProduct2" stepKey="createProductUS">
+                <requiredEntity createDataKey="createSubCategoryUS"/>
+            </createData>
+            <createData entity="SimpleProduct3" stepKey="createProductPublic">
+                <requiredEntity createDataKey="createCategoryMain"/>
+                <requiredEntity createDataKey="createSubCategoryUS"/>
+            </createData>
+            <createData entity="SimpleProduct3" stepKey="createProductBoth">
+                <requiredEntity createDataKey="createCategoryMain"/>
+                <requiredEntity createDataKey="createSubCategoryUS"/>
+            </createData>
+
+            <!-- Create Website, Store, & Store View -->
+            <actionGroup ref="AdminCreateWebsiteActionGroup" stepKey="createWebsiteUS">
+                <argument name="newWebsiteName" value="{{customWebsite.name}}"/>
+                <argument name="websiteCode" value="{{customWebsite.code}}"/>
+            </actionGroup>
+
+            <actionGroup ref="CreateCustomStoreActionGroup" stepKey="createStore">
+                <argument name="website" value="{{customWebsite.name}}"/>
+                <argument name="store" value="{{customStoreEN.name}}"/>
+                <argument name="rootCategory" value="$$createCategoryUS.name$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createStoreView">
+                <argument name="StoreGroup" value="customStoreEN"/>
+                <argument name="customStore" value="NewStoreViewData"/>
+            </actionGroup>
+
+            <!--Create US SharedCatalog-->
+            <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="amOnSharedCatalogsGridPage"/>
+            <actionGroup ref="AdminCreateSharedCatalogActionGroup" stepKey="createNewSharedCatalogUS">
+                <argument name="sharedCatalogName" value="{{SharedCatalogUS.name}}"/>
+            </actionGroup>
+
+            <!--Create Main SharedCatalog-->
+            <actionGroup ref="AdminCreateSharedCatalogActionGroup" stepKey="createNewSharedCatalogMain">
+                <argument name="sharedCatalogName" value="{{SharedCatalogMain.name}}"/>
+            </actionGroup>
+
+            <!-- Add Store Codes to URLs -->
+            <magentoCLI command="config:set {{StorefrontEnableAddStoreCodeToUrls.path}} {{StorefrontEnableAddStoreCodeToUrls.value}}" stepKey="enableAddStoreCodeToUrls"/>
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache2">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{StorefrontDisableAddStoreCodeToUrls.path}} {{StorefrontDisableAddStoreCodeToUrls.value}}" stepKey="disableAddStoreCodeToUrls"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+            <deleteData createDataKey="createCustomerMain" stepKey="deleteCustomerMain"/>
+            <deleteData createDataKey="createCustomerUS" stepKey="deleteCustomerUS"/>
+            <deleteData createDataKey="createProductUS" stepKey="deleteProductUS"/>
+            <deleteData createDataKey="createProductMain" stepKey="deleteProductMain"/>
+            <deleteData createDataKey="createProductBoth" stepKey="deleteProductBoth"/>
+            <deleteData createDataKey="createProductPublic" stepKey="deleteProductPublic"/>
+
+            <!-- Delete US Shared Catalog -->
+            <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="goToAdminSharedCatalogIndexPageUS"/>
+            <comment userInput="BIC workaround" stepKey="waitForAdminSharedCatalogIndexPageLoadedUS"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetFilters"/>
+            <comment userInput="BIC workaround" stepKey="openFiltersSectionOnSharedCatalogIndexPageUS"/>
+            <comment userInput="BIC workaround" stepKey="cleanFiltersIfTheySetUS"/>
+            <comment userInput="BIC workaround" stepKey="fillNameFieldOnFiltersSectionUS"/>
+            <comment userInput="BIC workaround" stepKey="clickApplyFiltersButtonUS"/>
+            <comment userInput="BIC workaround" stepKey="seeSelectButtonSharedCatalogUS"/>
+            <comment userInput="BIC workaround" stepKey="clickSelectButtonSharedCatalogUS"/>
+            <comment userInput="BIC workaround" stepKey="clickDeleteActionUS"/>
+            <comment userInput="BIC workaround" stepKey="confirmDeleteSharedCatalogUS"/>
+            <comment userInput="BIC workaround" stepKey="seeSuccessMessageUS"/>
+            <actionGroup ref="AdminDeleteSharedCatalogActionGroup" stepKey="deleteSharedCatalogUS">
+                <argument name="sharedCatalogName" value="{{SharedCatalogUS.name}}"/>
+            </actionGroup>
+
+            <!-- Delete Main Shared Catalog -->
+            <comment userInput="BIC workaround" stepKey="goToAdminSharedCatalogIndexPageMain"/>
+            <comment userInput="BIC workaround" stepKey="waitForAdminSharedCatalogIndexPageLoadedMain"/>
+            <comment userInput="BIC workaround" stepKey="openFiltersSectionOnSharedCatalogIndexPageMain"/>
+            <comment userInput="BIC workaround" stepKey="cleanFiltersIfTheySetMain"/>
+            <comment userInput="BIC workaround" stepKey="fillNameFieldOnFiltersSectionMain"/>
+            <comment userInput="BIC workaround" stepKey="clickApplyFiltersButtonMain"/>
+            <comment userInput="BIC workaround" stepKey="seeSelectButtonSharedCatalogMain"/>
+            <comment userInput="BIC workaround" stepKey="clickSelectButtonSharedCatalogMain"/>
+            <comment userInput="BIC workaround" stepKey="clickDeleteActionMain"/>
+            <comment userInput="BIC workaround" stepKey="confirmDeleteSharedCatalogMain"/>
+            <comment userInput="BIC workaround" stepKey="seeSuccessMessageMain"/>
+            <actionGroup ref="AdminDeleteSharedCatalogActionGroup" stepKey="deleteSharedCatalogMain">
+                <argument name="sharedCatalogName" value="{{SharedCatalogMain.name}}"/>
+            </actionGroup>
+
+            <actionGroup ref="DeleteCustomWebsiteActionGroup" stepKey="deleteStoreUS">
+                <argument name="websiteName" value="customWebsite.name"/>
+            </actionGroup>
+            <deleteData createDataKey="createCategoryUS" stepKey="deleteCategoryUS"/>
+            <deleteData createDataKey="createCategoryMain" stepKey="deleteCategoryMain"/>
+
+            <!-- Discard settings for Customer -->
+            <createData entity="CustomerAccountSharingDefault" stepKey="setConfigCustomerAccountDefault"/>
+
+            <!-- Logout from Admin -->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdmin"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache2">
+                <argument name="tags" value="full_page"/>
+            </actionGroup>
+        </after>
+
+        <!-- Assign ProductUS to US Website-->
+        <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="openSimpleProductEditPage">
+            <argument name="productId" value="$createProductUS.id$"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForProductPageUS"/>
+        <actionGroup ref="AdminAssignCategoryToProductAndSaveActionGroup" stepKey="assignProductUS">
+            <argument name="categoryName" value="$$createSubCategoryUS.name$$"/>
+        </actionGroup>
+        <actionGroup ref="SelectProductInWebsitesActionGroup" stepKey="selectWebsiteForProductUS">
+            <argument name="website" value="{{customWebsite.name}}"/>
+        </actionGroup>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProductUS"/>
+
+        <!-- Assign ProductBoth to US Website-->
+        <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="openSimpleProductEditPageBoth">
+            <argument name="productId" value="$createProductBoth.id$"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForProductPageBoth"/>
+        <actionGroup ref="AdminAssignCategoryToProductAndSaveActionGroup" stepKey="assignProductBoth">
+            <argument name="categoryName" value="$$createSubCategoryUS.name$$"/>
+        </actionGroup>
+        <actionGroup ref="SelectProductInWebsitesActionGroup" stepKey="selectWebsiteForProductBoth">
+            <argument name="website" value="{{customWebsite.name}}"/>
+        </actionGroup>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProductBoth"/>
+
+        <!-- Assign ProductPublic to US Website-->
+        <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="openSimpleProductEditPagePublic">
+            <argument name="productId" value="$createProductPublic.id$"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForProductPagePublic"/>
+        <actionGroup ref="AdminAssignCategoryToProductAndSaveActionGroup" stepKey="assignProductPublic">
+            <argument name="categoryName" value="$$createSubCategoryUS.name$$"/>
+        </actionGroup>
+        <actionGroup ref="SelectProductInWebsitesActionGroup" stepKey="selectWebsiteForProductPublic">
+            <argument name="website" value="{{customWebsite.name}}"/>
+        </actionGroup>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProductPublic"/>
+
+        <!-- Configure Default Shared Catalog -->
+        <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="amOnSharedCatalogsGridPageDefault"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="sharedCatalogResetFilterDefault"/>
+        <actionGroup ref="AdminFilterSharedCatalogByNameActionGroup" stepKey="filterSharedCatalogDefault">
+            <argument name="sharedCatalogName" value="Default (General)"/>
+        </actionGroup>
+        <click selector="{{AdminSharedCatalogsSection.select}}" stepKey="clickSelectButtonDefault"/>
+        <click selector="{{AdminSharedCatalogsSection.setPricingAndStructure}}" stepKey="clickOnSetPricingAndStructureItemDefault"/>
+        <click selector="{{AdminSharedCatalogCatalogStructureSection.configureButton}}" stepKey="clickOnConfigureButtonDefault"/>
+
+        <!-- Configure products for Default Shared Catalog-->
+        <actionGroup ref="AdminSharedCatalogFilterProductsOnGridActionGroup" stepKey="filterProductsOnGridDefault">
+            <argument name="productName" value="$createProductPublic.name$"/>
+        </actionGroup>
+
+        <click selector="{{AdminSharedCatalogsSection.multiCheckForProductsAndCatalog}}" stepKey="clickMultiCheckDefault"/>
+        <click selector="{{AdminSharedCatalogsSection.selectAllForProductsAndCatalog}}" stepKey="clickSelectAllDefault"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetProductFilterDefault"/>
+
+        <click selector="{{AdminSharedCatalogCatalogStructureSection.nextButton}}" stepKey="clickNextButtonDefault"/>
+        <actionGroup ref="AdminClickGenerateCatalogInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="generateCatalogDefault"/>
+        <actionGroup ref="AdminSaveSharedCatalogSetPricingAndStructureActionGroup" stepKey="clickSaveDefault"/>
+
+        <!-- Configure Main Shared Catalog -->
+        <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="amOnSharedCatalogsGridPageMain"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="sharedCatalogResetFilterMain"/>
+        <actionGroup ref="AdminFilterSharedCatalogByNameActionGroup" stepKey="filterSharedCatalogMain">
+            <argument name="sharedCatalogName" value="{{SharedCatalogMain.name}}"/>
+        </actionGroup>
+        <click selector="{{AdminSharedCatalogsSection.select}}" stepKey="clickSelectButtonMain"/>
+        <click selector="{{AdminSharedCatalogsSection.setPricingAndStructure}}" stepKey="clickOnSetPricingAndStructureItemMain"/>
+        <click selector="{{AdminSharedCatalogCatalogStructureSection.configureButton}}" stepKey="clickOnConfigureButtonMain"/>
+
+        <!-- Select store_id for Main Shared Catalog-->
+        <click selector="{{AdminB2BConfigSection.allStores}}" stepKey="clickAllStoresMain"/>
+        <click selector="{{AdminB2BConfigSection.chooseStore('Main Website Store')}}" stepKey="choseStoreMain"/>
+        <waitForPageLoad stepKey="waitForPageLoadMain"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForSpinnerMain"/>
+
+        <!-- Configure products for Main Shared Catalog-->
+        <actionGroup ref="AdminSharedCatalogFilterProductsOnGridActionGroup" stepKey="filterProductsOnGridMain">
+            <argument name="productName" value="$createProductMain.name$"/>
+        </actionGroup>
+
+        <click selector="{{AdminSharedCatalogsSection.multiCheckForProductsAndCatalog}}" stepKey="clickMultiCheckMain"/>
+        <click selector="{{AdminSharedCatalogsSection.selectAllForProductsAndCatalog}}" stepKey="clickSelectAllMain"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetProductFilterMain"/>
+
+        <!-- Add ProductBoth to Main Shared Catalog-->
+        <actionGroup ref="AdminSharedCatalogFilterProductsOnGridActionGroup" stepKey="filterProductsOnGridMain2">
+            <argument name="productName" value="$createProductBoth.name$"/>
+        </actionGroup>
+        <click selector="{{AdminSharedCatalogsSection.multiCheckForProductsAndCatalog}}" stepKey="clickMultiCheckMain2"/>
+        <click selector="{{AdminSharedCatalogsSection.selectAllForProductsAndCatalog}}" stepKey="clickSelectAllMain2"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetProductFilterMain2"/>
+
+        <!-- Continue to generate Pricing and Structure -->
+        <click selector="{{AdminSharedCatalogCatalogStructureSection.nextButton}}" stepKey="clickNextButtonMain"/>
+        <actionGroup ref="AdminClickGenerateCatalogInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="generateCatalogMain"/>
+        <actionGroup ref="AdminSaveSharedCatalogSetPricingAndStructureActionGroup" stepKey="clickSaveMain"/>
+
+        <!-- Configure US Shared Catalog -->
+        <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="amOnSharedCatalogsGridPageUS"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="sharedCatalogResetFilterUS"/>
+        <actionGroup ref="AdminFilterSharedCatalogByNameActionGroup" stepKey="filterSharedCatalogUS">
+            <argument name="sharedCatalogName" value="{{SharedCatalogUS.name}}"/>
+        </actionGroup>
+        <click selector="{{AdminSharedCatalogsSection.select}}" stepKey="clickSelectButtonUS"/>
+        <click selector="{{AdminSharedCatalogsSection.setPricingAndStructure}}" stepKey="clickOnSetPricingAndStructureItemUS"/>
+        <click selector="{{AdminSharedCatalogCatalogStructureSection.configureButton}}" stepKey="clickOnConfigureButtonUS"/>
+
+        <!-- Select store_id for US Shared Catalog-->
+        <click selector="{{AdminB2BConfigSection.allStores}}" stepKey="clickAllStoresUS"/>
+        <click selector="{{AdminB2BConfigSection.chooseStore(customStoreEN.name)}}" stepKey="choseStoreUS"/>
+        <waitForPageLoad stepKey="waitForPageLoadUS"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForSpinnerUS"/>
+
+        <!-- Configure products for US Shared Catalog-->
+        <actionGroup ref="AdminSharedCatalogFilterProductsOnGridActionGroup" stepKey="filterProductsOnGridUS">
+            <argument name="productName" value="$createProductUS.name$"/>
+        </actionGroup>
+
+        <click selector="{{AdminSharedCatalogsSection.multiCheckForProductsAndCatalog}}" stepKey="clickMultiCheckUS"/>
+        <click selector="{{AdminSharedCatalogsSection.selectAllForProductsAndCatalog}}" stepKey="clickSelectAllUS"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetProductFilterUS"/>
+
+        <!-- Add ProductBoth to US Shared Catalog-->
+        <actionGroup ref="AdminSharedCatalogFilterProductsOnGridActionGroup" stepKey="filterProductsOnGridUS2">
+            <argument name="productName" value="$createProductBoth.name$"/>
+        </actionGroup>
+        <click selector="{{AdminSharedCatalogsSection.multiCheckForProductsAndCatalog}}" stepKey="clickMultiCheckUS2"/>
+        <click selector="{{AdminSharedCatalogsSection.selectAllForProductsAndCatalog}}" stepKey="clickSelectAllUS2"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetProductFilterUS2"/>
+
+        <!-- Continue to generate Pricing and Structure for US Shared Catalog -->
+        <click selector="{{AdminSharedCatalogCatalogStructureSection.nextButton}}" stepKey="clickNextButtonUS"/>
+        <actionGroup ref="AdminClickGenerateCatalogInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="generateCatalogUS"/>
+        <actionGroup ref="AdminSaveSharedCatalogSetPricingAndStructureActionGroup" stepKey="clickSaveUS"/>
+
+        <!-- Check that Default Shared Catalog don't have excluded websites -->
+        <amOnPage url="{{AdminEditCustomerGroupPage.url('1')}}" stepKey="goToEditCustomerGroupPage1"/>
+        <dontSeeElement selector="{{StoreFrontCustomerAdvancedAttributesSection.selectedOption('customer_group_excluded_website_ids')}}" stepKey="checkThatWebsiteIsNotExcluded"/>
+
+        <!-- Check that Main Shared Catalog have excluded websites -->
+        <actionGroup ref="AdminNavigateToCustomerGroupPageActionGroup" stepKey="goToCustomerGroupPageMain"/>
+        <click selector="//*[contains(@class,'data-grid-cell-content') and .='{{SharedCatalogMain.name}}']/ancestor::tr//button[contains(@class,'action-select')]" stepKey="clickSelectGroupButtonMain"/>
+        <click selector="//div[text()='{{SharedCatalogMain.name}}']/parent::td//following-sibling::td[@class='data-grid-actions-cell']//a[text()='Edit']"  stepKey="clickEditGroupActionMain"/>
+        <seeElement selector="{{StoreFrontCustomerAdvancedAttributesSection.selectedOption('customer_group_excluded_website_ids')}}" stepKey="checkThatWebsiteIsExcludedMain"/>
+
+        <!-- Get Main customer group id for customer assigment -->
+        <grabFromCurrentUrl regex="~/group/edit/id/(\d+)/~" stepKey="grabMainCustomerGroupIdFromURL"/>
+
+        <!-- Check that US Shared Catalog have excluded websites -->
+        <actionGroup ref="AdminNavigateToCustomerGroupPageActionGroup" stepKey="goToCustomerGroupPageUS"/>
+        <click selector="//*[contains(@class,'data-grid-cell-content') and .='{{SharedCatalogUS.name}}']/ancestor::tr//button[contains(@class,'action-select')]" stepKey="clickSelectGroupButtonUS"/>
+        <click selector="//div[text()='{{SharedCatalogUS.name}}']/parent::td//following-sibling::td[@class='data-grid-actions-cell']//a[text()='Edit']"  stepKey="clickEditGroupActionUS"/>
+
+        <!-- Get US customer group id for customer assigment -->
+        <grabFromCurrentUrl regex="~/group/edit/id/(\d+)/~" stepKey="grabUSCustomerGroupIdFromURL"/>
+
+        <!-- Get US Website id for customer assigment -->
+        <actionGroup ref="AdminGoCreatedWebsitePageActionGroup" stepKey="openWebsiteUSToGetId">
+            <argument name="websiteName" value="{{customWebsite.name}}"/>
+        </actionGroup>
+        <grabFromCurrentUrl regex="~/website_id/(\d+)/~" stepKey="grabUSWebsiteIdFromURL"/>
+
+        <!-- Configure Customer Main -->
+        <amOnPage url="{{AdminEditCustomerPage.url($$createCustomerMain.id$$)}}" stepKey="goToMainCustomerMembersGroupEditPage"/>
+        <waitForPageLoad stepKey="waitMainCustomerPageToLoad"/>
+        <actionGroup ref="AdminOpenAccountInformationTabFromCustomerEditPageActionGroup" stepKey="clickOnAccountInformationMain"/>
+        <selectOption selector="{{AdminCustomerAccountInformationSection.associateToWebsite}}" userInput="Main Website" stepKey="selectWebSiteMain"/>
+        <click selector="{{AdminCustomerAccountInformationSection.group}}" stepKey="ClickToExpandAccountInformationMain"/>
+        <waitForElement selector="{{AdminProductFormAdvancedPricingSection.productTierPriceGroupOrCatalogOption(SharedCatalogMain.name)}}" stepKey="waitForCustomerGroupExpandMain"/>
+        <click selector="{{AdminCustomerAccountInformationSection.groupValue(SharedCatalogMain.name)}}" stepKey="ClickToSelectCustomerGroupMain"/>
+        <click selector="{{AdminCustomerAccountInformationSection.saveCustomer}}" stepKey="saveMain"/>
+        <waitForPageLoad stepKey="waitForCustomersPageMain"/>
+        <see userInput="You saved the customer." stepKey="seeSuccessMessageCustomerMain"/>
+
+        <!-- Configure Customer US -->
+        <amOnPage url="{{AdminEditCustomerPage.url($$createCustomerUS.id$$)}}" stepKey="goToUSCustomerMembersGroupEditPage"/>
+        <waitForPageLoad stepKey="waitUSCustomerPageToLoad"/>
+        <actionGroup ref="AdminOpenAccountInformationTabFromCustomerEditPageActionGroup" stepKey="clickOnAccountInformationUS"/>
+        <selectOption selector="{{AdminCustomerAccountInformationSection.associateToWebsite}}" userInput="{{customWebsite.name}}" stepKey="selectWebSiteUS"/>
+        <click selector="{{AdminCustomerAccountInformationSection.group}}" stepKey="ClickToExpandAccountInformationUS"/>
+        <waitForElement selector="{{AdminProductFormAdvancedPricingSection.productTierPriceGroupOrCatalogOption(SharedCatalogUS.name)}}" stepKey="waitForCustomerGroupExpandUS"/>
+        <click selector="{{AdminCustomerAccountInformationSection.groupValue(SharedCatalogUS.name)}}" stepKey="ClickToSelectCustomerGroupUS"/>
+        <click selector="{{AdminCustomerAccountInformationSection.saveCustomer}}" stepKey="saveUS"/>
+        <waitForPageLoad stepKey="waitForCustomersPageUS"/>
+        <see userInput="You saved the customer." stepKey="seeSuccessMessageCustomerUS"/>
+
+        <!-- Reindex and Clean Cache -->
+        <actionGroup ref="CliIndexerReindexActionGroup" stepKey="indexerReindex">
+            <argument name="indices" value=""/>
+        </actionGroup>
+        <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+            <argument name="tags" value="full_page"/>
+        </actionGroup>
+
+        <!-- Check that Main website have a ProductPublic -->
+        <actionGroup ref="StorefrontGoToCategoryPageActionGroup" stepKey="openCategoryPagePublic">
+            <argument name="categoryName" value="$$createCategoryMain.name$$"/>
+        </actionGroup>
+
+        <!-- Assert ProductPublic in Main category product grid -->
+        <actionGroup ref="AssertStorefrontProductIsPresentOnCategoryPageActionGroup" stepKey="assertProductPublic">
+            <argument name="productName" value="$$createProductPublic.name$$"/>
+        </actionGroup>
+
+        <!-- Check that Main customer can log in to the customer's group website -->
+        <actionGroup ref="StorefrontOpenCustomerLoginPageActionGroup" stepKey="goToSignInPage"/>
+        <actionGroup ref="StorefrontFillCustomerLoginFormActionGroup" stepKey="fillLoginFormWithCorrectCredentials">
+            <argument name="customer" value="$$createCustomerMain$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontClickSignOnCustomerLoginFormActionGroup" stepKey="clickSignInAccountButton" />
+        <waitForPageLoad stepKey="waitForLoginMain"/>
+
+        <!-- Assert ProductBoth and ProductMain in Main website and Main category product grid -->
+        <click selector="{{StorefrontHeaderSection.NavigationCategoryByName($$createCategoryMain.name$$)}}" stepKey="gotToCategoryMain"/>
+        <waitForPageLoad stepKey="waitForCategoryPageMain"/>
+        <actionGroup ref="AssertStorefrontProductIsPresentOnCategoryPageActionGroup" stepKey="assertProductMainInMain">
+            <argument name="productName" value="$$createProductMain.name$$"/>
+        </actionGroup>
+        <actionGroup ref="AssertStorefrontProductIsPresentOnCategoryPageActionGroup" stepKey="assertProductBothInMain">
+            <argument name="productName" value="$$createProductBoth.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontSignOutMain"/>
+
+        <!-- Check that US customer can log in to the US website -->
+        <amOnPage url="{{StorefrontStoreHomePage.url(NewStoreViewData.code)}}{{StorefrontCustomerSignInPage.url}}" stepKey="amOnSignInUSPage"/>
+        <waitForPageLoad stepKey="waitForPageLoadedLoginUS"/>
+        <actionGroup ref="StorefrontFillCustomerLoginFormActionGroup" stepKey="fillCustomerLoginFormWithCorrectCredentialsUS">
+            <argument name="customer" value="$$createCustomerUS$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontClickSignOnCustomerLoginFormActionGroup" stepKey="clickSignInCustomerAccountButtonUS" />
+
+        <!-- Assert ProductBoth and ProductUS in US website and US category product grid -->
+        <click selector="{{StorefrontHeaderSection.NavigationCategoryByName($$createSubCategoryUS.name$$)}}" stepKey="goToCategoryUS"/>
+        <waitForPageLoad stepKey="waitForCategoryPageUS"/>
+        <actionGroup ref="AssertStorefrontProductIsPresentOnCategoryPageActionGroup" stepKey="assertProductUSInUS">
+            <argument name="productName" value="$$createProductUS.name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontUSSignOut"/>
+
+        <!-- Logout -->
+        <actionGroup ref="StorefrontCustomStoreCustomerLogoutActionGroup" stepKey="storefrontSignOut3">
+            <argument name="storeCode" value="{{NewStoreViewData.code}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="waitForSignOut"/>
+
+        <!-- Check that Main customer cannot log in to US website -->
+        <amOnPage url="{{StorefrontStoreHomePage.url(NewStoreViewData.code)}}{{StorefrontCustomerSignInPage.url}}" stepKey="amOnSignInPageUS"/>
+        <waitForPageLoad stepKey="waitForPageLoaded"/>
+        <actionGroup ref="StorefrontFillCustomerLoginFormActionGroup" stepKey="fillCustomerLoginFormWithCorrectCredentials">
+            <argument name="customer" value="$$createCustomerMain$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontClickSignOnCustomerLoginFormActionGroup" stepKey="clickSignInCustomerMainAccountButtonUS" />
+        <actionGroup ref="AssertMessageCustomerLoginActionGroup" stepKey="seeErrorMessageAfterLoginMain">
+            <argument name="messageType" value="error"/>
+            <argument name="message" value="The account sign-in was incorrect or your account is disabled temporarily. Please wait and try again later"/>
+        </actionGroup>
+
+        <!-- Check that US customer cannot log in to Main website -->
+        <actionGroup ref="StorefrontOpenCustomerLoginPageActionGroup" stepKey="goToMainSignInPage"/>
+        <actionGroup ref="StorefrontFillCustomerLoginFormActionGroup" stepKey="fillLoginFormMainWithCorrectCredentials">
+            <argument name="customer" value="$$createCustomerUS$$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontClickSignOnCustomerLoginFormActionGroup" stepKey="clickSignInCustomerUSAccountButtonMain" />
+        <actionGroup ref="AssertMessageCustomerLoginActionGroup" stepKey="seeErrorMessageAfterLoginUS">
+            <argument name="messageType" value="error"/>
+            <argument name="message" value="The account sign-in was incorrect or your account is disabled temporarily. Please wait and try again later"/>
+        </actionGroup>
+    </test>
+</tests>

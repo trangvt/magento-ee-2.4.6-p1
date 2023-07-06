@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontQuickOrderSection">
+        <element name="pageTitle" type="text" selector="#maincontent [data-ui-id='page-title-wrapper']"/>
+        <element name="skuOrProductNameByIndex" type="input" selector="(//input[@data-role='product-sku'])[{{index}}]" parameterized="true"/>
+        <element name="quantityByIndex" type="input" selector="(//input[@data-role='product-qty'])[{{index}}]" parameterized="true"/>
+        <element name="productNameByIndex" type="text" selector="(//*[@data-role='product-block']//*[@class='name'])[{{index}}]" parameterized="true"/>
+        <element name="removeButtonByIndex" type="button" selector="(//button[@data-role='delete'])[{{index}}]" parameterized="true"/>
+        <element name="allRows" type="text" selector="[data-role='new-block']"/>
+        <element name="rowByIndex" type="text" selector="(//*[@data-role='new-block'])[{{index}}]" parameterized="true"/>
+        <element name="generalErrorMessage" type="text" selector="[data-role='show-errors']"/>
+        <element name="allLineItemErrorMessages" type="text" selector="[data-role='error-message']"/>
+        <element name="rowByIndexErrorMessage" type="text" selector="(//*[@data-role='new-block'])[{{index}}]//*[@data-role='error-message']" parameterized="true"/>
+        <element name="addToCart" type="button" selector="button[title='Add to Cart']:not([disabled])" timeout="30"/>
+        <element name="addToCartDisabled" type="button" selector="button[title='Add to Cart'][disabled]"/>
+        <element name="enterSkuOrProductName" type="input" selector="//input[contains(@data-id, 'sku')]"/>
+        <element name="enterSkuOrProductNameLast" type="input" selector=".fieldset [data-role='new-block']:last-child input[data-id*='sku']"/>
+        <element name="Qty" type="input" selector="//input[@class='qty']"/>
+        <element name="enterMultipleSKUs" type="input" selector="#multiple_skus"/>
+        <element name="addToList" type="button" selector="button[title='Add to List']" timeout="30"/>
+        <element name="addToListEnabled" type="button" selector="button[title='Add to List']:not([disabled])" timeout="30"/>
+        <element name="addToListDisabled" type="button" selector="button[title='Add to List'][disabled]" timeout="30"/>
+        <element name="productName" type="text" selector="[data-role='product-block'] .name"/>
+        <element name="remove" type="button" selector="[data-role='new-block'] [data-role='delete']" timeout="30"/>
+        <element name="removeRow" type="button" selector="//form[contains(@class, 'form-addbysku')]//div[contains(@class, 'deletable-item') and not(contains(@class, 'deletable-item-title'))][{{rowNumber}}]//button[contains(@class, 'remove')]" parameterized="true" timeout="30"/>
+        <element name="errorMessage" type="text" selector="[data-role='block-addbysku'] [data-role='show-errors']"/>
+        <element name="skuErrorMessage" type="text" selector="input[data-id*='sku'] + .mage-error"/>
+        <element name="firstFromListOfResults" type="text" selector=".ui-autocomplete li:first-child"/>
+        <element name="skuOrNameTitle" type="text" selector=".fieldset .deletable-item-title .label span"/>
+    </section>
+</sections>

@@ -1,0 +1,24 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var $block \Magento\CompanyCredit\Block\Info\CompanyCredit
+ * @var $escaper \Magento\Framework\Escaper
+ */
+$paymentTitle = $block->getMethod()->getConfigData('title', $block->getInfo()->getOrder()->getStoreId());
+?>
+<div class="order-payment-method-name"><?= $block->escapeHtml($paymentTitle) ?></div>
+<?php if ($block->getInfo()->getPoNumber()): ?>
+<div>
+    <?= $escaper->escapeHtml(__('Custom Reference Number')) ?>:
+    <span class="order-purchase-order-number"><?= $escaper->escapeHtml($block->getInfo()->getPoNumber()) ?></span>
+</div>
+<?php endif; ?>
+<?php if ($block->isCurrencyDifferent()): ?>
+<div>
+    <?= $escaper->escapeHtml(__('Charged off the company credit: %1', $block->getChargedAmount())) ?>
+</div>
+<?php endif; ?>

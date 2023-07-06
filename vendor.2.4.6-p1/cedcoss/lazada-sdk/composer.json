@@ -1,0 +1,18 @@
+{
+    "name": "cedcoss/lazada-sdk",
+    "description": "Lazada Intregration Sdk",
+    "type": "package",
+    "version": "0.0.2",
+    "license": [
+        "EULA"
+    ],
+    "require": {
+        "php": ">=5.6",
+        "monolog/monolog":"^1.13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lazada\\Sdk\\": "src/"
+        }
+    }
+}

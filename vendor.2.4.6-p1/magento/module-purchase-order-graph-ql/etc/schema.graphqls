@@ -1,0 +1,132 @@
+# Copyright © Magento, Inc. All rights reserved.
+# See COPYING.txt for license details.
+
+type Mutation {
+    placePurchaseOrder(input: PlacePurchaseOrderInput!): PlacePurchaseOrderOutput @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PlacePurchaseOrder") @doc(description: "Place a purchase order.")
+    placeOrderForPurchaseOrder(input: PlaceOrderForPurchaseOrderInput!): PlaceOrderForPurchaseOrderOutput @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PlaceOrder") @doc(description:"Convert the purchase order into an order.")
+    rejectPurchaseOrders(input: PurchaseOrdersActionInput!): PurchaseOrdersActionOutput @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\Reject") @doc(description: "Reject purchase orders.")
+    approvePurchaseOrders(input: PurchaseOrdersActionInput!): PurchaseOrdersActionOutput @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\Approve") @doc(description: "Approve purchase orders.")
+    cancelPurchaseOrders(input: PurchaseOrdersActionInput!): PurchaseOrdersActionOutput @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\Cancel") @doc(description: "Cancel purchase orders.")
+    addPurchaseOrderItemsToCart(input: AddPurchaseOrderItemsToCartInput!): AddProductsToCartOutput @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\AddToCart") @doc(description: "Add purchase order items to the shopping cart.")
+    addPurchaseOrderComment(input: AddPurchaseOrderCommentInput!): AddPurchaseOrderCommentOutput @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PurchaseOrder\\AddComment") @doc(description: "Add a comment to an existing purchase order.")
+}
+
+input AddPurchaseOrderCommentInput @doc(description: "Contains the comment to be added to a purchase order.") {
+    purchase_order_uid: ID! @doc(description: "The unique ID of a purchase order.")
+    comment: String! @doc(description: "Comment text.")
+}
+
+type AddPurchaseOrderCommentOutput @doc(description: "Contains the successfully added comment.") {
+    comment: PurchaseOrderComment! @doc(description: "The purchase order comment.")
+}
+
+type Customer {
+    purchase_orders_enabled: Boolean! @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\IsEnabled") @doc(description: "Indicates whether purchase order functionality is enabled for the current customer. Global and company-level settings are factored into the result.")
+    purchase_order(uid: ID!): PurchaseOrder @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PurchaseOrder") @doc(description: "Purchase order details.")
+    purchase_orders(filter: PurchaseOrdersFilterInput, currentPage: Int = 1, pageSize: Int = 20): PurchaseOrders @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PurchaseOrders") @doc(description: "A list of purchase orders visible to the customer.")
+}
+
+type PurchaseOrder @doc(description: "Contains details about a purchase order.") {
+    uid: ID! @doc(description: "A unique identifier for the purchase order.")
+    number: String! @doc(description: "The purchase order number.")
+    order: CustomerOrder @doc(description: "The reference to the order placed based on the purchase order.")
+    quote: Cart @doc(description: "The quote related to the purchase order.")
+    created_at: String! @doc(description: "The date the purchase order was created.")
+    updated_at: String! @doc(description: "The date the purchase order was last updated.")
+    created_by: Customer @doc(description: "The company user who created the purchase order.")
+    status: PurchaseOrderStatus! @doc(description: "The current status of the purchase order.")
+    comments: [PurchaseOrderComment!]! @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PurchaseOrder\\Comments") @doc(description: "The set of comments applied to the purchase order.")
+    history_log: [PurchaseOrderHistoryItem!]! @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PurchaseOrder\\Log") @doc(description: "The log of the events related to the purchase order.")
+    available_actions: [PurchaseOrderAction!]! @resolver(class: "\\Magento\\PurchaseOrderGraphQl\\Model\\Resolver\\PurchaseOrder\\AvailableActions") @doc(description: "Purchase order actions available to the customer. Can be used to display action buttons on the client.")
+}
+
+input PurchaseOrdersActionInput @doc(description: "Defines which purchase orders to act on.") {
+    purchase_order_uids: [ID!]! @doc(description: "An array of of purchase order UIDs.")
+}
+
+type PurchaseOrdersActionOutput @doc(description: "Returns a list of updated purchase orders and any error messages.") {
+    purchase_orders: [PurchaseOrder!]! @doc(description: "A list of purchase orders.")
+    errors: [PurchaseOrderActionError!]! @doc(description: "An array of error messages encountered while performing the operation.")
+}
+
+type PurchaseOrderActionError @doc(description: "Contains details about a failed action.") {
+    message: String! @doc(description: "The returned error message.")
+    type: PurchaseOrderErrorType! @doc(description: "The error type.")
+}
+
+enum PurchaseOrderErrorType {
+    NOT_FOUND
+    OPERATION_NOT_APPLICABLE
+    COULD_NOT_SAVE
+    NOT_VALID_DATA
+    UNDEFINED
+}
+
+enum PurchaseOrderAction {
+    REJECT
+    CANCEL
+    VALIDATE
+    APPROVE
+    PLACE_ORDER
+}
+
+enum PurchaseOrderStatus {
+    PENDING
+    APPROVAL_REQUIRED
+    APPROVED
+    ORDER_IN_PROGRESS
+    ORDER_PLACED
+    ORDER_FAILED
+    REJECTED
+    CANCELED
+    APPROVED_PENDING_PAYMENT
+}
+
+type PurchaseOrderComment @doc(description: "Contains details about a comment.") {
+    uid: ID! @doc(description: "A unique identifier of the comment.")
+    created_at: String! @doc(description: "The date and time when the comment was created.")
+    author: Customer @doc(description: "The user who left the comment.")
+    text: String! @doc(description: "The text of the comment.")
+}
+
+type PurchaseOrderHistoryItem @doc(description: "Contains details about a status change.") {
+    uid: ID! @doc(description: "A unique identifier of the purchase order history item.")
+    created_at: String! @doc(description: "The date and time when the event happened.")
+    activity: String! @doc(description: "The activity type of the event.")
+    message: String! @doc(description: "The message representation of the event.")
+}
+
+input PurchaseOrdersFilterInput @doc(description: "Defines the criteria to use to filter the list of purchase orders.") {
+    status: PurchaseOrderStatus @doc(description: "Filter by the status of the purchase order.")
+    company_purchase_orders: Boolean @doc(description: "Include only purchase orders made by subordinate company users.")
+    require_my_approval: Boolean @doc(description: "Include only purchase orders that are waiting for the customer’s approval.")
+    created_date: FilterRangeTypeInput @doc(description: "Filter by the creation date of the purchase order.")
+}
+
+type PurchaseOrders @doc(description: "Contains a list of purchase orders.") {
+    items: [PurchaseOrder]! @doc(description: "Purchase orders matching the search criteria.")
+    page_info: SearchResultPageInfo @doc(description: "Page information of search result's current page.")
+    total_count: Int @doc(description: "Total number of purchase orders found matching the search criteria.")
+}
+
+input PlacePurchaseOrderInput @doc(description: "Specifies the quote to be converted to a purchase order.") {
+    cart_id: String! @doc(description: "The unique ID of a `Cart` object.")
+}
+
+input PlaceOrderForPurchaseOrderInput @doc(description: "Specifies the purchase order to convert to an order.") {
+    purchase_order_uid: ID! @doc(description: "The unique ID of a purchase order.")
+}
+
+type PlacePurchaseOrderOutput @doc(description: "Contains the results of the request to place a purchase order.") {
+    purchase_order: PurchaseOrder! @doc(description: "Placed purchase order.")
+}
+
+type PlaceOrderForPurchaseOrderOutput @doc(description: "Contains the results of the request to place an order.") {
+    order: CustomerOrder! @doc(description: "Placed order.")
+}
+
+input AddPurchaseOrderItemsToCartInput @doc(description: "Defines the purchase order and cart to act on.") {
+    purchase_order_uid: ID! @doc(description: "Purchase order unique ID.")
+    cart_id: String! @doc(description: "The ID to assign to the cart.")
+    replace_existing_cart_items: Boolean! @doc(description: "Replace existing cart or merge items.")
+}

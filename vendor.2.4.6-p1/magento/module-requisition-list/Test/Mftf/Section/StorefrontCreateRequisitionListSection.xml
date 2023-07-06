@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCreateRequisitionListSection">
+        <element name="requisitionListModalTitle" type="text" timeout="30" selector="aside .modal-title"/>
+        <element name="requisitionListName" type="input" timeout="30" selector="#requisition-list-name"/>
+        <element name="requisitionListNameError" type="text" timeout="30" selector="#requisition-list-name-error"/>
+        <element name="requisitionListDescription" type="input" timeout="30" selector="#requisition-list-description"/>
+        <element name="saveButton" type="button" timeout="30" selector="footer.modal-footer button.action.primary.confirm"/>
+        <element name="cancelButton" type="button" timeout="30" selector="footer.modal-footer button.action.secondary.cancel"/>
+    </section>
+</sections>

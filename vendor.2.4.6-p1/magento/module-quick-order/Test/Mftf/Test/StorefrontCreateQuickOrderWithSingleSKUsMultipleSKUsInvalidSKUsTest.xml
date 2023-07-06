@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCreateQuickOrderWithSingleSKUsMultipleSKUsInvalidSKUsTest">
+        <annotations>
+            <features value="Quick Order"/>
+            <stories value="Create Quick Order"/>
+            <title value="Create Quick Order with Single SKUs, Multiple SKUs, Invalid SKUs"/>
+            <description value="Verifies that a Quick Order can successfully be created after entering valid SKUs,
+            invalid SKUs, multiple SKUs, deleting the invalid line items, and adding the order to the cart"/>
+            <severity value="MAJOR"/>
+            <group value="quickOrder"/>
+        </annotations>
+        <before>
+            <createData entity="B2BEnabledQuickOrderConfig" stepKey="enabledQuickOrderConfig"/>
+            <createData entity="SimpleProduct2" stepKey="simpleProduct1"/>
+            <createData entity="SimpleProduct2" stepKey="simpleProduct2"/>
+        </before>
+        <after>
+            <createData entity="B2BDefaultConfig" stepKey="defaultB2BConfig"/>
+            <deleteData createDataKey="simpleProduct1" stepKey="deleteProduct1"/>
+            <deleteData createDataKey="simpleProduct2" stepKey="deleteProduct2"/>
+        </after>
+        <actionGroup ref="StorefrontGoToQuickOrderPageActionGroup" stepKey="goQuickOrderPage"/>
+        <!-- Add 1st Product to Quick Order -->
+        <actionGroup ref="StorefrontQuickOrderAddProductActionGroup" stepKey="addProduct1ToQuickOrder">
+            <argument name="productSku" value="$$simpleProduct1.sku$$"/>
+            <argument name="productName" value="$$simpleProduct1.name$$"/>
+            <argument name="quantity" value="1"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="2" stepKey="see2Rows"/>
+        <!-- Add 2nd Product to Quick Order -->
+        <actionGroup ref="StorefrontQuickOrderAddProductActionGroup" stepKey="addProduct2ToQuickOrder">
+            <argument name="productSku" value="$$simpleProduct2.sku$$"/>
+            <argument name="productName" value="$$simpleProduct2.name$$"/>
+            <argument name="quantity" value="1"/>
+            <argument name="index" value="2"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="3" stepKey="see3Rows"/>
+        <!-- Add Invalid SKU to Quick Order -->
+        <actionGroup ref="StorefrontQuickOrderAddInvalidProductActionGroup" stepKey="addInvalidSKUToQuickOrder">
+            <argument name="productSku" value="Invalid SKU"/>
+            <argument name="index" value="3"/>
+            <argument name="lineItemErrorMessage" value="The SKU was not found in the catalog. Product names must be typed manually."/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="4" stepKey="see4Rows"/>
+        <!-- Add Invalid Numerical SKU to Quick Order -->
+        <actionGroup ref="StorefrontQuickOrderAddInvalidProductActionGroup" stepKey="addInvalidSKUToQuickOrder2">
+            <argument name="productSku" value="123123123"/>
+            <argument name="index" value="4"/>
+            <argument name="generalErrorMessage" value="2 product(s) require(s) your attention."/>
+            <argument name="lineItemErrorMessage" value="The SKU was not found in the catalog. Product names must be typed manually."/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="5" stepKey="see5Rows"/>
+        <!-- Deleted all Items Except 1st -->
+        <actionGroup ref="StorefrontQuickOrderRemoveItemActionGroup" stepKey="removeItem4FromQuickOrder">
+            <argument name="rowToDelete" value="4"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="4" stepKey="see4Rows2"/>
+        <actionGroup ref="StorefrontQuickOrderRemoveItemActionGroup" stepKey="removeItem3FromQuickOrder">
+            <argument name="rowToDelete" value="3"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="3" stepKey="see3Rows2"/>
+        <actionGroup ref="StorefrontQuickOrderRemoveItemActionGroup" stepKey="removeItem2FromQuickOrder">
+            <argument name="rowToDelete" value="2"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="2" stepKey="see2Rows2"/>
+        <!-- Verify Error Messages Are Gone and Add to Cart is Enabled -->
+        <dontSeeElement selector="{{StorefrontQuickOrderSection.generalErrorMessage}}" stepKey="dontSeeGeneralErrorMessage"/>
+        <dontSeeElementInDOM selector="{{StorefrontQuickOrderSection.allLineItemErrorMessages}}" stepKey="dontSeeLineItemErrorMessages"/>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.addToCart}}" stepKey="waitForAddToCartEnabled"/>
+        <actionGroup ref="AssertStorefrontQuickOrderLineItemActionGroup" stepKey="test">
+            <argument name="productName" value="$$simpleProduct1.name$$"/>
+            <argument name="quantity" value="1"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <!-- Add 1st Product to Quick Order from Multiple SKUs -->
+        <actionGroup ref="StorefrontQuickOrderAddItemsFromMultipleSKUsActionGroup" stepKey="addItem2ToQuickOrderListFromMultipleSKUs">
+            <argument name="productSKUs" value="$$simpleProduct1.sku$$"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="2" stepKey="see2Rows3"/>
+        <actionGroup ref="AssertStorefrontQuickOrderLineItemActionGroup" stepKey="test2">
+            <argument name="productName" value="$$simpleProduct1.name$$"/>
+            <argument name="quantity" value="2"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <!-- Add To Cart -->
+        <actionGroup ref="StorefrontQuickOrderAddToCartActionGroup" stepKey="addToCart"/>
+        <!-- Validate Cart -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartItems">
+            <argument name="productName" value="$$simpleProduct1.name$$"/>
+            <argument name="productPrice" value="$$simpleProduct1.price$$"/>
+            <argument name="subtotal" value="$246.00"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <actionGroup ref="AssertStorefrontCheckoutPaymentSummarySubtotalActionGroup" stepKey="assertTotal">
+            <argument name="orderSubtotal" value="$246.00"/>
+        </actionGroup>
+    </test>
+</tests>

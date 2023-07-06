@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontDeletePurchaseOrderRuleActionGroup">
+        <annotations>
+            <description>Deletes a purchase order rule from the purchase rule listing page.</description>
+        </annotations>
+        <arguments>
+            <argument name="index" type="string" defaultValue="1"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleGridSection.deleteAction(index)}}" stepKey="waitForDeleteLinkVisible"/>
+        <click selector="{{StorefrontPurchaseOrderRuleGridSection.deleteAction(index)}}" stepKey="clickDeleteAction"/>
+        <waitForPageLoad stepKey="waitForPageLoadModal"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.ok}}" stepKey="waitForModalOk"/>
+        <click selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.ok}}" stepKey="clickOk"/>
+        <waitForPageLoad stepKey="waitForDeleteAction"/>
+        <waitForElementNotVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.ok}}" stepKey="waitForModal"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.success}}" stepKey="waitForSuccessMessage"/>
+        <see userInput="The rule has been deleted." stepKey="seeSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

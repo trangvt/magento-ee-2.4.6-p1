@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAddCustomFileOptionsProductFromWishlistToRequisitionListTest">
+        <annotations>
+            <features value="RequisitionList"/>
+            <stories value="Add to Requisition List"/>
+            <title value="Add wishlist item with customizable file option to requisition list"/>
+            <description value="Add wishlist item with customizable file option to requisition list and verify customizable options are present"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="MC-41677"/>
+            <useCaseId value="MC-40454"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="SimpleProduct2" stepKey="createProduct">
+                <field key="price">100.00</field>
+            </createData>
+            <updateData entity="productWithFileOption" createDataKey="createProduct" stepKey="updateProductWithOptions">
+                <requiredEntity createDataKey="createProduct"/>
+            </updateData>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefrontAccount">
+                <argument name="Customer" value="$createCustomer$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontCreateNewRequisitionListActionGroup" stepKey="createRequisitionList"/>
+        </before>
+        <after>
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct1"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Open Product page -->
+        <actionGroup ref="StorefrontOpenProductPageActionGroup" stepKey="openProductPage">
+            <argument name="productUrl" value="$createProduct.custom_attributes[url_key]$"/>
+        </actionGroup>
+        <attachFile userInput="adobe-base.jpg" selector="{{StorefrontProductInfoMainSection.addLinkFileUploadFile(ProductOptionFile.title)}}" stepKey="fillUploadFile"/>
+
+        <!-- Add product to the wishlist -->
+        <actionGroup ref="StorefrontCustomerAddProductToWishlistActionGroup" stepKey="addProductWithOptionToWishlist">
+            <argument name="productVar" value="$createProduct$"/>
+        </actionGroup>
+
+        <!-- Assert product is present in wishlist -->
+        <actionGroup ref="AssertProductIsPresentInWishListActionGroup" stepKey="assertProductPresent">
+            <argument name="productName" value="$createProduct.name$"/>
+            <argument name="productPrice" value="$109.99"/>
+        </actionGroup>
+
+        <!-- Edit wishlist product -->
+        <actionGroup ref="StorefrontCustomerUpdateWishlistItemActionGroup" stepKey="clickEditWishlistItem">
+            <argument name="productName" value="$createProduct.name$"/>
+        </actionGroup>
+
+        <actionGroup ref="StorefrontAddProductToRequisitionListActionGroup"  stepKey="addProductToRequisitionList">
+            <argument name="productName" value="$createProduct.name$"/>
+        </actionGroup>
+        <!-- Go to Requisition List Page -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="openStoreFrontRequisitionListIndexPage"/>
+        <!-- View RL1 Requisition List Item -->
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup"  stepKey="goToRequisitionListViewPage"/>
+        <!--  Validate page loaded successfully -->
+        <seeInField selector="{{StorefrontRequisitionListViewSection.productQTY('1')}}" userInput="1" stepKey="waitForProductQuantity"/>
+        <waitForText selector="{{StorefrontRequisitionListViewSection.productSubtotal($createProduct.name$)}}" userInput="$109.99" stepKey="waitForProductSubtotal"/>
+    </test>
+</tests>

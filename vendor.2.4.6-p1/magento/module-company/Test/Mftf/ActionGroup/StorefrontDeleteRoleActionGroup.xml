@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontDeleteRoleActionGroup">
+        <annotations>
+            <description>Deletes a role from the Roles and Permissions page on the storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="roleName" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCompanyRolesSection.roleDeleteLink(roleName)}}" stepKey="waitForDeleteButton"/>
+        <click selector="{{StorefrontCompanyRolesSection.roleDeleteLink(roleName)}}" stepKey="clickDeleteButton"/>
+        <waitForElementVisible selector="{{StorefrontCompanyRolesSection.popupDelete}}" stepKey="waitForDeleteButtonInConfirmationModal"/>
+        <click selector="{{StorefrontCompanyRolesSection.popupDelete}}" stepKey="clickDeleteButtonInConfirmationModal"/>
+        <waitForPageLoad stepKey="waitForRoleGridPage"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.success}}" stepKey="waitForSuccessMessage"/>
+        <see userInput="You have deleted role {{roleName}}." selector="{{StorefrontMessagesSection.success}}" stepKey="seeSuccessMessage"/>
+        <dontSeeElementInDOM selector="{{StorefrontCompanyRolesSection.roleNameInGrid(roleName)}}" stepKey="confirmDeletion"/>
+    </actionGroup>
+</actionGroups>

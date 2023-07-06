@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="DeleteProductWithStagingUpdatesTest">
+        <annotations>
+            <features value="Catalog"/>
+            <stories value="Delete Staging Product With Updates via Admin"/>
+            <title value="Admin should be able to Delete Product With Staging Updates"/>
+            <description value="Admin should be able to Delete Product With Staging Updates"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="MC-27538"/>
+        </annotations>
+        <before>
+            <magentoCLI command="module:enable Magento_CatalogStaging" stepKey="enableCatalogStaging"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin1"/>
+            <createData entity="CategoryB" stepKey="createCategory"/>
+            <createData entity="productA" stepKey="createSimpleProduct1">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+        </before>
+        
+        <after>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <amOnPage url="{{AdminProductIndexPage.url}}" stepKey="navigateToProductIndex"/>
+        <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToSimpleProduct">
+            <argument name="productId" value="$$createSimpleProduct1.id$$"/>
+        </actionGroup>
+
+        <scrollToTopOfPage stepKey="scrollToTopOfPage2"/>
+
+        <generateDate date="+1 day" format="m/j/Y g:i A" stepKey="generateStartDate"/>
+        <generateDate date="+3 day" format="m/j/Y g:i A" stepKey="generateEndDate"/>
+        <actionGroup ref="CreateScheduleUpdateForProductActionGroup" stepKey="clickOnCreateNewScheduledUpdateButton">
+            <argument name="staging" value="UpdateForProductA"/>
+            <argument name="timeStart" value="{$generateStartDate}}"/>
+            <argument name="timeEnd" value="{$generateEndDate}"/>
+        </actionGroup>
+        <grabValueFrom selector="{{AdminStagingSlideOutSection.updateName}}" stepKey="grabUpdateName"/>
+
+        <click selector="{{AdminStagingSlideOutSection.save}}" stepKey="clickSave"/>
+
+        <scrollToTopOfPage stepKey="scrollToTopOfPage"/>
+        <generateDate date="+4 day" format="m/j/Y g:i A" stepKey="generateStartDate2"/>
+        <generateDate date="+6 day" format="m/j/Y g:i A" stepKey="generateEndDate2"/>
+
+        <actionGroup ref="CreateScheduleUpdateForProductActionGroup" stepKey="clickOnCreateNewScheduledUpdateButton2">
+            <argument name="staging" value="UpdateForProductA2"/>
+            <argument name="timeStart" value="{$generateStartDate2}}"/>
+            <argument name="timeEnd" value="{$generateEndDate2}"/>
+        </actionGroup>
+        <grabValueFrom selector="{{AdminStagingSlideOutSection.updateName}}" stepKey="grabUpdateName2"/>
+
+        <click selector="{{AdminStagingSlideOutSection.save}}" stepKey="clickSave2"/>
+
+        <amOnPage url="{{AdminStagingDashboardPage.url}}" stepKey="NavigateToAndResetProductGridToDefaultView"/>
+        <waitForPageLoad stepKey="waitForAdminStagingDashboardPage"/>
+
+        <conditionalClick selector="{{AdminDataGridHeaderSection.clearFilters}}" dependentSelector="{{AdminDataGridHeaderSection.clearFilters}}" visible="true" stepKey="clearExistingCustomerFilters"/>
+        <waitForPageLoad stepKey="waitForClearFilters"/>
+        <selectOption userInput="Grid" selector="{{AdminContentStagingDashboardSection.stagingViewTypeSelect}}" stepKey="selectGrid"/>
+        <fillField selector="{{AdminBlockGridSection.search}}" userInput="{$grabUpdateName},{$grabUpdateName2}" stepKey="searchUpdateByName"/>
+        <click selector="{{AdminBlockGridSection.searchButton}}" stepKey="clickSearch"/>
+        <waitForPageLoad stepKey="waitPage"/>
+
+        <see selector="{{AdminContentStagingGridDashboardSection.updateNameColumnGrid}}" userInput="{$grabUpdateName}"  stepKey="seeProduct2"/>
+        <see selector="{{AdminContentStagingGridDashboardSection.updateNameColumnGrid}}" userInput="{$grabUpdateName2}"  stepKey="seeProduct3"/>
+
+        <deleteData createDataKey="createSimpleProduct1" stepKey="deleteProduct"/>
+
+        <magentoCLI command="indexer:reindex" stepKey="performReindex"/>
+        <magentoCLI command="cron:run" stepKey="RunCron"/>
+        <magentoCLI command="cache:clean" stepKey="cleanCache"/>
+        <wait time="10" stepKey="waitFor10Sec"/>
+        <amOnPage url="{{AdminStagingDashboardPage.url}}" stepKey="NavigateToAndResetProductGridToDefaultView2"/>
+        <waitForPageLoad stepKey="waitForAdminStagingDashboardPage2"/>
+
+        <conditionalClick selector="{{AdminDataGridHeaderSection.clearFilters}}" dependentSelector="{{AdminDataGridHeaderSection.clearFilters}}" visible="true" stepKey="clearExistingCustomerFilters2"/>
+        <waitForPageLoad stepKey="waitForClearFilters2"/>
+        <selectOption userInput="Grid" selector="{{AdminContentStagingDashboardSection.stagingViewTypeSelect}}" stepKey="selectGrid2"/>
+        <fillField selector="{{AdminBlockGridSection.search}}" userInput="{$grabUpdateName},{$grabUpdateName2}" stepKey="searchUpdateByName2"/>
+        <click selector="{{AdminBlockGridSection.searchButton}}" stepKey="clickSearch2"/>
+        <waitForPageLoad stepKey="waitPage2"/>
+
+        <dontSee selector="{{AdminContentStagingGridDashboardSection.updateNameColumnGrid}}" userInput="{$grabUpdateName}"  stepKey="dontseeProduct"/>
+        <dontSee selector="{{AdminContentStagingGridDashboardSection.updateNameColumnGrid}}" userInput="{$grabUpdateName2}"  stepKey="dontseeProduct2"/>
+    </test>
+</tests>

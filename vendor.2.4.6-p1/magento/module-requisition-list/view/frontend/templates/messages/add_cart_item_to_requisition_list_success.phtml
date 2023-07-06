@@ -1,0 +1,20 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<?=
+$escaper->escapeHtml(
+    __(
+        '%1 has been added to the "<a href="%2">%3</a>" requisition list.',
+        $block->getData('product_name'),
+        $block->getData('requisition_list_url'),
+        $escaper->escapeHtml($block->getData('requisition_list_name'))
+    ),
+    ['a']
+);
+?>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCartItemRemovedFromSharedCatalogTest">
+        <annotations>
+            <features value="SharedCatalog"/>
+            <stories value="Shared Catalog"/>
+            <title value="Product is deleted from cart if not included in the shared catalog"/>
+            <description value="When a product, which is in a customer's cart, is removed from the shared catalog, it is removed from his cart"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-26904"/>
+            <useCaseId value="MC-15060"/>
+            <group value="b2b"/>
+            <group value="sharedCatalog"/>
+        </annotations>
+        <before>
+            <!-- Enable Company and Shared Catalog -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+            <!-- Create Category -->
+            <createData entity="ApiCategory" stepKey="createCategory"/>
+            <!-- Create Product -->
+            <createData entity="SimpleProduct" stepKey="createProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <!-- Create Customer -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <!-- Create Company -->
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCustomer"/>
+            </createData>
+            <!-- Create Shared Catalog -->
+            <createData entity="NewSharedCatalog" stepKey="createSharedCatalog"/>
+            <!-- Assign Category to the Shared Catalog -->
+            <createData entity="AssignCategoryToSharedCatalog" stepKey="assignCategoryToSharedCatalog">
+                <requiredEntity createDataKey="createSharedCatalog"/>
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <!-- Assign Product to the Shared Catalog -->
+            <createData entity="AssignProductToSharedCatalog" stepKey="assignProductToSharedCatalog">
+                <requiredEntity createDataKey="createSharedCatalog"/>
+                <requiredEntity createDataKey="createProduct"/>
+            </createData>
+            <!-- Assign Company to the Shared Catalog -->
+            <createData entity="AssignCompanyToSharedCatalog" stepKey="assignCompanyToSharedCatalog">
+                <requiredEntity createDataKey="createSharedCatalog"/>
+                <requiredEntity createDataKey="createCompany"/>
+            </createData>
+            <!-- Apply changes -->
+            <actionGroup ref="CliConsumerStartActionGroup" stepKey="startMessageQueue">
+                <argument name="consumerName" value="{{AdminCategoryPermissionUpdateConsumerData.consumerName}}"/>
+                <argument name="maxMessages" value="{{AdminCategoryPermissionUpdateConsumerData.messageLimit}}"/>
+            </actionGroup>
+
+            <!-- Run cron -->
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="runIndexCronJobs">
+                <argument name="indices" value=""/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Disable Shared Catalog and Company -->
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <!-- Delete entities  -->
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createSharedCatalog" stepKey="deleteSharedCatalog"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <!-- Logout from Storefront -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutFromStorefront"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+        </after>
+
+        <!-- Login to Storefront as Customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCustomer">
+            <argument name="Customer" value="$createCustomer$"/>
+        </actionGroup>
+
+        <!-- Go to Category page -->
+        <actionGroup ref="StorefrontNavigateCategoryPageActionGroup" stepKey="goToCategoryPage">
+            <argument name="category" value="$createCategory$"/>
+        </actionGroup>
+        <!-- Assert Product presents on the Category page -->
+        <actionGroup ref="AssertStorefrontProductIsPresentOnCategoryPageActionGroup" stepKey="assertProductPresentsOnCategoryPage">
+            <argument name="productName" value="$createProduct.name$"/>
+        </actionGroup>
+
+        <!-- Add Product to Shopping Cart -->
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToShoppingCart">
+            <argument name="product" value="$createProduct$"/>
+        </actionGroup>
+
+        <!-- Open Shopping Cart page -->
+        <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="openShoppingCartPage"/>
+        <!-- Assert Product presents on Shopping Cart page -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertProductPresentsOnShoppingCartPage">
+            <argument name="productName" value="$createProduct.name$"/>
+            <argument name="productSku" value="$createProduct.sku$"/>
+            <argument name="productPrice" value="$createProduct.price$"/>
+            <argument name="subtotal" value="$createProduct.price$" />
+            <argument name="qty" value="1"/>
+        </actionGroup>
+
+        <!-- Unassign Product from the Shared Catalog -->
+        <createData entity="UnassignProductFromSharedCatalog" stepKey="unassignProductFromSharedCatalog">
+            <requiredEntity createDataKey="createSharedCatalog"/>
+            <requiredEntity createDataKey="createProduct"/>
+        </createData>
+
+        <!-- Run cron -->
+        <actionGroup ref="CliIndexerReindexActionGroup" stepKey="runIndexCronJobs">
+            <argument name="indices" value=""/>
+        </actionGroup>
+
+        <!-- Assert Product absents on the Category page -->
+        <actionGroup ref="AssertStorefrontProductAbsentOnCategoryPageActionGroup" stepKey="assertProductAbsentsOnCategoryPage">
+            <argument name="categoryUrlKey" value="$createCategory.custom_attributes[url_key]$"/>
+            <argument name="productName" value="$createProduct.name$"/>
+        </actionGroup>
+
+        <!-- Assert that Shopping cart is empty -->
+        <actionGroup ref="AssertShoppingCartIsEmptyActionGroup" stepKey="seeEmptyShoppingCart"/>
+    </test>
+</tests>

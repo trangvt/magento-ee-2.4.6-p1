@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAddCustomOptionsProductToRequisitionListTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="View Requisition List"/>
+            <title value="Verify Custom Options Product in Requisition List"/>
+            <description value="Verify that a configurable product with custom options renders correctly on the Requisition List view page"/>
+            <severity value="CRITICAL"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <magentoCLI command="config:set btob/website_configuration/requisition_list_active 1" stepKey="enableRequisitionListFunctionality"/>
+            <!-- Create customer -->
+            <createData entity="Simple_US_Customer" stepKey="createSimpleUSCustomer">
+                <field key="group_id">1</field>
+            </createData>
+            <!-- Create category -->
+            <createData entity="SimpleSubCategory" stepKey="createCategory"/>
+            <!-- Create configurable product with two attributes -->
+            <createData entity="ApiConfigurableProduct" stepKey="createConfigProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="productAttributeWithTwoOptions" stepKey="createConfigProductAttribute"/>
+            <createData entity="productAttributeOption1" stepKey="createConfigProductAttributeFirstOption">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <createData entity="productAttributeOption2" stepKey="createConfigProductAttributeSecondOption">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <createData entity="AddToDefaultSet" stepKey="createConfigAddToAttributeSet">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </createData>
+            <getData entity="ProductAttributeOptionGetter" index="1" stepKey="getConfigAttributeFirstOption">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+            <getData entity="ProductAttributeOptionGetter" index="2" stepKey="getConfigAttributeSecondOption">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+            </getData>
+            <!-- Add custom options to configurable product -->
+            <updateData createDataKey="createConfigProduct" entity="productWithCustomOptions" stepKey="updateProductWithOptions"/>
+            <!-- Create two simple product which will be the part of configurable product -->
+            <createData entity="ApiSimpleOne" stepKey="createConfigFirstChildProduct">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeFirstOption"/>
+            </createData>
+            <createData entity="ApiSimpleTwo" stepKey="createConfigSecondChildProduct">
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeSecondOption"/>
+            </createData>
+            <createData entity="ConfigurableProductTwoOptions" stepKey="createConfigProductOption">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigProductAttribute"/>
+                <requiredEntity createDataKey="getConfigAttributeFirstOption"/>
+                <requiredEntity createDataKey="getConfigAttributeSecondOption"/>
+            </createData>
+            <!-- Add created below children products to configurable product -->
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddFirstChild">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigFirstChildProduct"/>
+            </createData>
+            <createData entity="ConfigurableProductAddChild" stepKey="createConfigProductAddSecondChild">
+                <requiredEntity createDataKey="createConfigProduct"/>
+                <requiredEntity createDataKey="createConfigSecondChildProduct"/>
+            </createData>
+        </before>
+        <after>
+            <magentoCLI command="config:set btob/website_configuration/requisition_list_active 0" stepKey="disableRequisitionListFunctionality"/>
+            <!-- Delete customer creation -->
+            <deleteData createDataKey="createSimpleUSCustomer" stepKey="deleteCreatedSimpleUSCustomer"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <!-- Delete configurable product creation -->
+            <deleteData createDataKey="createConfigProduct" stepKey="deleteConfigProduct"/>
+            <deleteData createDataKey="createConfigFirstChildProduct" stepKey="deleteConfigFirstChildProduct"/>
+            <deleteData createDataKey="createConfigSecondChildProduct" stepKey="deleteConfigSecondChildProduct"/>
+            <deleteData createDataKey="createConfigProductAttribute" stepKey="deleteConfigProductAttribute"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+        </after>
+        <!-- Login at store front -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin1">
+            <argument name="Customer" value="$$createSimpleUSCustomer$$"/>
+        </actionGroup>
+        <!--Create new Requisition list-->
+        <actionGroup ref="StorefrontCreateNewRequisitionListActionGroup" stepKey="createRequisitionList"/>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openProductPage">
+            <argument name="product" value="$createConfigProduct$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontProductPageSelectDropDownOptionValueActionGroup" stepKey="selectFirstOption">
+            <argument name="attributeLabel" value="{{ProductOptionDropDown.title}}"/>
+            <argument name="optionLabel" value="{{ProductOptionValueDropdown3.title}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontProductPageSelectDropDownOptionValueActionGroup" stepKey="firstConfigProductSelectFirstOptionValue">
+            <argument name="attributeLabel" value="$$createConfigProductAttribute.default_frontend_label$$"/>
+            <argument name="optionLabel" value="$$getConfigAttributeFirstOption.label$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddProductToRequisitionListActionGroup"  stepKey="addProductToRequisitionList">
+            <argument name="productName" value="$$createConfigProduct.name$$"/>
+        </actionGroup>
+        <!-- Go to Requisition List Page -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="openStoreFrontRequisitionListIndexPage"/>
+        <!-- View RL1 Requisition List Item -->
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup"  stepKey="goToRequisitionListViewPage"/>
+        <!--  Validate page loaded successfully -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup"  stepKey="validateRequisitionListProduct">
+            <argument name="product" value="$createConfigProduct$"/>
+            <argument name="price" value="$$createConfigProduct.price$$"/>
+            <argument name="quantity" value="1"/>
+            <argument name="subtotal" value="$$createConfigProduct.price$$"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.productDetails($$createConfigProduct.name$$, $$createConfigProductAttribute.default_frontend_label$$)}}" stepKey="waitForProductAttributeOption"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.productDetails($$createConfigProduct.name$$, ProductOptionDropDown.title)}}" stepKey="waitForProductCustomizableOption"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.editItemButton($$createConfigProduct.name$$)}}" stepKey="waitForProductEditItemButton"/>
+    </test>
+</tests>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontQuickOrderAddItemsFromMultipleSKUsActionGroup">
+        <annotations>
+            <description>Add product(s) to Quick Order from the Multiple SKUs field on the storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="productSKUs" defaultValue="" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.enterMultipleSKUs}}" stepKey="waitForMultipleSKUsField"/>
+        <fillField selector="{{StorefrontQuickOrderSection.enterMultipleSKUs}}" userInput="{{productSKUs}}" stepKey="enterMultipleSKUs"/>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.addToList}}" stepKey="waitForAddToList"/>
+        <click selector="{{StorefrontQuickOrderSection.addToList}}" stepKey="clickAddToList"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.enterMultipleSKUs}}" stepKey="waitForMultipleSKUsField2"/>
+        <grabTextFrom selector="{{StorefrontQuickOrderSection.enterMultipleSKUs}}" stepKey="multipleSKUsText"/>
+        <assertEmpty stepKey="assertFieldEmpty">
+            <actualResult type="variable">multipleSKUsText</actualResult>
+        </assertEmpty>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAddCompleteCartToRequisitionListWhenProductAlreadyExistsInListActionGroup"
+                 extends="StorefrontAddCompleteCartToRequisitionListActionGroup">
+        <annotations>
+            <description>EXTENDS: StorefrontAddCompleteCartToRequisitionListActionGroup. Adds entire shopping cart to a requisition list from the checkout shopping cart page when at least one product already exists in requisition list. Expects modal to appear that indicates quantities will be updated.</description>
+        </annotations>
+
+        <waitForElementVisible selector="{{StorefrontCartPageSection.addToRequisitionListModalAddButton}}" stepKey="waitForAddItemsModalButton" after="waitForAddingToList"/>
+        <click selector="{{StorefrontCartPageSection.addToRequisitionListModalAddButton}}" stepKey="clickAddItemsModalButton" after="waitForAddItemsModalButton"/>
+        <waitForPageLoad stepKey="waitForModalClose" after="clickAddItemsModalButton"/>
+    </actionGroup>
+</actionGroups>

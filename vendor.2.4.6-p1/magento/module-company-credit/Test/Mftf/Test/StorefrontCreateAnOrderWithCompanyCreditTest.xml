@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCreateAnOrderWithCompanyCreditTest">
+        <annotations>
+            <features value="Company Credit"/>
+            <stories value="Payment on Account"/>
+            <title value="Verify Company Credit for Payment on Account Order"/>
+            <description value="Create company with credit limit, create an order with Payment on Account method and
+            custom reference number, verify company credit changes"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-14595"/>
+            <group value="mtf_migrated"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies, Payment on Account, & Set Default Order Status to Processing -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginToAdminPanel"/>
+            <magentoCLI command="config:set {{EnableCompanyCreditData.path}} {{EnableCompanyCreditData.value}}" stepKey="enableCompanyCredit"/>
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableCompanyCreditOrderStatusProcessing.path}} {{EnableCompanyCreditOrderStatusProcessing.value}}" stepKey="enableCompanyCreditOrderStatusProcessing"/>
+            <magentoCLI command="config:set {{EnableSpecificPaymentMethod.path}} {{EnableSpecificPaymentMethod.value}}" stepKey="enableSpecificPaymentMethod"/>
+            <magentoCLI command="config:set {{SelectSpecificPaymentMethodPaymentOnAccount.path}} {{SelectSpecificPaymentMethodPaymentOnAccount.value}}" stepKey="selectPaymentOnAccountMethod"/>
+
+            <!-- Create Company Admin & 1 Product -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCustomer"/>
+            </createData>
+            <createData entity="defaultSimpleProduct" stepKey="simpleProduct">
+                <field key="price">10</field>
+            </createData>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyCreditData.path}} {{DisableCompanyCreditData.value}}" stepKey="disableCompanyCredit"/>
+            <magentoCLI command="config:set {{EnableCompanyCreditOrderStatusPending.path}} {{EnableCompanyCreditOrderStatusPending.value}}" stepKey="enableCompanyCreditOrderStatusPending"/>
+            <magentoCLI command="config:set {{DisableSpecificPaymentMethod.path}} {{DisableSpecificPaymentMethod.value}}" stepKey="disableSpecificPaymentMethod"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <comment userInput="BIC workaround" stepKey="openHomePage"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+            <deleteData createDataKey="createCompany" stepKey="createCompany"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="simpleProduct" stepKey="deleteProduct"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Add $100 Company Credit Limit -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$createCompany.id$"/>
+            <argument name="companyName" value="$createCompany.company_name$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="filterCompany"/>
+        <comment userInput="BIC workaround" stepKey="editCompany"/>
+        <comment userInput="BIC workaround" stepKey="waitForCompanyEditPageToLoad"/>
+        <comment userInput="BIC workaround" stepKey="addCompanyCredit"/>
+        <actionGroup ref="AdminFillCompanyCreditInformationActionGroup" stepKey="fillCompanyCreditInformation">
+            <argument name="creditLimit" value="100"/>
+        </actionGroup>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+
+        <!-- Create $15 Order with Payment on Account -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginPurchaser">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct1Page">
+            <argument name="product" value="$$simpleProduct$$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="openProductPageAndVerifyProduct"/>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProductToTheCart"/>
+        <comment userInput="BIC workaround" stepKey="clickMiniCart"/>
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="goToCheckout"/>
+        <comment userInput="BIC workaround" stepKey="waitForCustomerInformationPageToLoad"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <comment userInput="BIC workaround" stepKey="customerLogin"/>
+        <comment userInput="BIC workaround" stepKey="waitForNextButton"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickOnNextButton"/>
+        <actionGroup ref="StorefrontCheckoutSelectPaymentOnAccountActionGroup" stepKey="clickPaymentOnAccount"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickOnPlaceOrder"/>
+        <actionGroup ref="StorefrontClickOrderLinkFromCheckoutSuccessPageActionGroup" stepKey="clickOrderLink"/>
+        <comment userInput="BIC workaround" stepKey="assertOrderLink"/>
+        <grabFromCurrentUrl regex="~/order_id/(\d+)/~" stepKey="orderId"/>
+
+        <!-- Verify Company Credit Message, Order Status, & Payment Method on Admin Order Index Page  -->
+        <comment userInput="BIC workaround" stepKey="goToOrders"/>
+        <comment userInput="BIC workaround" stepKey="waitForPageLoad"/>
+        <comment userInput="BIC workaround" stepKey="filterOrderGridById"/>
+        <comment userInput="BIC workaround" stepKey="clickOnViewLink"/>
+        <comment userInput="BIC workaround" stepKey="waitForOrderPageToLoad"/>
+        <actionGroup ref="AdminOpenOrderByEntityIdActionGroup" stepKey="openOrderById">
+            <argument name="entityId" value="$orderId"/>
+        </actionGroup>
+        <see selector="{{NewOrderSection.successMessage}}" userInput="The credit limit for $$createCompany.company_name$$ is $100.00. Its outstanding balance, including this order, currently totals -$15.00" stepKey="seeMessage"/>
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Processing" stepKey="seeOrderStatus"/>
+        <see selector="{{AdminOrderDetailsInformationSection.paymentInformation}}" userInput="Payment on Account" stepKey="seePaymentMethod"/>
+
+        <!-- Verify Outstanding Balance, Available Balance, & Credit Limit on Edit Company Page -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage2">
+            <argument name="companyId" value="$createCompany.id$"/>
+            <argument name="companyName" value="$createCompany.company_name$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="filterCompany1"/>
+        <comment userInput="BIC workaround" stepKey="editCompany1"/>
+        <comment userInput="BIC workaround" stepKey="waitForCompanyEditPageToLoad1"/>
+        <actionGroup ref="AdminAssertCompanyCreditBalanceActionGroup" stepKey="assertCompanyCreditBalance">
+            <argument name="outstandingBalance" value="-$15.00"/>
+            <argument name="availableBalance" value="$85.00"/>
+            <argument name="creditLimit" value="$100.00"/>
+        </actionGroup>
+    </test>
+</tests>

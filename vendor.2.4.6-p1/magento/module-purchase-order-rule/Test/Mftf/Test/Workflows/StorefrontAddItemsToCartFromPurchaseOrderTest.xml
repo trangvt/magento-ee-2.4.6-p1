@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAddItemsToCartFromPurchaseOrderTest">
+        <annotations>
+            <description value="Verify all items in a purchase order can be added to a shopping cart. Tests merging
+            with cart items and replacing cart items. Tests with Purchase Order rules applied"/>
+        </annotations>
+        <before>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin" after="saveCompany">
+                <argument name="Customer" value="$$createCompanyAdmin$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToApprovalRules" after="loginCompanyAdmin"/>
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule" after="navigateToApprovalRules"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm" after="clickAddNewRule"/>
+            <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToAllActionGroup" stepKey="selectAppliesTo" after="fillRuleForm"/>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition" after="selectAppliesTo">
+                <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan500"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers" after="fillRuleCondition"/>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule" after="selectApprovers"/>
+        </before>
+        <remove keyForRemoval="loginPurchaser"/>
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPage" after="purchaseOrderId"/>
+    </test>
+</tests>

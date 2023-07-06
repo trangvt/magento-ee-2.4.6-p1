@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontApproveSubordinatePurchaseOrderTest">
+        <before>
+            <!-- Create Approver Role from Default User Role -->
+            <actionGroup ref="StorefrontClickDuplicateForRoleInRolesGridActionGroup" stepKey="clickDuplicateForDefaultUserRole" after="saveCompanyRole">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditRoleInformationActionGroup" stepKey="editApproverRole" after="clickDuplicateForDefaultUserRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveApproverRole" after="editApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <!-- Assign Approver Customer to Approver Role -->
+            <actionGroup ref="StorefrontGoToCompanyUsersPageActionGroup" stepKey="goToCompanyUsersPage" after="saveApproverRole"/>
+            <actionGroup ref="StorefrontClickEditForCompanyUserInUsersGridActionGroup" stepKey="clickEditForApprover" after="goToCompanyUsersPage">
+                <argument name="companyUser" value="$$createPurchaseOrderApproverCustomer$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditCompanyUserActionGroup" stepKey="assignApproverToRole" after="clickEditForApprover">
+                <argument name="customerData" value="$$createPurchaseOrderApproverCustomer$$"/>
+                <argument name="companyUserData" value="CompanyApprover"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyUserActionGroup" stepKey="saveApproverUser" after="assignApproverToRole"/>
+            <!-- Create rule with new approve role -->
+            <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToApprovalRules" after="AssignSubordinate"/>
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule" after="navigateToApprovalRules"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm" after="clickAddNewRule">
+                <argument name="rule" value="PurchaseOrderRule_Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition" after="fillRuleForm">
+                <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan500"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers" after="fillRuleCondition">
+                <argument name="approver" value="PurchaseOrderRuleApprover_Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule" after="selectApprovers"/>
+        </before>
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPage" after="clickPurchaseOrderLink"/>
+        <!-- Verify PO Status on Approval POs Tab -->
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="navigateToApprovalPurchaseOrdersPage2" after="verifyPOStatusInGrid"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusInGridActionGroup" stepKey="verifyPOStatusInGrid2" after="navigateToApprovalPurchaseOrdersPage2">
+            <argument name="gridName" value="approval"/>
+            <argument name="purchaseOrderNumber" value="$purchaseOrderId"/>
+            <argument name="status" value="{{PurchaseOrderStatuses.approved}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyPOSelectCheckboxDisabledActionGroup" stepKey="PurchaseOrderCheckboxIsDisabled" after="verifyPOStatusInGrid2">
+            <argument name="id" value="$purchaseOrder1IntId"/>
+            <argument name="tabName" value="approval"/>
+        </actionGroup>
+    </test>
+</tests>

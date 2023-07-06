@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminFPTVisibleOnNegotiableQuotePageTest">
+        <annotations>
+            <features value="NegotiableQuoteWeee"/>
+            <stories value="Negotiable Quotes"/>
+            <title value="Fixed Product Tax is visible on negotiable quote page"/>
+            <description value="Check Fixed Product Tax attribute is visible on negotiable quote page"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-31493"/>
+            <useCaseId value="MC-23788"/>
+            <group value="weee"/>
+            <group value="negotiable_quotes"/>
+            <group value="negotiableQuote"/>
+            <group value="negotiableQuoteWeee"/>
+        </annotations>
+        <before>
+            <!-- Apply configuration settings -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableB2BQuoteConfigData.path}} {{EnableB2BQuoteConfigData.value}}" stepKey="enableB2BQuote"/>
+            <magentoCLI command="config:set carriers/flatrate/active 1" stepKey="activateFlatRateShippingMethod"/>
+            <createData entity="WeeeConfigEnable" stepKey="enableWeee"/>
+
+            <!-- Create company and company admin-->
+            <createData entity="Simple_US_Customer_CA" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginToAdmin"/>
+            <actionGroup ref="AdminDeleteAllProductAttributesFilteredByCodeActionGroup" stepKey="deleteAllExistingFPTAttributes">
+                <argument name="codeFilter" value="weee_"/>
+            </actionGroup>
+
+            <!-- Create product attribute and add it to default attribute set />-->
+            <createData entity="FPTProductAttribute" stepKey="createProductFPTAttribute"/>
+            <createData entity="AddToDefaultSet" stepKey="addToDefaultAttributeSet">
+                <requiredEntity createDataKey="createProductFPTAttribute"/>
+            </createData>
+
+            <!-- Create simple product and add fpt attribute data for it-->
+            <createData entity="SimpleProduct2" stepKey="createSimpleProduct">
+                <field key="price">100.00</field>
+            </createData>
+
+            <comment userInput="Action moved upper and replaced with comment to keep backward compatibility" stepKey="loginAsAdmin"/>
+
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="openProductEditPage">
+                <argument name="productId" value="$createSimpleProduct.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminProductAddFPTValueActionGroup" stepKey="addFixedProductTaxAttr">
+                <argument name="FPTAttributeCode" value="$createProductFPTAttribute.attribute_code$"/>
+                <argument name="stateForFPT" value="California"/>
+                <argument name="valueForFPT" value="50"/>
+            </actionGroup>
+            <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProduct"/>
+        </before>
+
+        <after>
+            <!-- Apply default configuration settings -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableB2BQuoteConfigData.path}} {{DisableB2BQuoteConfigData.value}}" stepKey="disableB2BQuote"/>
+            <createData entity="WeeeConfigDisable" stepKey="disableWeee"/>
+            <!--Delete company and customer-->
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutFromStorefront"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCustomer"/>
+            <!-- Delete product and attribute-->
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createProductFPTAttribute" stepKey="deleteProductFPTAttribute"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+
+            <amOnPage url="{{AdminNegotiableQuotesPage.url}}" stepKey="openNegotiableQuotesPage"/>
+            <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearFiltersNegotiableQuotesGrid"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdmin"/>
+        </after>
+
+        <!--Login to Storefront -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$createCompanyAdmin$"/>
+        </actionGroup>
+        <!--Add product to cart-->
+        <actionGroup ref="StorefrontAddSimpleProductToShoppingCartActionGroup" stepKey="addSimpleProductToShoppingCart">
+            <argument name="product" value="$createSimpleProduct$"/>
+        </actionGroup>
+        <!--Open shopping cart-->
+        <actionGroup ref="ClickViewAndEditCartFromMiniCartActionGroup" stepKey="openShoppingCart"/>
+        <!--Check shopping cart items data-->
+        <actionGroup ref="AssertStorefrontCartItemWithWeeeAttributeActionGroup" stepKey="checkCartProductWithWeeeAttribute">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+            <argument name="productSku" value="$createSimpleProduct.sku$"/>
+            <argument name="productPrice" value="150"/>
+            <argument name="subtotal" value="150"/>
+            <argument name="qty" value="1"/>
+        </actionGroup>
+        <!--Check shopping cart totals-->
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryWithWeeeEnabledActionGroup" stepKey="assertShoppingCartSummaryWithWeeeEnabled">
+            <argument name="subtotal" value="100"/>
+            <argument name="total" value="155"/>
+        </actionGroup>
+        <!-- Request a quote -->
+        <actionGroup ref="StorefrontRequestQuoteActionGroup" stepKey="requestQuote">
+            <argument name="quote" value="DefaultNegotiableQuote"/>
+        </actionGroup>
+        <!--Open negotiable quote-->
+        <actionGroup ref="StorefrontOpenNegotiableQuoteActionGroup" stepKey="openNegotiableQuote">
+            <argument name="quoteName" value="{{DefaultNegotiableQuote.name}}"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForQuoteOpenedOnStorefront"/>
+        <!-- Select address for negotiable quote-->
+        <actionGroup ref="StorefrontSelectNegotiableQuoteCustomerAddressActionGroup" stepKey="selectNegotiableQuoteCustomerAddress"/>
+        <!--Check negotiable quote items data-->
+        <actionGroup ref="AssertStorefrontNegotiableQuoteItemWithWeeeAttributeActionGroup" stepKey="assertStorefrontNegotiableQuoteItemWithWeeeAttribute">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+            <argument name="productSku" value="$createSimpleProduct.sku$"/>
+            <argument name="productPrice" value="150"/>
+            <argument name="subtotal" value="150"/>
+            <argument name="qty" value="1"/>
+        </actionGroup>
+        <!--Check negotiable quote totals-->
+        <actionGroup ref="AssertStorefrontNegotiableQuoteTotalsWithWeeeAttributeActionGroup" stepKey="assertStorefrontNegotiableQuoteTotalsWithWeeeAttribute">
+            <argument name="subtotal" value="100"/>
+            <argument name="total" value="150"/>
+            <argument name="catalogTotal" value="100"/>
+            <argument name="catalogSubtotal" value="100"/>
+            <argument name="weeeCatalogSubtotal" value="50"/>
+            <argument name="weeeSubtotal" value="50"/>
+        </actionGroup>
+        <!--Open negotiable quote in admin-->
+        <actionGroup ref="AdminOpenNegotiableQuoteActionGroup" stepKey="adminOpenNegotiableQuote">
+            <argument name="quoteName" value="{{DefaultNegotiableQuote.name}}"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForQuoteUpdated"/>
+        <!--Check negotiable quote items data-->
+        <actionGroup ref="AssertAdminNegotiableQuoteItemWithWeeeAttributeActionGroup" stepKey="assertAdminNegotiableQuoteItemWithWeeeAttribute">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+            <argument name="productPrice" value="$createSimpleProduct.price$"/>
+            <argument name="subtotal" value="$createSimpleProduct.price$"/>
+            <argument name="qty" value="1"/>
+            <argument name="weeeAmount" value="50"/>
+        </actionGroup>
+        <!--Check negotiable quote totals-->
+        <actionGroup ref="AssertAdminNegotiableQuoteTotalsWithWeeeAttributeActionGroup" stepKey="assertAdminNegotiableQuoteTotalsWithWeeeAttribute">
+            <argument name="subtotal" value="100"/>
+            <argument name="total" value="150"/>
+            <argument name="catalogTotal" value="100"/>
+            <argument name="catalogSubtotal" value="100"/>
+            <argument name="weeeCatalogSubtotal" value="50"/>
+            <argument name="weeeSubtotal" value="50"/>
+        </actionGroup>
+    </test>
+</tests>

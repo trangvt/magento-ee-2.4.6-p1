@@ -1,0 +1,32 @@
+{
+    "name": "magento/module-negotiable-quote-async-order",
+    "description": "N/A",
+    "type": "magento2-module",
+    "license": [
+        "proprietary"
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "version": "1.3.2-p1",
+    "require": {
+        "php": "~8.1.0||~8.2.0",
+        "magento/framework": "103.0.6-p1",
+        "magento/module-async-order": "100.4.2-p1",
+        "magento/module-negotiable-quote": "100.3.5-p1",
+        "magento/module-quote": "101.2.6-p1"
+    },
+    "suggest": {
+        "magento/module-checkout-staging": "100.4.5",
+        "magento/module-payment": "100.4.6"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Magento\\NegotiableQuoteAsyncOrder\\": ""
+        }
+    }
+}
+

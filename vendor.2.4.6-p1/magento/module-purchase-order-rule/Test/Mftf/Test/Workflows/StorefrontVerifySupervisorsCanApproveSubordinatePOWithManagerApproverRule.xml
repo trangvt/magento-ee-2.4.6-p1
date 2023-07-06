@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifySupervisorsCanApproveSubordinatePOWithManagerApproverRule">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="Workflow"/>
+            <title value="Verify Any Supervisor Can Approve Subordinates' Purchase Orders When a Purchaser's Manager Approver Rule Is Applied"/>
+            <description value="Verify that supervisors to purchase order creators can approve, reject, cancel purchase orders when a Purchaser's Manager approver rule has been applied."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-33450"/>
+            <useCaseId value="B2B-415"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="CompanyRegularPurchaser" stepKey="createPurchaseOrderPurchaser"/>
+            <createData entity="CompanySupervisorUser" stepKey="createPurchaseOrderSupervisorUser"/>
+            <createData entity="CompanySeniorSupervisorUser" stepKey="createPurchaseOrderSeniorSupervisorUser"/>
+            <createData entity="CompanyAdminUser" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="SimpleProductForPurchaseOrder_Price_1000_01" stepKey="product1">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <!-- Enable Company Order Approvals -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+                <argument name="companyId" value="$createCompany.id$"/>
+                <argument name="companyName" value="$createCompany.company_name$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnablePurchaseOrderForCompanyActionGroup" stepKey="enablePurchaseOrderForCompany"/>
+            <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+            <!-- Assign Purchaser to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCustomerEditPage">
+                <argument name="customerId" value="$$createPurchaseOrderPurchaser.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignPurchaserToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Assign Supervisor User to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openSupervisorUserEditPage">
+                <argument name="customerId" value="$$createPurchaseOrderSupervisorUser.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignSupervisorUserToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Assign Senior Supervisor User to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openSeniorSupervisorUserEditPage">
+                <argument name="customerId" value="$$createPurchaseOrderSeniorSupervisorUser.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignSeniorSupervisorUserToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Enable View Purchase Orders Permission for Default User Role -->
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+                <argument name="Customer" value="$$createCompanyAdmin$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage"/>
+            <actionGroup ref="StorefrontClickEditForRoleInRolesGridActionGroup" stepKey="clickEditForRoleInRolesGrid">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontToggleCompanyRolePermissionActionGroup" stepKey="enableViewPurchaseOrdersPermission">
+                <argument name="permissionId" value="Magento_PurchaseOrder::view_purchase_orders"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveCompanyRole">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <!-- Assign Purchaser as Subordinate to Supervisor -->
+            <actionGroup ref="StorefrontNavigateToCompanyStructurePageActionGroup" stepKey="navigateToCompanyStructurePage"/>
+            <actionGroup ref="StorefrontCompanyStructureAssignSubordinateActionGroup" stepKey="AssignSubordinate">
+                <argument name="supervisorUser" value="$$createPurchaseOrderSupervisorUser$$"/>
+                <argument name="subordinateUser" value="$$createPurchaseOrderPurchaser$$"/>
+            </actionGroup>
+            <!-- Assign Supervisor as Subordinate to Senior Supervisor -->
+            <actionGroup ref="StorefrontCompanyStructureAssignSubordinateActionGroup" stepKey="AssignSubordinate2">
+                <argument name="supervisorUser" value="$$createPurchaseOrderSeniorSupervisorUser$$"/>
+                <argument name="subordinateUser" value="$$createPurchaseOrderSupervisorUser$$"/>
+            </actionGroup>
+            <!-- Create Purchase Order Rule -->
+            <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToApprovalRules"/>
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm">
+                <argument name="rule" value="PurchaseOrderRule_Manager"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition">
+                <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan1000"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers">
+                <argument name="approver" value="PurchaseOrderRuleApprover_Manager"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule"/>
+            <!-- Logout as Company Admin -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogout"/>
+            <deleteData createDataKey="createPurchaseOrderPurchaser" stepKey="deletePurchaseOrderPurchaser"/>
+            <deleteData createDataKey="createPurchaseOrderSupervisorUser" stepKey="deletePurchaseOrderSupervisorUser"/>
+            <deleteData createDataKey="createPurchaseOrderSeniorSupervisorUser" stepKey="deletePurchaseOrderSeniorSupervisorUser"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <deleteData createDataKey="product1" stepKey="deleteProduct1"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutAdmin"/>
+            <comment userInput="BIC workaround" stepKey="logoutStorefront"/>
+        </after>
+        <!-- Create Purchase Order as Purchaser Customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontCustomerLogin">
+            <argument name="Customer" value="$$createPurchaseOrderPurchaser$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct1Page">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProduct1ToCart">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <!-- Complete Checkout -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder"/>
+        <actionGroup ref="StorefrontCheckoutClickPlacePurchaseOrderActionGroup" stepKey="clickPlacePurchaseOrder"/>
+        <!-- Validate Successful Purchase Order in Storefront -->
+        <actionGroup ref="StorefrontValidateSuccessfulPurchaseOrderSubmittalActionGroup" stepKey="validateSuccessfulPurchaseOrder"/>
+        <grabTextFrom selector="{{StorefrontPurchaseOrderSuccessSection.purchaseOrderNumber}}" stepKey="purchaseOrderId"/>
+        <actionGroup ref="StorefrontClickPurchaseOrderLinkFromSuccessfulPurchaseOrderPageActionGroup" stepKey="clickPurchaseOrderLink"/>
+        <!-- Validate Purchase Order status as Pending -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderPending">
+            <argument name="status" value="{{PurchaseOrderStatuses.pending}}"/>
+        </actionGroup>
+        <!-- Process Queue and Verify Purchase Order is Approval Required -->
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPage"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderApprovalRequired">
+            <argument name="status" value="{{PurchaseOrderStatuses.approvalRequired}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateNoApproveRejectButtonsActionGroup" stepKey="validateNoApproveRejectButtons"/>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogoutPurchaser"/>
+        <!-- Login as Supervisor and Verify Can Approve -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontSupervisorUserLogin">
+            <argument name="Customer" value="$$createPurchaseOrderSupervisorUser$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToCompanyPurchaseOrdersPageActionGroup" stepKey="navigateToCompanyPurchaseOrdersPageAsSupervisor"/>
+        <actionGroup ref="StorefrontVerifyPurchaseOrderExistsInGridActionGroup" stepKey="verifyPurchaseOrderInCompanyPurchaseOrdersGrid">
+            <argument name="gridName" value="company"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="navigateToApprovalPurchaseOrdersPage"/>
+        <actionGroup ref="StorefrontNavigateToViewPurchaseOrderPageActionGroup" stepKey="navigateToViewPurchaseOrderPage">
+            <argument name="tabName" value="approval"/>
+            <argument name="purchaseOrderNumber" value="$purchaseOrderId"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApproveRejectCancelButtonsActionGroup" stepKey="validateCanApproveOrReject"/>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogoutPurchaser2"/>
+        <!-- Login as Senior Supervisor and Verify Can Approve -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontSeniorSupervisorUserLogin">
+            <argument name="Customer" value="$$createPurchaseOrderSeniorSupervisorUser$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToCompanyPurchaseOrdersPageActionGroup" stepKey="navigateToCompanyPurchaseOrdersPageAsSeniorSupervisor"/>
+        <actionGroup ref="StorefrontVerifyPurchaseOrderExistsInGridActionGroup" stepKey="verifyPurchaseOrderInCompanyPurchaseOrdersGrid2">
+            <argument name="gridName" value="company"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="navigateToApprovalPurchaseOrdersPage2"/>
+        <actionGroup ref="StorefrontNavigateToViewPurchaseOrderPageActionGroup" stepKey="navigateToViewPurchaseOrderPage2">
+            <argument name="tabName" value="approval"/>
+            <argument name="purchaseOrderNumber" value="$purchaseOrderId"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApproveRejectCancelButtonsActionGroup" stepKey="validateCanApproveOrReject2"/>
+        <!-- Approve the purchase order and verify the status is approved -->
+        <actionGroup ref="StorefrontApprovePurchaseOrderActionGroup" stepKey="approvePurchaseOrder"/>
+    </test>
+</tests>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontCreateRequisitionListFromCategoryPageActionGroup">
+        <annotations>
+            <description>Create RequisitionList from storefront category page.</description>
+        </annotations>
+        <arguments>
+            <argument name="productName" type="string" defaultValue="{{SimpleProduct.name}}"/>
+            <argument name="requisitionListName" type="string" defaultValue="{{RequisitionListProduct1.name}}"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCategoryProductSection.ProductInfoByName(productName)}}" stepKey="waitForProductItemInfoElementVisible"/>
+        <moveMouseOver selector="{{StorefrontCategoryProductSection.ProductInfoByName(productName)}}" stepKey="moveMouseOverProduct"/>
+        <click selector="{{StorefrontCategoryProductSection.addToRequisitionListButton(productName)}}" stepKey="clickAddToRequisitionListButton"/>
+        <waitForElementVisible selector="{{StorefrontCategoryProductSection.createNewRequisitionListButton(productName)}}" stepKey="waitForCreateNewRequisitionListButtonVisible"/>
+        <click selector="{{StorefrontCategoryProductSection.createNewRequisitionListButton(productName)}}" stepKey="clickCreateNewRequisitionListButton"/>
+        <waitForElementVisible selector="{{StorefrontCreateRequisitionListSection.requisitionListName}}" stepKey="waitForNameInputElementVisible"/>
+        <fillField selector="{{StorefrontCreateRequisitionListSection.requisitionListName}}" userInput="{{requisitionListName}}" stepKey="fillRequisitionListNameField"/>
+        <click selector="{{StorefrontCreateRequisitionListSection.saveButton}}" stepKey="clickSaveButton"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.success}}" stepKey="waitForSuccessMessageElementVisible"/>
+        <see selector="{{StorefrontMessagesSection.success}}" userInput="Product {{productName}} has been added to the requisition list {{requisitionListName}}." stepKey="seeSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

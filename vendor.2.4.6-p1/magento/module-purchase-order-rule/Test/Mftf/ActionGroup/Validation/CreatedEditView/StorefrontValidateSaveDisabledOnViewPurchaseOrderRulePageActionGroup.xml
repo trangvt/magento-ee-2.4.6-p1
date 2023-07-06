@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidateSaveDisabledOnViewPurchaseOrderRulePageActionGroup" deprecated="Use StorefrontValidateEditDisabledOnViewPurchaseOrderRulePageActionGroup">
+        <annotations>
+            <description>Verify that the Save button is disabled and there is a message about not being able to save on the View Purchase Order Rule page.</description>
+        </annotations>
+        <comment userInput="removing deprecated element" stepKey="waitForSaveButtonVisible"/>
+        <waitForElementVisible selector="{{AdminMessagesSection.noticeMessage}}" stepKey="waitForNoticeMessage"/>
+        <see selector="{{AdminMessagesSection.noticeMessage}}" userInput="You don't have permissions to edit this rule. You won't be able to save any change to it." stepKey="seeNoticeMessage"/>
+    </actionGroup>
+</actionGroups>

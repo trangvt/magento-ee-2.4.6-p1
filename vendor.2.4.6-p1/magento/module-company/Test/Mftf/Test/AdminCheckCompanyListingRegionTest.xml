@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCheckCompanyListingRegionTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Admin Company Grid"/>
+            <title value="Verify State/Province on Company Grid Page"/>
+            <description value="Verify companies can be filtered by state/province successfully on the admin Company Index page."/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-6182"/>
+            <group value="b2b"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Create Company 1 Admin -->
+            <createData entity="Simple_US_Customer" stepKey="companyAdmin"/>
+            <createData entity="Default_Company" stepKey="defaultCompany">
+                <requiredEntity createDataKey="companyAdmin"/>
+            </createData>
+
+            <!-- Create Company 2 Admin -->
+            <createData entity="Simple_US_CA_Customer" stepKey="companyAdmin2"/>
+            <createData entity="Ukraine_Company" stepKey="company2">
+                <requiredEntity createDataKey="companyAdmin2"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Delete Data & Clear Filters -->
+            <deleteData createDataKey="defaultCompany" stepKey="deleteCompany1"/>
+            <deleteData createDataKey="company2" stepKey="deleteCompany2"/>
+            <deleteData createDataKey="companyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="companyAdmin2" stepKey="deleteCompanyAdmin2"/>
+            <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearGridFilters"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Go to Admin Company Index Page and Filter Grid by Company 1 Name and Verify Result -->
+        <actionGroup ref="AdminNavigateToCompaniesIndexPageActionGroup" stepKey="navigateToCompaniesIndexPage"/>
+        <actionGroup ref="AdminFilterCompanyByCompanyNameActionGroup" stepKey="filterByCompany1">
+            <argument name="company" value="Default_Company"/>
+        </actionGroup>
+        <see selector="{{AdminCompanyGridSection.companyGridCell('1','State/Province')}}" userInput="{{RegionTX.region}}" stepKey="seeRegionInGrid1"/>
+
+        <!-- Filter Grid by Company 2 Name and Verify Result -->
+        <actionGroup ref="AdminNavigateToCompaniesIndexPageActionGroup" stepKey="navigateToCompaniesIndexPage2"/>
+        <actionGroup ref="AdminFilterCompanyByCompanyNameActionGroup" stepKey="filterByCompany2">
+            <argument name="company" value="Ukraine_Company"/>
+        </actionGroup>
+        <see selector="{{AdminCompanyGridSection.companyGridCell('1','State/Province')}}" userInput="{{Ukraine_Company.region}}" stepKey="seeRegionInGrid2"/>
+    </test>
+</tests>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
+    <consumer name="sharedCatalogUpdatePrice" queue="shared_catalog_product_price_update" consumerInstance="Magento\Framework\MessageQueue\BatchConsumer" handler="Magento\SharedCatalog\Model\ResourceModel\ProductItem\Price\Consumer::processOperations"/>
+    <consumer name="sharedCatalogUpdateCategoryPermissions" queue="shared_catalog_category_permissions_update" consumerInstance="Magento\Framework\MessageQueue\BatchConsumer" handler="Magento\SharedCatalog\Model\ResourceModel\Permission\CategoryPermissions\Consumer::processOperations"/>
+</config>

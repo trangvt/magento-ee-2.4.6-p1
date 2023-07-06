@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\CustomerBalance\Block\Checkout\Onepage\Payment\Additional">
+        <plugin name="company_customerbalance_is_allowed_plugin" type="Magento\CompanyPayment\Plugin\CustomerBalance\Block\Checkout\Onepage\Payment\AdditionalPlugin"/>
+    </type>
+    <type name="Magento\Checkout\Block\Checkout\LayoutProcessor">
+        <plugin name="company_customerbalance_allowed_on_checkout" type="Magento\CompanyPayment\Plugin\Checkout\Block\LayoutProcessorPlugin"/>
+    </type>
+</config>

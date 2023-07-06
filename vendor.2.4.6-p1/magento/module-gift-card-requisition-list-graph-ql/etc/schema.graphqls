@@ -1,0 +1,16 @@
+# Copyright © Magento, Inc. All rights reserved.
+# See COPYING.txt for license details.
+
+type GiftCardRequisitionListItem implements RequisitionListItemInterface @doc(description: "Contains details about gift cards added to a requisition list.") {
+    gift_card_options: GiftCardOptions! @resolver(class: "Magento\\GiftCardRequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\GiftCard") @doc(description: "An array that defines gift card properties.")
+}
+
+type GiftCardOptions {
+    sender_name: String @doc(description: "The name of the person sending the gift card.")
+    sender_email: String @doc(description: "The email address of the person sending the gift card.")
+    recipient_name: String @doc(description: "The name of the person receiving the gift card.")
+    recipient_email: String @doc(description: "The email address of the person receiving the gift card.")
+    amount: Money @doc(description: "The amount and currency of the gift card.")
+    custom_giftcard_amount: Money @doc(description: "The custom amount and currency of the gift card.")
+    message: String @doc(description: "A message to the recipient.")
+}

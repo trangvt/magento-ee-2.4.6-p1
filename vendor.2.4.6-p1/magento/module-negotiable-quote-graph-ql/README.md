@@ -1,0 +1,1 @@
+# Negotiable Quote GraphQL #

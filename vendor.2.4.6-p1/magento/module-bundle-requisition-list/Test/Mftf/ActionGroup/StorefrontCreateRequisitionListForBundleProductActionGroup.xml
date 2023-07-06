@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontCreateRequisitionListForBundleProductActionGroup">
+        <annotations>
+            <description>Create RequisitionList from storefront product page.</description>
+        </annotations>
+        <arguments>
+            <argument name="requisitionList" type="entity" defaultValue="Test Requisition List 1"/>
+            <argument name="product" type="entity" defaultValue="BundleProduct"/>
+        </arguments>
+        <click selector="{{StorefrontProductPageSection.addToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton"/>
+        <click selector="{{StorefrontProductPageSection.createNewRequisitionListButton}}" stepKey="clickCreateNewRequisitionListButton"/>
+        <waitForElementVisible selector="{{StorefrontProductPageSection.requisitionListName}}" stepKey="waitForNameInputElementVisible"/>
+        <fillField selector="{{StorefrontProductPageSection.requisitionListName}}" userInput="{{product.name}}" stepKey="fillRequisitionListNameField"/>
+        <click selector="{{StorefrontCreateRequisitionListSection.saveButton}}" stepKey="clickSaveButton"/>
+        <waitForPageLoad stepKey="waitForSave"/>
+        <see selector="{{StorefrontProductPageSection.successMsg}}" userInput="Product {{product.name}} has been added to the requisition list {{requisitionList.name}}." stepKey="seeSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

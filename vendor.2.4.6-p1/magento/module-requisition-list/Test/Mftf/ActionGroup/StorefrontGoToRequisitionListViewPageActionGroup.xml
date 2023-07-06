@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontGoToRequisitionListViewPageActionGroup">
+        <annotations>
+            <description>Navigates to a requisition list's view page from the Requisition List Index page</description>
+        </annotations>
+        <arguments>
+            <argument name="requisitionListName" type="string" defaultValue="RL1" />
+        </arguments>
+
+        <waitForElementVisible selector="{{StorefrontRequisitionListGridSection.requisitionListViewLink(requisitionListName)}}" stepKey="waitForViewButton"/>
+        <click selector="{{StorefrontRequisitionListGridSection.requisitionListViewLink(requisitionListName)}}" stepKey="clickViewButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.title}}" stepKey="waitForTitle"/>
+        <see selector="{{StorefrontRequisitionListViewSection.title}}" userInput="{{requisitionListName}}" stepKey="seeRequisitionListTitle"/>
+    </actionGroup>
+</actionGroups>

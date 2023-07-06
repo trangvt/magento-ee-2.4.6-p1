@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontVerifyUserRoleOnCustomerAccountDashboardActionGroup">
+        <annotations>
+            <description>Verifies user role on the customer account dashboard page</description>
+        </annotations>
+        <arguments>
+            <argument name="title" type="string" defaultValue="User Role"/>
+            <argument name="userRole" type="string" defaultValue="{{DefaultCompanyUser.role}}"/>
+        </arguments>
+        <waitForText selector="{{StorefrontCustomerDashboardUserRoleSection.title}}" userInput="{{title}}" stepKey="verifySectionTitle"/>
+        <waitForText selector="{{StorefrontCustomerDashboardUserRoleSection.role}}" userInput="{{userRole}}" stepKey="verifyUserRole"/>
+    </actionGroup>
+</actionGroups>

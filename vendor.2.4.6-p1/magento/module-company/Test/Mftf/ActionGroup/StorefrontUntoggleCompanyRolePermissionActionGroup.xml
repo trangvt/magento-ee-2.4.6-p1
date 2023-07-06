@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontUntoggleCompanyRolePermissionActionGroup" extends="StorefrontToggleCompanyRolePermissionActionGroup">
+        <annotations>
+            <description>Toggles the defined company role permission to OFF state. Must be on the Edit Company Role storefront page</description>
+        </annotations>
+        <conditionalClick
+            selector="{{StorefrontCompanyRolePermissionsSection.permissionNode(permissionId)}}"
+            dependentSelector="{{StorefrontCompanyRolePermissionsSection.permissionNodeOff(permissionId)}}"
+            visible="false"
+            stepKey="editPermission"
+        />
+    </actionGroup>
+</actionGroups>

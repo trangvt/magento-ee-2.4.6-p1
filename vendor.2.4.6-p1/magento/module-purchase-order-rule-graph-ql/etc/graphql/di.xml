@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\PurchaseOrderRuleGraphQl\Model\Resolver\Metadata">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_approval_rules" xsi:type="string">Magento_PurchaseOrderRule::view_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderRuleGraphQl\Model\Resolver\Rule">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_approval_rules" xsi:type="string">Magento_PurchaseOrderRule::view_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderRuleGraphQl\Model\Resolver\Rules">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_approval_rules" xsi:type="string">Magento_PurchaseOrderRule::view_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderRuleGraphQl\Model\Resolver\Flow">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_approval_rules" xsi:type="string">Magento_PurchaseOrderRule::view_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\PurchaseOrder\AvailableActions">
+        <arguments>
+            <argument name="actions" xsi:type="array">
+                <item name="validate" xsi:type="string">VALIDATE</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\GetPurchaseOrdersSearchCriteria">
+        <arguments>
+            <argument name="filters" xsi:type="array">
+                <item name="require_my_approval" xsi:type="object">Magento\PurchaseOrderRuleGraphQl\Model\Filters\RequireMyApproval</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderRuleGraphQl\Model\Filters\RequireMyApproval">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_purchase_orders_for_subordinates" xsi:type="string">Magento_PurchaseOrder::view_purchase_orders_for_subordinates</item>
+            </argument>
+        </arguments>
+    </type>
+     <type name="Magento\PurchaseOrderRuleGraphQl\Model\Resolver\CreateRule">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_view" xsi:type="string">Magento_PurchaseOrderRule::manage_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderRuleGraphQl\Model\Resolver\DeleteRule">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="manage_approval_rules" xsi:type="string">Magento_PurchaseOrderRule::manage_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderRuleGraphQl\Model\Resolver\UpdateRule">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="manage_approval_rules" xsi:type="string">Magento_PurchaseOrderRule::manage_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\GetLogMessage">
+        <arguments>
+            <argument name="messages" xsi:type="array">
+                <item name="apply_rules" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Rules: %rule applied to Purchase Order</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

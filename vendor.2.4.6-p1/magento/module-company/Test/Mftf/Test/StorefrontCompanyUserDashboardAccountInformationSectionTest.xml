@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCustomerAccountInformationTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Account Information"/>
+            <title value="Verify Company Information on Storefront Edit Account Information Page"/>
+            <description value="Verify company information on the storefront Edit Account Information page for a company
+            admin user, a non-admin company user, and a non-company user"/>
+            <severity value="MAJOR"/>
+            <group value="company"/>
+            <group value="customer"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Create Company Admin & 2 Customers -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyCustomer"/>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+
+            <!-- Assign Customer to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCustomerEditPage">
+                <argument name="customerId" value="$$createCompanyCustomer.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignCustomerToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogout"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="createCompanyCustomer" stepKey="deleteCompanyCustomer"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+
+        <!-- Verify Company Information for Company Admin User on Edit Account Information Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCompanyAdminToStorefront">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToAccountInformationChangeActionGroup" stepKey="goToCustomerEditPageWithCompanyAdmin"/>
+        <actionGroup ref="StorefrontVerifyCompanyCustomerAccountInformationActionGroup" stepKey="verifyCompanyFieldsForCompanyAdmin">
+            <argument name="customer" value="$$createCompanyAdmin$$"/>
+            <argument name="companyName" value="$$createCompany.company_name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin"/>
+
+        <!-- Verify Company Information for Company Non-Admin User on Edit Account Information Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCompanyCustomerToStorefront">
+            <argument name="Customer" value="$$createCompanyCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToAccountInformationChangeActionGroup" stepKey="goToCustomerEditPageWithCompanyCustomer"/>
+        <actionGroup ref="StorefrontVerifyCompanyCustomerAccountInformationActionGroup" stepKey="verifyCompanyFieldsForCompanyCustomer">
+            <argument name="customer" value="$$createCompanyCustomer$$"/>
+            <argument name="companyName" value="$$createCompany.company_name$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyCustomer"/>
+
+        <!-- Verify Company Information Doesn't Exist for Non-Company User on Edit Account Information Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsNonCompanyCustomerToStorefront">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToAccountInformationChangeActionGroup" stepKey="goToCustomerEditPageWithNotCompanyCustomer"/>
+        <actionGroup ref="StorefrontVerifyNonCompanyCustomerAccountInformationActionGroup" stepKey="verifyCompanyFieldsForNonCompanyCustomer">
+            <argument name="customer" value="$$createCustomer$$"/>
+        </actionGroup>
+    </test>
+</tests>

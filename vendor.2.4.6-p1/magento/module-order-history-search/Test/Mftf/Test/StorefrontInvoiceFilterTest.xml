@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontInvoiceFilterTest">
+        <annotations>
+            <features value="Customer can use invoice filter to get specific order."/>
+            <stories value="B2B-228: Storefront Order Search"/>
+            <title value="B2B-284: Customer can use invoice filter to get specific order."/>
+            <description value="Customer can use invoice filter to get specific order."/>
+            <severity value="CRITICAL"/>
+            <group value="customer"/>
+            <useCaseId value="B2B-228"/>
+            <group value="pr_exclude"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="SimpleProductOrderHistory1" stepKey="product1">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <createData entity="SimpleProductOrderHistory2" stepKey="product2">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <createData entity="Simple_US_Customer" stepKey="customer"/>
+
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$customer$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="product1" stepKey="deleteProduct1"/>
+            <deleteData createDataKey="product2" stepKey="deleteProduct2"/>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProduct1ToCart">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <!-- Complete Checkout - 1st Order -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlacePurchaseOrder"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber1"/>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProduct2ToCart">
+            <argument name="product" value="$$product2$$"/>
+        </actionGroup>
+        <!-- Complete Checkout - 2nd Order -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage2"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod2"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep2"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder2"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlacePurchaseOrder2"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber2"/>
+
+        <actionGroup ref="CreateInvoice" stepKey="createInvoiceForSecondOrder">
+            <argument name="orderNumber" value="$orderNumber2"/>
+        </actionGroup>
+        <click selector="{{AdminOrderDetailsOrderViewSection.information}}" stepKey="clickInformation"/>
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Processing" stepKey="assertSeeOrderStatus"/>
+        <amOnPage url="{{AdminInvoicesPage.url}}" stepKey="goToInvoices"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask1"/>
+        <click selector="{{AdminInvoicesGridSection.filter}}" stepKey="clickFilters"/>
+        <fillField selector="{{AdminInvoicesFiltersSection.orderNum}}" userInput="{$orderNumber2}" stepKey="searchOrderNum2"/>
+        <click selector="{{AdminInvoicesGridSection.applyFiltersButton}}" stepKey="clickApplyFilters"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask2"/>
+        <click selector="{{AdminInvoicesGridSection.firstRow}}" stepKey="clickInvoice2"/>
+        <executeJS function="return jQuery('.page-title').text().substring(1);" stepKey="invoiceNumber2"/>
+
+        <amOnPage url="{{StorefrontCustomerMyOrdersPage.url}}" stepKey="amOnMyOrdersPage"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.showFiltersButton}}" stepKey="clickShowFilters1"/>
+        <see userInput="{$orderNumber1}" selector="{{StorefrontCustomerMyOrdersSection.orderHistoryTableOrderNumber('$orderNumber1')}}" stepKey="assertSeeOrder1BeforeFilter"/>
+        <see userInput="{$orderNumber2}" selector="{{StorefrontCustomerMyOrdersSection.orderHistoryTableOrderNumber('$orderNumber2')}}" stepKey="assertSeeOrder2BeforeFilter"/>
+        <fillField userInput="{$invoiceNumber2}" selector="{{StorefrontCustomerMyOrdersSection.invoiceNumberFilter}}" stepKey="fillInvoiceNumber"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.applyFiltersButton}}" stepKey="clickApplyFilters1"/>
+        <waitForPageLoad stepKey="waitForPageLoad1"/>
+        <see userInput="{$orderNumber2}" selector="{{StorefrontCustomerMyOrdersSection.orderHistoryTableOrderNumber('$orderNumber2')}}" stepKey="assertSeeFilteredInvoiceOrder"/>
+        <dontSee userInput="{$orderNumber1}" selector="{{StorefrontCustomerMyOrdersSection.orderHistoryTableOrderNumber('$orderNumber1')}}" stepKey="assertDoNotSeeInvoiceFirstOrder"/>
+    </test>
+</tests>

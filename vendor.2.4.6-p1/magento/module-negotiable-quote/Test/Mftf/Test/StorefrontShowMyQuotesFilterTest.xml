@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontShowMyQuotesFilterTest">
+        <annotations>
+            <features value="Negotiable Quote"/>
+            <stories value="Negotiable Quote Filter"/>
+            <title value="Check functionality of the Show My Quotes filter"/>
+            <description value="Verify company user can see only his quotes with the Show My Quotes filter."/>
+            <severity value="MAJOR"/>
+            <testCaseId value="AC-62"/>
+            <useCaseId value="ACP2E-716"/>
+            <group value="company"/>
+            <group value="negotiable_quotes"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!-- Enable Company and Quotes -->
+            <magentoCLI command="config:set btob/website_configuration/company_active 1" stepKey="enableCompanies"/>
+            <magentoCLI command="config:set btob/website_configuration/negotiablequote_active 1" stepKey="enableQuotes"/>
+            <!-- Create admin customer and company -->
+            <createData entity="Simple_US_Customer_CA" stepKey="createCompanyAdminUser"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdminUser"/>
+            </createData>
+
+            <!-- Create customer and assign to company -->
+            <createData entity="Simple_US_Customer_NY" stepKey="createCompanyCustomer"/>
+            <actionGroup ref="OpenEditCustomerFromAdminActionGroup" stepKey="editCustomer">
+                <argument name="customer" value="$$createCompanyCustomer$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddAssociateCompanyToCustomerActionGroup" stepKey="assignCompanyToCustomer">
+                <argument name="company" value="Default_Company"/>
+            </actionGroup>
+
+            <createData entity="_defaultCategory" stepKey="category"/>
+            <createData entity="SimpleProduct" stepKey="product">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+        </before>
+
+        <after>
+            <!-- Disable Company and Quotes -->
+            <magentoCLI command="config:set btob/website_configuration/company_active 0" stepKey="disableCompanies"/>
+            <magentoCLI command="config:set btob/website_configuration/negotiablequote_active 0" stepKey="disableQuotes"/>
+            <!-- Delete created data -->
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdminUser" stepKey="deleteCompanyAdminUser"/>
+            <deleteData createDataKey="createCompanyCustomer" stepKey="deleteCompanyCustomer"/>
+            <deleteData createDataKey="product" stepKey="deleteProduct"/>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Add simple product to cart from a customer account -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCompanyUser">
+            <argument name="Customer" value="$$createCompanyCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddSimpleProductToShoppingCartActionGroup" stepKey="addSimpleProductToCart">
+            <argument name="product" value="$product$"/>
+            <argument name="qty" value="1"/>
+        </actionGroup>
+        <actionGroup ref="ClickViewAndEditCartFromMiniCartActionGroup" stepKey="navigateToCartPage"/>
+        <!-- Request a quote -->
+        <actionGroup ref="StorefrontRequestQuoteActionGroup" stepKey="requestQuote">
+            <argument name="quote" value="DefaultNegotiableQuote"/>
+        </actionGroup>
+        <!-- Verify negotiable quote -->
+        <actionGroup ref="StorefrontOpenNegotiableQuoteActionGroup" stepKey="openNegotiableQuote">
+            <argument name="quoteName" value="{{DefaultNegotiableQuote.name}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="companyUserLogout"/>
+
+        <!-- Verify negotiable from an admin customer account -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefrontAgain">
+            <argument name="Customer" value="$$createCompanyAdminUser$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontGoToNegotiableQuotesPageActionGroup" stepKey="navigateToMyQuotesPage"/>
+        <actionGroup ref="StorefrontClickShowMyQuotesActionGroup" stepKey="clickShowMyQuotes"/>
+        <actionGroup ref="StorefrontAssertNegotiableQuoteNotFoundActionGroup" stepKey="assertGridEmpty"/>
+    </test>
+</tests>

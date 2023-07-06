@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRuleDeleteTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="CRUD"/>
+            <title value="Delete Purchase Order Rule"/>
+            <description value="Verify a modal is displayed and the user can successfully delete rules."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-32421"/>
+            <useCaseId value="B2B-466"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <!-- Enable Company Order Approvals -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+                <argument name="companyId" value="$createCompany.id$"/>
+                <argument name="companyName" value="$createCompany.company_name$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnablePurchaseOrderForCompanyActionGroup" stepKey="enablePurchaseOrderForCompany"/>
+            <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+        </before>
+        <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteAdminCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <comment userInput="BIC workaround" stepKey="storefrontCustomerLogout"/>
+        </after>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <!-- Verify Empty Grid on Rules Listing Page -->
+        <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToRuleListing"/>
+        <actionGroup ref="StorefrontValidateEmptyPurchaseOrderRulesGridActionGroup" stepKey="verifyListingDisplaysEmptyMessage"/>
+        <!-- Create Purchase Order Rule -->
+        <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRole"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm"/>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition"/>
+        <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToAllActionGroup" stepKey="selectAppliesToAll"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers"/>
+        <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule"/>
+        <!-- Verify Rule Created -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleCreated"/>
+        <!-- Validate Delete Modal -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleDeleteModalActionGroup" stepKey="validateModal"/>
+        <!-- Delete Rule -->
+        <actionGroup ref="StorefrontDeletePurchaseOrderRuleActionGroup" stepKey="deleteOrderRule"/>
+        <!-- Verify Rule Deleted -->
+        <actionGroup ref="StorefrontValidateEmptyPurchaseOrderRulesGridActionGroup" stepKey="verifyListingDisplaysEmptyMessageAfterDelete"/>
+    </test>
+</tests>

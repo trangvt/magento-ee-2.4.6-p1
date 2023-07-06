@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StoreFrontCheckoutWithNegotiableQuoteAndPaypalPayflowProTest">
+        <annotations>
+            <features value="PaypalNegotiableQuote"/>
+            <stories value="Negotiable Quote and Paypal Payflow Pro"/>
+            <title value="Verify Customer Checkout With Negotiable Quote and Paypal Payflow Pro when cart has a product"/>
+            <description value="Verify Customer Checkout With Negotiable Quote and Paypal Payflow Pro when cart has a product"/>
+            <severity value="MAJOR"/>
+            <useCaseId value="MC-41975"/>
+            <testCaseId value="MC-42150"/>
+            <group value="negotiable_quotes"/>
+        </annotations>
+        <before>
+            <!--Enable B2B Config Setting -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+            <magentoCLI command="config:set {{EnableB2BQuoteConfigData.path}} {{EnableB2BQuoteConfigData.value}}" stepKey="enableNegotiableQuote"/>
+            <magentoCLI command="config:set {{EnableQuickOrderConfigData.path}} {{EnableQuickOrderConfigData.value}}" stepKey="enableQuickOrder"/>
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <magentoCLI command="config:set {{EnableCustomerAddressSearch.path}} {{EnableCustomerAddressSearch.value}}" stepKey="enableCustomerAddressSearch"/>
+            <magentoCLI command="config:set {{AddressSearchLimitTwo.path}} {{AddressSearchLimitZero.value}}" stepKey="setAddressSearchLimitTwo"/>
+            <!-- Configure Paypal Payflow Pro payment method -->
+            <createData entity="PaypalPayflowProConfig" stepKey="configurePaypalPayflowProPayment"/>
+            <!-- Enable Paypal Payflow Pro with Vault -->
+            <createData entity="EnablePaypalPayflowProWithVault" stepKey="enablePaypalPayflowProPaymentWithVault"/>
+            <!--Create Category -->
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <!--Create product-->
+            <createData entity="SimpleProduct" stepKey="createSimpleProduct1">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <createData entity="SimpleProduct" stepKey="createSimpleProduct2">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <!--Assign product 1 to shared catalog-->
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct1ToSharedCatalog">
+                <requiredEntity createDataKey="createSimpleProduct1"/>
+            </createData>
+            <!--Assign product 2 to shared catalog-->
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct2ToSharedCatalog">
+                <requiredEntity createDataKey="createSimpleProduct2"/>
+            </createData>
+            <!-- Create company account and customer -->
+            <createData entity="Simple_US_Customer_CA_NY_Addresses" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+        </before>
+        <after>
+            <!--Logout customer-->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+            <!--Enable Default B2B Config -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+            <magentoCLI command="config:set {{DisableB2BQuoteConfigData.path}} {{DisableB2BQuoteConfigData.value}}" stepKey="disableNegotiableQuote"/>
+            <magentoCLI command="config:set {{DisableQuickOrderConfigData.path}} {{DisableQuickOrderConfigData.value}}" stepKey="disableQuickOrder"/>
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <magentoCLI command="config:set {{DisableCustomerAddressSearch.path}} {{DisableCustomerAddressSearch.value}}" stepKey="disableCustomerAddressSearch"/>
+            <magentoCLI command="config:set {{DefaultAddressSearchLimit.path}} {{DefaultAddressSearchLimit.value}}" stepKey="setAddressSearchLimitTen"/>
+            <!-- Set Paypal PayflowPro configs to default -->
+            <createData entity="DefaultPaypalPayflowProConfig" stepKey="defaultPaypalPayflowProConfig"/>
+            <createData entity="RollbackPaypalPayflowPro" stepKey="rollbackPaypalPayflowProConfig"/>
+            <!-- Delete Simple Category -->
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <!-- Delete Simple Products -->
+            <deleteData createDataKey="createSimpleProduct1" stepKey="deleteProduct1"/>
+            <deleteData createDataKey="createSimpleProduct2" stepKey="deleteProduct2"/>
+            <!-- Delete customer -->
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <!-- Delete company admin -->
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <!--Clear filter negotiable quotes grid-->
+            <amOnPage url="{{AdminNegotiableQuotesPage.url}}" stepKey="navigateToNegotiableQuotesGridPage"/>
+            <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearFiltersNegotiableQuotesGrid"/>
+            <!-- Logout Admin -->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logOut"/>
+        </after>
+        <!-- Login to storefront as company admin user -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$createCompanyAdmin$"/>
+        </actionGroup>
+        <!-- Add the product 1 to cart -->
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart1">
+            <argument name="product" value="$createSimpleProduct1$"/>
+        </actionGroup>
+        <!-- Open shopping cart and click Request a Quote button -->
+        <!-- Fill out "Add your comment", "Quote name" fields and click "Send Request" button -->
+        <actionGroup ref="ClickViewAndEditCartFromMiniCartActionGroup" stepKey="goToShoppingCartFromMinicart"/>
+        <actionGroup ref="StorefrontRequestQuoteActionGroup" stepKey="requestQuote">
+            <argument name="quote" value="NeqotiableQuote"/>
+        </actionGroup>
+        <!-- Add the product 2 to cart -->
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart2">
+            <argument name="product" value="$createSimpleProduct2$"/>
+        </actionGroup>
+        <!-- Go to admin > Sales > Quotes and open created quote -->
+        <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
+        <actionGroup ref="AdminOpenNegotiableQuoteActionGroup" stepKey="searchAndOpenQuoteInAdmin">
+            <argument name="quoteName" value="{{NeqotiableQuote.name}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminSendNegotiableQuoteActionGroup" stepKey="clickSendQuote"/>
+        <!-- Go to storefront > My Quotes and open the quote -->
+        <actionGroup ref="StorefrontOpenNegotiableQuoteActionGroup" stepKey="openNegotiableQuote">
+            <argument name="quoteName" value="{{NeqotiableQuote.name}}"/>
+        </actionGroup>
+        <!-- Click "Proceed to Checkout" button -->
+        <actionGroup ref="StorefrontNegotiableQuoteProceedToCheckoutActionGroup" stepKey="clickProceedToCheckoutButton"/>
+        <!-- Verify shipping address A data and can not be modified-->
+        <actionGroup ref="CheckSelectedShippingAddressInCheckoutWithSearchActionGroup" stepKey="checkDefaultShippingAddressSelected">
+            <argument name="customerVar" value="$createCompanyAdmin$"/>
+            <argument name="customerAddressVar" value="US_Address_CA"/>
+        </actionGroup>
+        <!-- Click "Next" button -->
+        <actionGroup ref="StorefrontCheckoutForwardFromShippingStepActionGroup" stepKey="proceedToBillingStep"/>
+        <!-- Fill Paypal card data -->
+        <actionGroup ref="StorefrontCheckoutSelectPaypalPaymentMethodActionGroup" stepKey="selectPaypalPaymentMethod"/>
+        <actionGroup ref="StorefrontPaypalFillCardDataActionGroup" stepKey="fillCardDataPaypal">
+            <argument name="cardData" value="Visa3DSecureCard"/>
+        </actionGroup>
+        <!-- Click "Place Order" button -->
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <!-- Open Shopping Cart page -->
+        <actionGroup ref="StorefrontOpenCartFromMinicartActionGroup" stepKey="openShoppingCartPage"/>
+        <!-- Assert Product presents on Shopping Cart page -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertProductPresentsOnShoppingCartPage">
+            <argument name="productName" value="$$createSimpleProduct2.name$$"/>
+            <argument name="productSku" value="$$createSimpleProduct2.sku$$"/>
+            <argument name="productPrice" value="$$createSimpleProduct2.price$$"/>
+            <argument name="subtotal" value="$$createSimpleProduct2.price$$" />
+            <argument name="qty" value="1"/>
+        </actionGroup>
+    </test>
+</tests>

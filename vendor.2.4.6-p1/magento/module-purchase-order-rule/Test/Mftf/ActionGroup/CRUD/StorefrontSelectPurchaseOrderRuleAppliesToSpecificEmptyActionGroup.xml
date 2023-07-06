@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontSelectPurchaseOrderRuleAppliesToSpecificEmptyActionGroup">
+        <annotations>
+            <description>Selects the "Specific" applies to option but does not select any roles. Must be on the create Purchase Order Rule page.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToSpecific}}" stepKey="waitForAppliesToSpecific"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToSpecific}}" stepKey="clickAppliesToSpecific"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.appliesTo}}" stepKey="waitForAppliesToSelect"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.appliesTo}}" stepKey="selectAppliesToRoles"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToDeselectAllButton}}" stepKey="waitForDeselectButton"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToDeselectAllButton}}" stepKey="unSelectAppliesToRoles"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToDoneButton}}" stepKey="waitForAppliesToDoneButton"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToDoneButton}}" stepKey="closeSelector"/>
+        <waitForPageLoad stepKey="waitForClickAppliesToSpecific"/>
+    </actionGroup>
+</actionGroups>

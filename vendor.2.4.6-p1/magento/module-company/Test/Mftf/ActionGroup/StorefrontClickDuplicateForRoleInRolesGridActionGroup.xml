@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontClickDuplicateForRoleInRolesGridActionGroup">
+        <annotations>
+            <description>Clicks the Duplicate button for a specified role in the Roles and Permissions grid</description>
+        </annotations>
+        <arguments>
+            <argument name="roleName" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCompanyRolesSection.roleDuplicateLink(roleName)}}" stepKey="waitForDuplicateButton"/>
+        <click selector="{{StorefrontCompanyRolesSection.roleDuplicateLink(roleName)}}" stepKey="clickDuplicateButton"/>
+        <waitForPageLoad stepKey="waitForRoleFormPage"/>
+        <waitForElementVisible selector="{{StorefrontCustomerAccountMainSection.pageTitle}}" stepKey="waitForPageTitle"/>
+        <see selector="{{StorefrontCustomerAccountMainSection.pageTitle}}" userInput="Add New Role" stepKey="seePageTitle"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontVerifyRequisitionListForBundleProductEditPageLoadActionGroup">
+        <annotations>
+            <description>Verify Requisition List For Bundle Product Edit Page Load Successfully.</description>
+        </annotations>
+        <arguments>
+            <argument name="product" type="entity" defaultValue="BundleProduct"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.editItemButton(product.name)}}" stepKey="waitForProductEditItemButton"/>
+        <click selector="{{StorefrontRequisitionListViewSection.editItemButton(product.name)}}" stepKey="clickEditItemButton"/>
+        <waitForPageLoad stepKey="waitForProductItemPageToLoad"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.pageTitleWrapper}}" stepKey="waitForPageTitleVisible"/>
+        <see selector="{{StorefrontRequisitionListViewSection.pageTitleWrapper}}" userInput="{{product.name}}" stepKey="verifyProductPageLoadSuccessfully"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\GraphQl\Schema\Type\Enum\DefaultDataMapper">
+        <arguments>
+            <argument name="map" xsi:type="array">
+                <item name="NegotiableQuoteCommentCreatorType" xsi:type="array">
+                    <item name="buyer" xsi:type="string">buyer</item>
+                    <item name="seller" xsi:type="string">seller</item>
+                </item>
+                <item name="NegotiableQuoteHistoryEntryChangeType" xsi:type="array">
+                    <item name="created" xsi:type="string">created</item>
+                    <item name="updated" xsi:type="string">updated</item>
+                    <item name="closed" xsi:type="string">closed</item>
+                    <item name="updated_by_system" xsi:type="string">updated_by_system</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\StoreGraphQl\Model\Resolver\Store\StoreConfigDataProvider">
+        <arguments>
+            <argument name="extendedConfigData" xsi:type="array">
+                <item name="is_negotiable_quote_active" xsi:type="string">btob/website_configuration/negotiablequote_active</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\NegotiableQuoteGraphQl\Model\NegotiableQuote\NegotiableQuote">
+        <arguments>
+            <argument name="negotiableQuoteRepository" xsi:type="object">Magento\NegotiableQuote\Api\NegotiableQuoteRepositoryInterface\Proxy</argument>
+            <argument name="searchCriteriaBuilder" xsi:type="object">Magento\Framework\Api\SearchCriteriaBuilder\Proxy</argument>
+            <argument name="quoteIdMaskResource" xsi:type="object">Magento\NegotiableQuoteGraphQl\Model\NegotiableQuote\ResourceModel\QuoteIdMask\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Quote\Model\QuoteRepository\LoadHandler">
+        <plugin name="nq_load_handler" disabled="true"/>
+        <plugin name="nq_gql_load_handler" type="Magento\NegotiableQuoteGraphQl\Plugin\LoadHandlerPlugin"/>
+    </type>
+    <type name="Magento\Framework\GraphQl\Query\ResolverInterface">
+        <plugin name="reset_nq_operation_flag" type="Magento\NegotiableQuoteGraphQl\Plugin\ResetNegotiableQuoteOperationFlagPlugin"/>
+    </type>
+    <virtualType name="Magento\NegotiableQuoteGraphQl\Helper\Error\PlaceNegotiableQuoteOrderMessageFormatter" type="Magento\GraphQl\Helper\Error\AggregateExceptionMessageFormatter">
+        <arguments>
+            <argument name="messageFormatters" xsi:type="array">
+                <item name="graphql" xsi:type="object">Magento\GraphQl\Helper\Error\MessageFormatters\GraphQlExceptionMessageFormatter</item>
+                <item name="no_such_entity" xsi:type="object">Magento\GraphQl\Helper\Error\MessageFormatters\NoSuchEntityExceptionMessageFormatter</item>
+                <item name="validation" xsi:type="object">Magento\GraphQl\Helper\Error\MessageFormatters\ValidationExceptionMessageFormatter</item>
+                <item name="payment" xsi:type="object">Magento\GraphQl\Helper\Error\MessageFormatters\PaymentExceptionMessageFormatter</item>
+                <item name="payment_gateway_command" xsi:type="object">Magento\PaymentGraphQl\Helper\Error\MessageFormatters\GatewayCommandExceptionMessageFormatter</item>
+                <item name="payment_gateway_http_client" xsi:type="object">Magento\PaymentGraphQl\Helper\Error\MessageFormatters\GatewayHttpClientExceptionMessageFormatter</item>
+                <item name="stock_state" xsi:type="object">Magento\CatalogInventoryGraphQl\Helper\Error\MessageFormatters\StockStateExceptionMessageFormatter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\NegotiableQuoteGraphQl\Model\Resolver\PlaceNegotiableQuoteOrder">
+        <arguments>
+            <argument name="errorMessageFormatter" xsi:type="object">Magento\NegotiableQuoteGraphQl\Helper\Error\PlaceNegotiableQuoteOrderMessageFormatter</argument>
+        </arguments>
+    </type>
+    <type name="Magento\GraphQl\Model\Mutation\Resolver\ErrorTypeResolver">
+        <arguments>
+            <argument name="validErrorTypes" xsi:type="array">
+                <item name="nq_invalid_state" xsi:type="string">NegotiableQuoteInvalidStateError</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\NegotiableQuoteGraphQl\Model\Resolver\OperationResult\CloseNegotiableQuoteErrorTypeResolver">
+        <arguments>
+            <argument name="validErrorTypes" xsi:type="array">
+                <item name="nq_invalid_state" xsi:type="string">NegotiableQuoteInvalidStateError</item>
+                <item name="no_such_entity_uid" xsi:type="string">NoSuchEntityUidError</item>
+                <item name="internal_error" xsi:type="string">InternalError</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\NegotiableQuoteGraphQl\Model\Resolver\OperationResult\DeleteNegotiableQuoteErrorTypeResolver">
+        <arguments>
+            <argument name="validErrorTypes" xsi:type="array">
+                <item name="nq_invalid_state" xsi:type="string">NegotiableQuoteInvalidStateError</item>
+                <item name="no_such_entity_uid" xsi:type="string">NoSuchEntityUidError</item>
+                <item name="internal_error" xsi:type="string">InternalError</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

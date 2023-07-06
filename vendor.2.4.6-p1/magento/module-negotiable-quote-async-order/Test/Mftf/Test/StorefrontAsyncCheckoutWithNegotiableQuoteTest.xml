@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAsyncCheckoutWithNegotiableQuoteTest">
+        <annotations>
+            <features value="Checkout"/>
+            <stories value="Checkout via Guest Async Checkout"/>
+            <title value="Company account can create a negotiable quote and place order asynchronously"/>
+            <description value="Order placed with negotiable quote is processed asynchronously"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-42954"/>
+            <group value="negotiable_quotes"/>
+            <group value="async_checkout"/>
+        </annotations>
+        <before>
+            <!-- Enable B2B Features -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableB2BQuoteConfigData.path}} {{EnableB2BQuoteConfigData.value}}" stepKey="enableNegotiableQuote"/>
+            <!-- Create Category -->
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <!-- Create Product -->
+            <createData entity="SimpleProduct" stepKey="createSimpleProduct">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <!-- Create Company Account and Customer -->
+            <createData entity="Simple_US_Customer_CA_NY_Addresses" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <comment userInput="BIC workaround" stepKey="enableAsyncCheckout"/>
+        </before>
+        <after>
+            <!-- Logout customer -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+            <!-- Disable B2B Features -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableB2BQuoteConfigData.path}} {{DisableB2BQuoteConfigData.value}}" stepKey="disableNegotiableQuote"/>
+            <!-- Delete Simple Category -->
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <!-- Delete Simple Product -->
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+            <!-- Delete customer -->
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <!-- Delete company admin -->
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <!-- Clear filter negotiable quotes grid -->
+            <amOnPage url="{{AdminNegotiableQuotesPage.url}}" stepKey="navigateToNegotiableQuotesGridPage"/>
+            <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearFiltersNegotiableQuotesGrid"/>
+            <!-- Logout Admin -->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logOut"/>
+            <comment userInput="BIC workaround" stepKey="disableAsyncCheckout"/>
+        </after>
+        <!-- Login to storefront as company admin user -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$createCompanyAdmin$"/>
+        </actionGroup>
+        <!-- Add the product to cart -->
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProductToCart">
+            <argument name="product" value="$createSimpleProduct$"/>
+        </actionGroup>
+        <!-- Open shopping cart and click Request a Quote button -->
+        <!-- Fill out "Add your comment", "Quote name" fields and click "Send Request" button -->
+        <actionGroup ref="ClickViewAndEditCartFromMiniCartActionGroup" stepKey="goToShoppingCartFromMinicart"/>
+        <actionGroup ref="StorefrontRequestQuoteActionGroup" stepKey="requestQuote">
+            <argument name="quote" value="NeqotiableQuote"/>
+        </actionGroup>
+        <seeElement selector="{{StorefrontMyQuoteGridSection.quoteRowByName(NeqotiableQuote.name)}}" stepKey="seeQuotePresentGrid"/>
+        <!-- Open created quote and click "Select Existing Address" link in "Shipping Information" block , select address "A" and click "Save" button -->
+        <click selector="{{StorefrontMyQuoteGridSection.viewQuoteByName(NeqotiableQuote.name)}}" stepKey="clickViewButton"/>
+        <actionGroup ref="StorefrontNegotiableQuoteSelectCustomerAddressAsShippingAddressActionGroup" stepKey="selectCustomerAddressAsShippingAddress"/>
+        <!-- Click "Send for Review" Button -->
+        <actionGroup ref="StorefrontNegotiableQuoteSendForReviewActionGroup" stepKey="sendQuoteForReview"/>
+        <!-- Go to admin > Sales > Quotes and Open Created Quote -->
+        <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
+        <actionGroup ref="AdminOpenNegotiableQuoteActionGroup" stepKey="searchAndOpenQuoteInAdmin">
+            <argument name="quoteName" value="{{NeqotiableQuote.name}}"/>
+        </actionGroup>
+        <!-- In block "Shipping Methods & Price" select "Flat Rate" Shipping Method and Click "Send" Button -->
+        <actionGroup ref="AdminNegotiableQuoteSelectShippingMethodActionGroup" stepKey="chooseFlatRateShippingMethod"/>
+        <!-- Send Quote -->
+        <actionGroup ref="AdminSendNegotiableQuoteActionGroup" stepKey="clickSendQuote"/>
+        <!-- Go to storefront > My Quotes and Open the Quote -->
+        <actionGroup ref="StorefrontOpenNegotiableQuoteActionGroup" stepKey="openNegotiableQuote">
+            <argument name="quoteName" value="{{NeqotiableQuote.name}}"/>
+        </actionGroup>
+        <!-- Click "Proceed to Checkout" Button -->
+        <click selector="{{StorefrontNegotiableQuoteViewSection.proceedToCheckout}}" stepKey="clickProceedToCheckoutButton"/>
+        <seeInCurrentUrl url="#shipping" stepKey="shipmentStepIsOpened"/>
+        <dontSee selector="{{CheckoutShippingAddressSection.changeAddressInPopupButton}}" stepKey="dontSeeChangeAddressLink"/>
+        <see selector="{{CheckoutShippingSection.quoteAddressLockedMessage}}" userInput="{{NegotiableQuoteMessages.shippingAddressLockedMessage}}" stepKey="quoteAddressIsLockedMessageIsDisplayed"/>
+        <!-- Click "Next" Button -->
+        <actionGroup ref="StorefrontCheckoutForwardFromShippingStepActionGroup" stepKey="proceedToBillingStep"/>
+        <!-- Select Check / Money order Payment Method -->
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyPayment"/>
+        <!-- Click "Place Order" Button -->
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+
+        <!-- Get Order id -->
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="grabOrderNumber"/>
+
+        <!-- Assert Cart is Empty -->
+        <actionGroup ref="AssertShoppingCartIsEmptyActionGroup" stepKey="seeEmptyShoppingCartForFirstCustomer"/>
+
+        <!-- Go to Customer Order History and Check Order -->
+        <amOnPage url="{{StorefrontCustomerDashboardPage.url}}" stepKey="navigateToCustomerDashboardPage"/>
+        <waitForPageLoad stepKey="waitForCustomerDashboardPageLoad"/>
+        <see selector="{{StorefrontCustomerRecentOrdersSection.orderTotal}}" userInput="$128.00" stepKey="checkOrderTotalInStorefront"/>
+        <see selector="#my-orders-table td.status" userInput="Received" stepKey="checkOrderStatusReceived"/>
+        <dontSeeElement selector="#my-orders-table td.actions a.order" stepKey="dontSeeReorderButton"/>
+        <dontSeeElement selector="#my-orders-table td.actions a.view" stepKey="dontSeeViewButton"/>
+
+        <!-- Login into admin-->
+        <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+
+        <!-- Check that Order is Absent in admin Orders Grid -->
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrdersPage"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnOrdersPage"/>
+        <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearGridFilter"/>
+        <fillField selector="{{AdminOrdersGridSection.search}}" userInput="{$grabOrderNumber}" stepKey="fillOrderNum"/>
+        <click selector="{{AdminOrdersGridSection.submitSearch}}" stepKey="submitSearchOrderNum"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappearOnSearch"/>
+        <see selector="{{AdminDataGridTableSection.dataGridEmpty}}" userInput="We couldn't find any records." stepKey="assertDataGridEmptyMessage"/>
+        <click selector="{{AdminProductAttributeGridSection.ResetFilter}}" stepKey="clearExistingFilters"/>
+
+        <!-- Trigger Async Place Order Consumer-->
+        <actionGroup ref="CliConsumerStartActionGroup" stepKey="startMessageQueueConsumer">
+            <argument name="consumerName" value="{{AsyncPlaceOrderConsumerData.consumerName}}"/>
+            <argument name="maxMessages" value="{{AsyncPlaceOrderConsumerData.messageLimit}}"/>
+        </actionGroup>
+
+        <!-- Wait 30 for Order Processing-->
+        <wait time="30" stepKey="conditionalWait"/>
+
+        <!-- Check that Order is Available -->
+        <amOnPage url="{{StorefrontCustomerDashboardPage.url}}" stepKey="navigateToCustomerDashboardPage2"/>
+        <waitForPageLoad stepKey="waitForCustomerDashboardPageLoad2"/>
+        <see selector="{{StorefrontCustomerRecentOrdersSection.orderTotal}}" userInput="$128.00" stepKey="checkOrderTotalInStorefront2"/>
+        <seeElement selector="#my-orders-table td.actions a.order" stepKey="seeReorderButton"/>
+        <seeElement selector="#my-orders-table td.actions a.view" stepKey="seeViewButton"/>
+        <see selector="#my-orders-table td.status" userInput="Pending" stepKey="checkOrderStatusPending"/>
+
+        <!--Assert Order is in Orders Grid -->
+        <actionGroup ref="AdminOrderFilterByOrderIdAndStatusActionGroup" stepKey="seeFirstOrder">
+            <argument name="orderId" value="$grabOrderNumber"/>
+            <argument name="orderStatus" value="Pending"/>
+        </actionGroup>
+        <see userInput="{$grabOrderNumber}" selector="{{AdminOrdersGridSection.gridCell('1','ID')}}" stepKey="assertOrderID"/>
+        <see userInput="Pending" selector="{{AdminOrdersGridSection.gridCell('1','Status')}}" stepKey="assertOrderStatus"/>
+    </test>
+</tests>

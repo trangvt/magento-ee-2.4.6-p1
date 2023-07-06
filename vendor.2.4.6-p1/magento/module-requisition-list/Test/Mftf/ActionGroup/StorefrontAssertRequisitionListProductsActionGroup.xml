@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAssertRequisitionListProductWithFileActionGroup">
+        <annotations>
+            <description>Open product lists in RequisitionList view page and assert that file attached to the product is exist.</description>
+        </annotations>
+        <arguments>
+            <argument name="product" type="entity" defaultValue="SimpleProduct"/>
+            <argument name="productFile" type="entity" defaultValue="MagentoLogo"/>
+        </arguments>
+        <seeElement selector="{{StorefrontRequisitionListViewSection.productSKU(product.sku)}}"  stepKey="seeProductSKU"/>
+        <grabTextFrom selector="{{StorefrontRequisitionListViewSection.productFile}}" stepKey="grabProductFileName"/>
+        <assertEquals stepKey="checkFileName">
+			<actualResult type="const">$grabProductFileName</actualResult>
+			<expectedResult type="string">{{productFile.file}}</expectedResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

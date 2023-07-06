@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifySecureURLRedirectCompanyTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Secure URLs"/>
+            <title value="Verify Secure URLs For Storefront Company Pages"/>
+            <description value="Verify that insecure Urls redirect to secure Urls on the storefront for company pages
+            when the Secure URL configuration is enabled for the Storefront"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-15566"/>
+            <group value="company"/>
+            <group value="configuration"/>
+            <group value="secure_storefront_url"/>
+        </annotations>
+
+        <before>
+            <!-- Create Company Admin -->
+            <createData entity="Simple_US_Customer" stepKey="customer"/>
+            <createData entity="Default_Company" stepKey="company">
+                <requiredEntity createDataKey="customer"/>
+            </createData>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+                <argument name="Customer" value="$$customer$$"/>
+            </actionGroup>
+
+            <!-- Enable Secure Urls on Storefront -->
+            <executeJS function="return window.location.host" stepKey="hostname"/>
+            <magentoCLI command="config:set web/secure/base_url https://{$hostname}/" stepKey="setSecureBaseURL"/>
+            <magentoCLI command="config:set web/secure/use_in_frontend 1" stepKey="useSecureURLsOnStorefront"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set web/secure/use_in_frontend 0" stepKey="dontUseSecureURLsOnStorefront"/>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
+            <deleteData createDataKey="company" stepKey="deleteCompany"/>
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+        </after>
+
+        <!-- Verify Insecure Company Url Redirects to Secure Url -->
+        <executeJS function="return window.location.host" stepKey="hostname"/>
+        <amOnUrl url="http://{$hostname}/company" stepKey="goToUnsecureCompanyURL"/>
+        <seeCurrentUrlEquals url="https://{$hostname}/company" stepKey="seeSecureCompanyURL"/>
+
+        <!-- Verify Insecure Company Role Url Redirects to Secure Url -->
+        <amOnUrl url="http://{$hostname}/company/role" stepKey="goToUnsecureCompanyRoleURL"/>
+        <seeCurrentUrlEquals url="https://{$hostname}/company/role" stepKey="seeSecureCompanyRoleURL"/>
+    </test>
+</tests>

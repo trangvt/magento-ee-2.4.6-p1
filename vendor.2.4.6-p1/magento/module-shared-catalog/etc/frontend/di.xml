@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Catalog\Model\ResourceModel\Product\Collection">
+        <plugin name="productCollectionPlugin" type="Magento\SharedCatalog\Plugin\Catalog\Model\ResourceModel\Product\CollectionPlugin"/>
+    </type>
+    <type name="Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection">
+        <plugin name="productCollectionPlugin" disabled="true"/>
+    </type>
+    <type name="Magento\Catalog\Model\ResourceModel\Category">
+        <plugin name="CatalogCategoryPlugin" type="Magento\SharedCatalog\Plugin\Catalog\Model\ResourceModel\CategoryPlugin"/>
+    </type>
+    <type name="Magento\AdvancedCheckout\Model\Cart">
+        <plugin name="shared_catalog_product_disable" type="Magento\SharedCatalog\Plugin\AdvancedCheckout\Model\HideProductsAbsentInSharedCatalogPlugin" />
+    </type>
+    <type name="Magento\Customer\Model\Session">
+        <plugin name="shared_catalog_update_session_group_id" type="Magento\SharedCatalog\Plugin\Customer\Model\SessionPlugin"/>
+    </type>
+</config>

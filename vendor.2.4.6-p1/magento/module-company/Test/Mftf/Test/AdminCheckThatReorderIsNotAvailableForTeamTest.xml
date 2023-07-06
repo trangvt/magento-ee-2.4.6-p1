@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCheckThatReorderIsNotAvailableForTeamTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="My Orders"/>
+            <title value="Company Admins Cannot Reorder Other's Orders and Company Subordinates Cannot View Other's Orders"/>
+            <description value="Verify that company admins cannot reorder subordinate's orders. Verify that company
+            subordinates cannot view other user's orders"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-17319"/>
+            <useCaseId value="MC-17193"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <comment userInput="BIC workaround" stepKey="enableB2bFeatures"/>
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompanies"/>
+            <comment userInput="BIC workaround" stepKey="enableOrder"/>
+
+            <!-- Create Company Admin, 1 Customer, & a Product -->
+            <comment userInput="BIC workaround" stepKey="createCompanyAnd2Customers"/>
+            <createData entity="Simple_US_Customer" stepKey="companyAdmin"/>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="Default_Company" stepKey="defaultCompany">
+                <requiredEntity createDataKey="companyAdmin"/>
+            </createData>
+            <comment userInput="BIC workaround" stepKey="createProd"/>
+            <createData entity="SimpleSubCategory" stepKey="createCategory"/>
+            <createData entity="ApiSimpleProduct" stepKey="createProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <comment userInput="BIC workaround" stepKey="login"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <comment userInput="BIC workaround" stepKey="disableB2bFeatures"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompanies"/>
+            <comment userInput="BIC workaround" stepKey="disableOrder"/>
+            <comment userInput="BIC workaround" stepKey="removeCompany"/>
+            <deleteData createDataKey="defaultCompany" stepKey="deleteCompany"/>
+            <comment userInput="BIC workaround" stepKey="deleteCustomers"/>
+            <deleteData createDataKey="companyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteSecondCustomer"/>
+            <comment userInput="BIC workaround" stepKey="deleteProdAndCategory"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <comment userInput="BIC workaround" stepKey="logOut"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Assign Customer to Company -->
+        <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openFirstCustomerEditPage">
+            <argument name="customerId" value="$$createCustomer.id$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="filterFirstCustomer"/>
+        <comment userInput="BIC workaround" stepKey="clickEditLink"/>
+        <comment userInput="BIC workaround" stepKey="waitForPageToLoad"/>
+        <comment userInput="BIC workaround" stepKey="assignCompToTheSecondCustomer"/>
+        <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignCompanyToTheSecondCustomer">
+            <argument name="companyName" value="$$defaultCompany.company_name$$"/>
+        </actionGroup>
+
+        <!-- Create Order for Company Subordinate -->
+        <comment userInput="BIC workaround" stepKey="createNewOrder"/>
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="navigateToCreateOrderPage">
+            <argument name="customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addProductToOrder">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminSelectFlatRateShippingMethodActionGroup"  stepKey="selectFlatRateShipping"/>
+        <actionGroup ref="AdminSubmitOrderActionGroup" stepKey="createOrder"/>
+        <grabTextFrom selector="|Order # (\d+)|" stepKey="grabOrderNumber"/>
+        <grabFromCurrentUrl regex="~/order_id/(\d+)/~" stepKey="grabOrderId"/>
+
+        <!-- Create Order as Company Admin -->
+        <comment userInput="BIC workaround" stepKey="loginOnStorefront"/>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$$companyAdmin$$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="addProdToCart"/>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openProductPage">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProductToCart"/>
+        <comment userInput="BIC workaround" stepKey="openMiniCart"/>
+        <comment userInput="BIC workaround" stepKey="createOrder1"/>
+        <comment userInput="BIC workaround" stepKey="goToShoppingCartPage"/>
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="goToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="placeOrder"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderLink}}" stepKey="grabOrderNumber2"/>
+        <actionGroup ref="StorefrontClickOrderLinkFromCheckoutSuccessPageActionGroup" stepKey="clickOrderLink"/>
+        <grabFromCurrentUrl regex="~/order_id/(\d+)/~" stepKey="grabOrderId2"/>
+
+        <!-- Open My Orders for Company Admin -->
+        <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="goToCustomerDashboardPage"/>
+        <comment userInput="BIC workaround" stepKey="waitForCustomerDashboardPageLoad"/>
+        <actionGroup ref="StorefrontCustomerGoToSidebarMenu" stepKey="goToMyOrdersPage">
+            <argument name="menu" value="My Orders"/>
+        </actionGroup>
+
+        <!-- Verify Company Admin Cannot Reorder Company Subordinate's Order on My Orders Grid -->
+        <comment userInput="BIC workaround" stepKey="assertOrderId"/>
+        <comment userInput="BIC workaround" stepKey="dontSeeFirstOrderId"/>
+        <waitForText userInput="{$grabOrderNumber}" stepKey="seeFirstOrder"/>
+        <waitForText userInput="{$grabOrderNumber2}" stepKey="seeSecondOrder"/>
+        <waitForElementVisible selector="{{StorefrontCustomerOrderSection.viewOrderByOrderNumber({$grabOrderNumber})}}" stepKey="waitForViewOrderForFirstOrder"/>
+        <dontSeeElementInDOM selector="{{StorefrontCustomerOrderSection.reorderByOrderNumber({$grabOrderNumber})}}" stepKey="dontSeeReorderForFirstOrder"/>
+        <waitForElementVisible selector="{{StorefrontCustomerOrderSection.viewOrderByOrderNumber({$grabOrderNumber2})}}" stepKey="waitForViewOrderForSecondOrder"/>
+        <waitForElementVisible selector="{{StorefrontCustomerOrderSection.reorderByOrderNumber({$grabOrderNumber2})}}" stepKey="waitForReorderForSecondOrder"/>
+
+        <!-- Verify Can Reorder Order 2 on View Order Page -->
+        <actionGroup ref="StorefrontGoToCustomerOrderDetailsPageActionGroup" stepKey="goToOrder2Page">
+            <argument name="orderId" value="$grabOrderId2"/>
+            <argument name="orderNumber" value="$grabOrderNumber2"/>
+        </actionGroup>
+        <waitForElementVisible selector="{{StorefrontCustomerOrderViewSection.reorder}}" stepKey="waitForReorderButtonOnViewPage"/>
+
+        <!-- Verify Cannot Reorder Order 1 on View Order Page -->
+        <actionGroup ref="StorefrontGoToCustomerOrderDetailsPageActionGroup" stepKey="goToOrder1Page">
+            <argument name="orderId" value="$grabOrderId"/>
+            <argument name="orderNumber" value="$grabOrderNumber"/>
+        </actionGroup>
+        <dontSeeElementInDOM selector="{{StorefrontCustomerOrderViewSection.reorder}}" stepKey="dontSeeReorderButtonOnViewPage"/>
+
+        <!-- Login as Company Subordinate and Verify Cannot See Company Admin's Order -->
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin"/>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefrontAsCompanySubordinate">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="goToCustomerDashboardPage1"/>
+        <actionGroup ref="StorefrontCustomerGoToSidebarMenu" stepKey="goToMyOrdersPage2">
+            <argument name="menu" value="My Orders"/>
+        </actionGroup>
+        <waitForText userInput="{$grabOrderNumber}" stepKey="seeFirstOrder1"/>
+        <dontSee userInput="{$grabOrderNumber2}" stepKey="dontSeeSecondOrder1"/>
+        <waitForElementVisible selector="{{StorefrontCustomerOrderSection.viewOrderByOrderNumber({$grabOrderNumber})}}" stepKey="waitForViewOrderForFirstOrder1"/>
+        <waitForElementVisible selector="{{StorefrontCustomerOrderSection.reorderByOrderNumber({$grabOrderNumber})}}" stepKey="waitForReorderForFirstOrder1"/>
+        <dontSeeElementInDOM selector="{{StorefrontCustomerOrderSection.viewOrderByOrderNumber({$grabOrderNumber2})}}" stepKey="dontSeeViewOrderForSecondOrder1"/>
+        <dontSeeElementInDOM selector="{{StorefrontCustomerOrderSection.reorderByOrderNumber({$grabOrderNumber2})}}" stepKey="dontSeeReorderForSecondOrder1"/>
+    </test>
+</tests>

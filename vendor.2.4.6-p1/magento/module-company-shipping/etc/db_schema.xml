@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="company_shipping" resource="default" engine="innodb" comment="Company Shipping Table">
+        <column xsi:type="int" name="company_id" unsigned="true" nullable="false" identity="false"
+                comment="Company ID"/>
+        <column xsi:type="smallint" name="applicable_shipping_method" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Applicable Shipping Method"/>
+        <column xsi:type="text" name="available_shipping_methods" nullable="true"
+                comment="Shipping methods used when applicable_shipping_method == SELECTED_SHIPPING_METHODS_VALUE" />
+        <column xsi:type="smallint" name="use_config_settings" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Use Config Settings"/>
+        <constraint xsi:type="foreign" referenceId="COMPANY_SHIPPING_COMPANY_ID_COMPANY_ENTITY_ID" table="company_shipping"
+                    column="company_id" referenceTable="company" referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="company_id"/>
+        </constraint>
+    </table>
+</schema>

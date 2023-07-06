@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminNegotiableQuoteTotalsSection">
+        <element name="quoteWeeeCatalogSubtotal" type="text" selector=".quote-totals tr.catalog_price_table div#toggle-part tr.catalog_weee span.price"/>
+        <element name="quoteWeeeSubtotal" type="text" selector=".quote-totals tr.quote_weee span.price"/>
+    </section>
+</sections>

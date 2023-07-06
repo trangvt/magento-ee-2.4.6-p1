@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCheckSalesRepresentativeColumnFilterOnCustomerGridTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Admin Customer Grid"/>
+            <title value="Check Sales Representative Column Filter on Admin All Customers Grid"/>
+            <description value="Verify Sales Representative is not shown by default on the admin All Customers Index
+            page. Verify customers can be filtered by Sales Representative on the admin All Customers Index page."/>
+            <severity value="MAJOR"/>
+            <group value="company"/>
+            <group value="customer"/>
+        </annotations>
+
+        <before>
+            <!-- Create Company Admin -->
+            <createData entity="Simple_US_Customer" stepKey="companyAdmin"/>
+            <createData entity="Default_Company" stepKey="defaultCompany">
+                <requiredEntity createDataKey="companyAdmin"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Delete Data & Clear Filters -->
+            <deleteData createDataKey="defaultCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="companyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultViewAfterTest"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Verify Sales Representative is Not Shown By Default on All Customers Admin Page -->
+        <actionGroup ref="AdminOpenCustomersGridActionGroup" stepKey="NavigateToAllCustomerPage"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+        <dontSeeElementInDOM selector="{{AdminDataGridTableSection.columnHeader('Sales Representative')}}" stepKey="dontSeeSalesRepresentativeColumnInGrid"/>
+
+        <!-- Show Sales Representative Columns and Verify Filtering by Sales Representative -->
+        <actionGroup ref="AdminAddColumnToAdminGridActionGroup"  stepKey="addSalesRepresentativeColumnInGrid">
+            <argument name="columnName" value="Sales Representative"/>
+        </actionGroup>
+        <actionGroup ref="AdminGridFilterSearchResultsBySelectActionGroup" stepKey="searchSalesRepresentativeUsername">
+            <argument name="attributeSelector" value="sales_representative_username"/>
+            <argument name="attributeValue" value="{{_ENV.MAGENTO_ADMIN_USERNAME}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertCustomerInCustomersGrid" stepKey="assertCustomerInCustomersGrid">
+            <argument name="text" value="{{_ENV.MAGENTO_ADMIN_USERNAME}}"/>
+            <argument name="row" value="1"/>
+        </actionGroup>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultViewAfterTest"/>
+    </test>
+</tests>

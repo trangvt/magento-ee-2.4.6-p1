@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCompanyUserCreateFormSection">
+        <element name="formTitle" type="input" selector=".modal-popup._show h1[data-role='title']"/>
+        <element name="jobTitle" type="input" selector="form.form.form-add-user input#jobtitle"/>
+        <element name="role" type="select" selector="form.form.form-add-user select#role"/>
+        <element name="prefix" type="input" selector="form.form.form-add-user input#prefix"/>
+        <element name="firstname" type="input" selector="form.form.form-add-user input#firstname"/>
+        <element name="lastname" type="input" selector="form.form.form-add-user input#lastname"/>
+        <element name="email" type="input" selector="form.form.form-add-user input#email" timeout="10"/>
+        <element name="telephone" type="input" selector="form.form.form-add-user input#telephone"/>
+        <element name="status" type="select" selector="form.form.form-add-user select#status" timeout="10"/>
+        <element name="submit" type="button" selector=".modal-popup._show button[data-action='save']" timeout="30"/>
+        <element name="save" type="button" selector=".modal-popup._show button.save" timeout="30"/>
+        <element name="noCompanyMessage" type="text" timeout="30" selector=".message.info span"/>
+        <element name="createCompanyButton" type="button" timeout="30" selector="a.action.create.primary"/>
+    </section>
+</sections>

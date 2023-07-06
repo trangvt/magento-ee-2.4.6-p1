@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRequiresApprovalCounterTest">
+        <annotations>
+            <features value="Purchase Order Rule Required approve count"/>
+            <stories value="Workflow"/>
+            <title value="Verifies if require approval count works correctly"/>
+            <description value="Verifies if require approval count works correctly. If there is no required to approve, counter box is not displayed. Otherwise it displays number of PO to approve"/>
+            <severity value="MAJOR"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="CompanyRegularPurchaser" stepKey="createPurchaseOrderPurchaser"/>
+            <createData entity="CompanySupervisorUser" stepKey="createPurchaseOrderSupervisorUser"/>
+            <createData entity="CompanySeniorSupervisorUser" stepKey="createPurchaseOrderSeniorSupervisorUser"/>
+            <createData entity="CompanyAdminUser" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="SimpleProductForPurchaseOrder_Price_1000_01" stepKey="product1">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <!-- Enable Company Order Approvals -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+                <argument name="companyId" value="$createCompany.id$"/>
+                <argument name="companyName" value="$createCompany.company_name$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnablePurchaseOrderForCompanyActionGroup" stepKey="enablePurchaseOrderForCompany"/>
+            <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+            <!-- Assign Purchaser to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCustomerEditPage">
+                <argument name="customerId" value="$$createPurchaseOrderPurchaser.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignPurchaserToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Assign Supervisor User to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openSupervisorUserEditPage">
+                <argument name="customerId" value="$$createPurchaseOrderSupervisorUser.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignSupervisorUserToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Assign Senior Supervisor User to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openSeniorSupervisorUserEditPage">
+                <argument name="customerId" value="$$createPurchaseOrderSeniorSupervisorUser.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignSeniorSupervisorUserToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Enable View Purchase Orders Permission for Default User Role -->
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+                <argument name="Customer" value="$$createCompanyAdmin$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage"/>
+            <actionGroup ref="StorefrontClickEditForRoleInRolesGridActionGroup" stepKey="clickEditForRoleInRolesGrid">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontToggleCompanyRolePermissionActionGroup" stepKey="enableViewPurchaseOrdersPermission">
+                <argument name="permissionId" value="Magento_PurchaseOrder::view_purchase_orders"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveCompanyRole">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <!-- Assign Purchaser as Subordinate to Supervisor -->
+            <actionGroup ref="StorefrontNavigateToCompanyStructurePageActionGroup" stepKey="navigateToCompanyStructurePage"/>
+            <actionGroup ref="StorefrontCompanyStructureAssignSubordinateActionGroup" stepKey="AssignSubordinate">
+                <argument name="supervisorUser" value="$$createPurchaseOrderSupervisorUser$$"/>
+                <argument name="subordinateUser" value="$$createPurchaseOrderPurchaser$$"/>
+            </actionGroup>
+            <!-- Assign Supervisor as Subordinate to Senior Supervisor -->
+            <actionGroup ref="StorefrontCompanyStructureAssignSubordinateActionGroup" stepKey="AssignSubordinate2">
+                <argument name="supervisorUser" value="$$createPurchaseOrderSeniorSupervisorUser$$"/>
+                <argument name="subordinateUser" value="$$createPurchaseOrderSupervisorUser$$"/>
+            </actionGroup>
+            <!-- Create Purchase Order Rule -->
+            <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToApprovalRules"/>
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm">
+                <argument name="rule" value="PurchaseOrderRule_Manager"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition">
+                <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan1000"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers">
+                <argument name="approver" value="PurchaseOrderRuleApprover_Manager"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule"/>
+            <!-- Logout as Company Admin -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutAdmin"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <deleteData createDataKey="createPurchaseOrderPurchaser" stepKey="deletePurchaseOrderPurchaser"/>
+            <deleteData createDataKey="createPurchaseOrderSupervisorUser" stepKey="deletePurchaseOrderSupervisorUser"/>
+            <deleteData createDataKey="createPurchaseOrderSeniorSupervisorUser" stepKey="deletePurchaseOrderSeniorSupervisorUser"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <deleteData createDataKey="product1" stepKey="deleteProduct1"/>
+        </after>
+        <!-- Create Purchase Order as Purchaser Customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontCustomerLogin">
+            <argument name="Customer" value="$$createPurchaseOrderPurchaser$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct1Page">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProduct1ToCart"/>
+        <!-- Complete Checkout -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder"/>
+        <actionGroup ref="StorefrontCheckoutClickPlacePurchaseOrderActionGroup" stepKey="clickPlacePurchaseOrder"/>
+        <!-- Validate Successful Purchase Order in Storefront -->
+        <actionGroup ref="StorefrontValidateSuccessfulPurchaseOrderSubmittalActionGroup" stepKey="validateSuccessfulPurchaseOrder"/>
+        <grabTextFrom selector="{{StorefrontPurchaseOrderSuccessSection.purchaseOrderNumber}}" stepKey="purchaseOrderId"/>
+        <actionGroup ref="StorefrontClickPurchaseOrderLinkFromSuccessfulPurchaseOrderPageActionGroup" stepKey="clickPurchaseOrderLink"/>
+        <!-- Validate Purchase Order status as Pending -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderPending">
+            <argument name="status" value="{{PurchaseOrderStatuses.pending}}"/>
+        </actionGroup>
+        <!-- Process Queue and Verify Purchase Order is Approval Required -->
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPage"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderApprovalRequired">
+            <argument name="status" value="{{PurchaseOrderStatuses.approvalRequired}}"/>
+        </actionGroup>
+        <!-- Open My Purchase Orders tab and check if required approval PO counter is not visible -->
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="openMyPurchaseOrdersRequiredMyApprovalGrid" />
+        <dontSeeElementInDOM selector="{{StorefrontPurchaseOrderGridSection.requiredApprovalPurchaseOrderCounter}}" stepKey="checkIfCustomerDontSeeRequiredApprovalPurchaseOrderCounter" />
+
+        <!-- Verify PO Counter is Visible with Correct Value for Approver User -->
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutPurchaserUser"/>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="openMyPurchaseOrdersRequiredMyApprovalGridOnCompanyAdminUser" />
+        <actionGroup ref="StorefrontPurchaseOrderRequiredApprovalCounterIsVisibleWithValueActionGroup" stepKey="checkIfCounterIsVisibleAndHasValueOne" />
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdminSecondTime"/>
+
+        <!-- Create Purchase Order as Purchaser Customer again to check counter value -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontCustomerLoginSecondTime">
+            <argument name="Customer" value="$$createPurchaseOrderPurchaser$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct1PageSecondTime">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProduct1ToCartSecondTime"/>
+        <!-- Complete Checkout -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPageSecondTime"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethodSecondTime"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStepSecondTime"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrderSecondTime"/>
+        <actionGroup ref="StorefrontCheckoutClickPlacePurchaseOrderActionGroup" stepKey="clickPlacePurchaseOrderSecondTime"/>
+        <!-- Validate Successful Purchase Order in Storefront -->
+        <actionGroup ref="StorefrontValidateSuccessfulPurchaseOrderSubmittalActionGroup" stepKey="validateSuccessfulPurchaseOrderSecondTime"/>
+        <grabTextFrom selector="{{StorefrontPurchaseOrderSuccessSection.purchaseOrderNumber}}" stepKey="purchaseOrderIdSecondTime"/>
+        <actionGroup ref="StorefrontClickPurchaseOrderLinkFromSuccessfulPurchaseOrderPageActionGroup" stepKey="clickPurchaseOrderLinkSecondTime"/>
+
+        <!-- Process Queue and Verify Purchase Order is Approval Required -->
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPageSecondTime"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderApprovalRequiredSecondTime">
+            <argument name="status" value="{{PurchaseOrderStatuses.approvalRequired}}"/>
+        </actionGroup>
+
+        <!-- Verify PO Counter is Visible with Correct Value for Approver User -->
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutPurchaseUserSecondTime"/>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdminSecondTime">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="openMyPurchaseOrdersRequiredMyApprovalGridOnCompanyAdminUserSecondTime" />
+        <actionGroup ref="StorefrontPurchaseOrderRequiredApprovalCounterIsVisibleWithValueActionGroup" stepKey="checkIfCounterIsVisibleAndHasValueTwo">
+            <argument name="counterValue" value="2" />
+        </actionGroup>
+
+        <!-- Approve Purchase Order to check if required approval counters value has decreased -->
+        <actionGroup ref="StorefrontNavigateToViewPurchaseOrderPageActionGroup" stepKey="openLatestPurchaseOrder">
+            <argument name="purchaseOrderNumber" value="{$purchaseOrderIdSecondTime}" />
+            <argument name="tabName" value="approval" />
+        </actionGroup>
+        <actionGroup ref="StorefrontApprovePurchaseOrderAsAdminActionGroup" stepKey="approveOpenedOrder" />
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="openMyPurchaseOrdersRequiredMyApprovalGridOnCompanyAdminUserFourthTime" />
+        <actionGroup ref="StorefrontPurchaseOrderRequiredApprovalCounterIsVisibleWithValueActionGroup" stepKey="checkIfCounterIsVisibleAndHasValueOneAfterApprovedPO">
+            <argument name="counterValue" value="1" />
+        </actionGroup>
+
+        <!-- Reject PO to check if counter will disappear -->
+        <actionGroup ref="StorefrontNavigateToViewPurchaseOrderPageActionGroup" stepKey="openLastPurchaseOrder">
+            <argument name="purchaseOrderNumber" value="{$purchaseOrderId}" />
+            <argument name="tabName" value="approval" />
+        </actionGroup>
+        <actionGroup ref="StorefrontRejectPurchaseOrderActionGroup" stepKey="rejectOpenedOrder" />
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="openMyPurchaseOrdersRequiredMyApprovalGridOnCompanyAdminUserFifthTime" />
+        <dontSeeElementInDOM selector="{{StorefrontPurchaseOrderGridSection.requiredApprovalPurchaseOrderCounter}}" stepKey="checkIfCustomerDontSeeRequiredApprovalPurchaseOrderCounterSecondTime" />
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdminThirdTime"/>
+
+        <!-- Create Purchase Order as Purchaser Customer again to check counter value -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontCustomerLoginThirdTime">
+            <argument name="Customer" value="$$createPurchaseOrderPurchaser$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct1PageThirdTime">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProduct1ToCartThirdTime"/>
+        <!-- Complete Checkout -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPageThirdTime"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethodThirdTime"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStepThirdTime"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrderThirdTime"/>
+        <actionGroup ref="StorefrontCheckoutClickPlacePurchaseOrderActionGroup" stepKey="clickPlacePurchaseOrderThirdTime"/>
+        <!-- Validate Successful Purchase Order in Storefront -->
+        <actionGroup ref="StorefrontValidateSuccessfulPurchaseOrderSubmittalActionGroup" stepKey="validateSuccessfulPurchaseOrderThirdTime"/>
+        <grabTextFrom selector="{{StorefrontPurchaseOrderSuccessSection.purchaseOrderNumber}}" stepKey="purchaseOrderIdThirdTime"/>
+        <actionGroup ref="StorefrontClickPurchaseOrderLinkFromSuccessfulPurchaseOrderPageActionGroup" stepKey="clickPurchaseOrderLinkThirdTime"/>
+
+        <!-- Process Queue and Verify Purchase Order is Approval Required -->
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPageThirdTime"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderApprovalRequiredThirdTime">
+            <argument name="status" value="{{PurchaseOrderStatuses.approvalRequired}}"/>
+        </actionGroup>
+
+        <!-- Cancel PO in order to check if counter will disappear -->
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutPurchaseUserThirdTime"/>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdminThirdTime">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="openMyPurchaseOrdersRequiredMyApprovalGridOnCompanyAdminUserThirdTime" />
+        <actionGroup ref="StorefrontPurchaseOrderRequiredApprovalCounterIsVisibleWithValueActionGroup" stepKey="checkIfCounterIsVisibleAndHasValueOneAfterAnotherApprovedPO">
+            <argument name="counterValue" value="1" />
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToViewPurchaseOrderPageActionGroup" stepKey="openLastPurchaseOrderSecondTime">
+            <argument name="purchaseOrderNumber" value="{$purchaseOrderIdThirdTime}" />
+            <argument name="tabName" value="approval" />
+        </actionGroup>
+        <actionGroup ref="StorefrontCancelPurchaseOrderActionGroup" stepKey="cancelPurchaseOrder" />
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="openMyPurchaseOrdersRequiredMyApprovalGridOnCompanyAdminUserSixthTime" />
+        <dontSeeElementInDOM selector="{{StorefrontPurchaseOrderGridSection.requiredApprovalPurchaseOrderCounter}}" stepKey="checkIfCustomerDontSeeRequiredApprovalPurchaseOrderCounterAfterPOCancel" />
+    </test>
+</tests>

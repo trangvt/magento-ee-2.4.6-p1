@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminReplaceCompanyAdminTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Edit Company"/>
+            <title value="Changing Company Admin Email Does Not Change Customer Addresses"/>
+            <description value="Verify that a customer's addresses are not changed when a company's company admin user is changed"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MAGETWO-68241, MAGETWO-67929"/>
+            <group value="company"/>
+            <group value="customer"/>
+            <group value="b2b"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Create Company Admin & 1 Customer -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomerWillReplaceCompanyAdmin"/>
+            <createData entity="Simple_US_Customer_CA" stepKey="createCompanyAdminToBeReplaced"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdminToBeReplaced"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdminToBeReplaced" stepKey="deleteCompanyAdminToBeReplaced"/>
+            <deleteData createDataKey="createCustomerWillReplaceCompanyAdmin" stepKey="deleteCustomerWillReplaceCompanyAdmin"/>
+        </after>
+
+        <!-- Change Company Admin Email Address -->
+        <comment userInput="BIC workaround" stepKey="loginAsAdmin"/>
+        <comment userInput="BIC workaround" stepKey="navigateToCompaniesIndexPage"/>
+        <comment userInput="BIC workaround" stepKey="filterByCompany"/>
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$createCompany.id$"/>
+            <argument name="companyName" value="$createCompany.company_name$"/>
+        </actionGroup>
+        <actionGroup ref="AdminChangeCompanyAdminEmailActionGroup" stepKey="changeCompanyAdmin">
+            <argument name="email" value="$$createCustomerWillReplaceCompanyAdmin.email$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="clickSaveButtonAndAssertSuccessMessage"/>
+
+        <!-- Verify New Company Admin User's Addresses Did Not Change in Admin -->
+        <actionGroup ref="AdminNavigateCustomerEditPageAddressesTabActionGroup" stepKey="openCustomerEditPageAddressesTab">
+            <argument name="customerId" value="$$createCustomerWillReplaceCompanyAdmin.id$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertNumberOfRecordsInCustomersAddressGrid" stepKey="seeOneAddressRecord">
+            <argument name="number" value="1"/>
+        </actionGroup>
+
+        <!-- Verify New Company Admin User's Addresses Did Not Change in Storefront -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$$createCustomerWillReplaceCompanyAdmin$$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="amOnSignInPage"/>
+        <comment userInput="BIC workaround" stepKey="fillLoginForm"/>
+        <comment userInput="BIC workaround" stepKey="clickSignInAccountButton"/>
+        <actionGroup ref="StorefrontGoToCustomerAddressesPageActionGroup" stepKey="goToCustomerAddressBook"/>
+        <actionGroup ref="StoreFrontClickEditDefaultShippingAddressActionGroup" stepKey="clickOnDefaultShippingAddress"/>
+        <actionGroup ref="StorefrontAssertCustomerAddressItemsActionGroup" stepKey="ValidateAddressItems">
+            <argument name="address" value="US_Address_TX"/>
+        </actionGroup>
+    </test>
+</tests>

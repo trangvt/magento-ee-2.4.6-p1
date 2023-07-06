@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminClickNextInSharedCatalogSetPricingAndStructureConfigurationActionGroup">
+        <annotations>
+            <description>Clicks the Next button in the Shared Catalog Set Pricing and Structure Configuration slide out.</description>
+        </annotations>
+        <waitForElementVisible selector="{{AdminSharedCatalogsSection.next}}" stepKey="waitForNext"/>
+        <click selector="{{AdminSharedCatalogsSection.next}}" stepKey="clickNext"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForText userInput="Step 2: Set Custom Prices" stepKey="waitForSlideOutTitle"/>
+    </actionGroup>
+</actionGroups>

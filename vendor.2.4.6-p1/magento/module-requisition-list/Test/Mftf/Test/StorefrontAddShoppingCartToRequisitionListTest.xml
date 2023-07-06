@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAddShoppingCartToRequisitionListTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="Add to Requisition List"/>
+            <title value="Add Entire Shopping Cart to Requisition List"/>
+            <description value="Verify that a buyer can add all items in a shopping cart to a requisition list successfully"/>
+            <severity value="MAJOR"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <!-- Enable config settings -->
+            <magentoCLI command="config:set btob/website_configuration/company_active 1" stepKey="enableCompanyFunctionality"/>
+            <magentoCLI command="config:set btob/website_configuration/requisition_list_active 1" stepKey="enableRequisitionListFunctionality"/>
+
+            <!-- Create products -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <field key="price">100.00</field>
+            </createData>
+            <createData entity="SimpleProduct" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <field key="price">200.00</field>
+            </createData>
+            <createData entity="SimpleProduct" stepKey="createThirdProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <field key="price">300.00</field>
+            </createData>
+
+            <!-- Create customer -->
+            <createData entity="Simple_US_Customer" stepKey="createSimpleUSCustomer">
+                <field key="group_id">1</field>
+            </createData>
+        </before>
+        <after>
+            <!-- Disable config settings -->
+            <magentoCLI command="config:set btob/website_configuration/company_active 0" stepKey="disableCompanyFunctionality"/>
+            <magentoCLI command="config:set btob/website_configuration/requisition_list_active 0" stepKey="disableRequisitionListFunctionality"/>
+
+            <!-- Delete data -->
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createThirdProduct" stepKey="deleteThirdProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+
+            <!-- Logout and delete customer data -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontCustomerLogout"/>
+            <deleteData createDataKey="createSimpleUSCustomer" stepKey="deleteCreatedSimpleUSCustomer"/>
+        </after>
+
+        <!-- Login at store front -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin1">
+            <argument name="Customer" value="$$createSimpleUSCustomer$$"/>
+        </actionGroup>
+
+        <!-- Add first product to cart -->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openFirstProduct">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddProductWithQtyToCartFromStorefrontProductPageActionGroup" stepKey="addFirstProductToCart">
+            <argument name="productName" value="$$createFirstProduct.name$$"/>
+            <argument name="productQty" value="2"/>
+        </actionGroup>
+
+        <!-- Add second product to cart -->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openSecondProduct">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddProductWithQtyToCartFromStorefrontProductPageActionGroup" stepKey="addSecondProductToCart">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="productQty" value="1"/>
+        </actionGroup>
+
+        <!-- Add third product to cart -->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openThirdProduct">
+            <argument name="product" value="$$createThirdProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddProductWithQtyToCartFromStorefrontProductPageActionGroup" stepKey="addThirdProductToCart">
+            <argument name="productName" value="$$createThirdProduct.name$$"/>
+            <argument name="productQty" value="1"/>
+        </actionGroup>
+
+        <!-- Go to the shopping cart -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="amOnPageShoppingCart1"/>
+
+        <!-- Create and add all items to requisition list on the shopping cart page -->
+        <actionGroup ref="StorefrontCreateRequisitionListWithAllCartItemsActionGroup" stepKey="createRequisitionList">
+            <argument name="requisitionListName" value="Weekly Purchase"/>
+        </actionGroup>
+
+        <!-- Assert first product still in cart -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertFirstProductStillInCart">
+            <argument name="productName" value="$$createFirstProduct.name$$"/>
+            <argument name="productPrice" value="$100.00"/>
+            <argument name="subtotal" value="$200.00"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+
+        <!-- Assert second product still in cart -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertSecondProductStillInCart">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="productPrice" value="$200.00"/>
+            <argument name="subtotal" value="$200.00"/>
+            <argument name="qty" value="1"/>
+        </actionGroup>
+
+        <!-- Assert third product still in cart -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertThirdProductStillInCart">
+            <argument name="productName" value="$$createThirdProduct.name$$"/>
+            <argument name="productPrice" value="$300.00"/>
+            <argument name="subtotal" value="$300.00"/>
+            <argument name="qty" value="1"/>
+        </actionGroup>
+
+        <!-- Go to Requisition List Page -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListPage1"/>
+
+        <!-- View "Weekly Purchase" Requisition List -->
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup" stepKey="goToRequisitionListViewPage1">
+            <argument name="requisitionListName" value="Weekly Purchase"/>
+        </actionGroup>
+
+        <!-- Validate products added in requisition list -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="validateRequisitionListFirstProduct">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="index" value="1"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="$200.00"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="validateRequisitionListSecondProduct">
+            <argument name="product" value="$$createSecondProduct$$"/>
+            <argument name="index" value="2"/>
+            <argument name="quantity" value="1"/>
+            <argument name="subtotal" value="$200.00"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="validateRequisitionListThirdProduct">
+            <argument name="product" value="$$createThirdProduct$$"/>
+            <argument name="index" value="3"/>
+            <argument name="quantity" value="1"/>
+            <argument name="subtotal" value="$300.00"/>
+        </actionGroup>
+
+        <!-- Go to the shopping cart again -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="amOnPageShoppingCart2"/>
+
+        <!-- Add items to requisition list again -->
+        <actionGroup ref="StorefrontAddCompleteCartToRequisitionListWhenProductAlreadyExistsInListActionGroup" stepKey="addProductsToRequisitionList">
+            <argument name="requisitionListName" value="Weekly Purchase"/>
+        </actionGroup>
+
+        <!-- Go to Requisition List Page again -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListPage2"/>
+
+        <!-- View "Weekly Purchase" Requisition List again -->
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup" stepKey="goToRequisitionListViewPage2">
+            <argument name="requisitionListName" value="Weekly Purchase"/>
+        </actionGroup>
+
+        <!-- Validate product items in updated requisition list -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="validateRequisitionListFirstProduct2">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="index" value="1"/>
+            <argument name="quantity" value="4"/>
+            <argument name="subtotal" value="$400.00"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="validateSecondRequisitionListProduct2">
+            <argument name="product" value="$$createSecondProduct$$"/>
+            <argument name="index" value="2"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="$400.00"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="validateThirdRequisitionListProduct2">
+            <argument name="product" value="$$createThirdProduct$$"/>
+            <argument name="index" value="3"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="$600.00"/>
+        </actionGroup>
+    </test>
+</tests>
+

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontFillCompanyUserFormActionGroup">
+        <arguments>
+            <argument name="companyUser" type="entity" defaultValue="DefaultCompanyUser"/>
+        </arguments>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.jobTitle}}" userInput="{{companyUser.job_title}}" stepKey="fillCompanyUserJobTitle"/>
+        <selectOption selector="{{StorefrontCompanyUserCreateFormSection.role}}" userInput="{{companyUser.role}}" stepKey="fillCompanyUserRole"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.firstname}}" userInput="{{companyUser.firstname}}" stepKey="fillCompanyUserFirstName"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.lastname}}" userInput="{{companyUser.lastname}}" stepKey="fillCompanyUserLastName"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.email}}" userInput="{{companyUser.email}}" stepKey="fillCompanyUserEmail"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.telephone}}" userInput="{{companyUser.telephone}}" stepKey="fillCompanyUserTelephone"/>
+        <selectOption selector="{{StorefrontCompanyUserCreateFormSection.status}}" userInput="{{companyUser.status}}" stepKey="fillCompanyUserStatus"/>
+    </actionGroup>
+</actionGroups>

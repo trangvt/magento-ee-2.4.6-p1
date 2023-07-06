@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminFPTIncludingAndExcludingTaxVisibleOnNegotiableQuotePageTest" extends="AdminFPTVisibleOnNegotiableQuotePageTest">
+        <annotations>
+            <stories value="Fixed Product Tax"/>
+            <title value="Fixed Product Tax including and excluding tax is visible on negotiable quote page"/>
+            <description value="Check Fixed Product Tax attribute including and excluding tax is visible on negotiable quote page"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-31494"/>
+            <useCaseId value="MC-23788"/>
+        </annotations>
+        <before>
+            <!-- Apply configuration settings -->
+            <createData entity="TaxConfigExcludeAndIncludeTaxInCart" after="enableWeee" stepKey="setExcludeAndIncludeTaxInCart"/>
+            <createData entity="TaxConfigExcludeAndIncludeTaxInSales" after="setExcludeAndIncludeTaxInCart" stepKey="setExcludeAndIncludeTaxInSales"/>
+            <createData entity="WeeeConfigApplyTaxToFptEnable" after="setExcludeAndIncludeTaxInSales" stepKey="applyTaxToFptEnable"/>
+
+            <!--Create tax rule for US-CA-->
+            <createData entity="defaultTaxRule" after="applyTaxToFptEnable" stepKey="createTaxRule"/>
+        </before>
+
+        <after>
+            <createData entity="DefaultTaxConfig" after="disableWeee" stepKey="defaultTaxConfiguration"/>
+            <createData entity="WeeeConfigApplyTaxToFptDisable" after="defaultTaxConfiguration" stepKey="applyTaxToFptDisable"/>
+            <!--Delete tax rule-->
+            <deleteData createDataKey="createTaxRule" after="applyTaxToFptDisable" stepKey="deleteTaxRule"/>
+        </after>
+
+        <!--Check shopping cart items data-->
+        <actionGroup ref="AssertStorefrontCartItemWithWeeeAttributeActionGroup" stepKey="checkCartProductWithWeeeAttribute">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+            <argument name="productSku" value="$createSimpleProduct.sku$"/>
+            <argument name="productPrice" value="162.38"/>
+            <argument name="subtotal" value="162.38"/>
+            <argument name="qty" value="1"/>
+            <argument name="weeePrice" value="54.13"/>
+            <argument name="weeeSubtotal" value="54.13"/>
+        </actionGroup>
+        <actionGroup ref="AssertStorefrontCartItemExcludingTaxWithWeeeAttributeActionGroup" after="checkCartProductWithWeeeAttribute" stepKey="checkStorefrontCartItemExcludingTax">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+        </actionGroup>
+        <!--Check shopping cart totals-->
+        <actionGroup ref="AssertStorefrontShoppingCartSummaryItemsExcludingAndIncludingTaxWithWeeeAttributeActionGroup" stepKey="assertShoppingCartSummaryWithWeeeEnabled">
+            <argument name="subtotalExcludingTax" value="100"/>
+            <argument name="subtotalIncludingTax" value="162.38"/>
+            <argument name="tax" value="12.38"/>
+            <argument name="total" value="167.38"/>
+            <argument name="weeeSubtotal" value="50"/>
+        </actionGroup>
+        <!--Check negotiable quote items data-->
+        <actionGroup ref="AssertStorefrontNegotiableQuoteItemWithWeeeAttributeActionGroup" stepKey="assertStorefrontNegotiableQuoteItemWithWeeeAttribute">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+            <argument name="productSku" value="$createSimpleProduct.sku$"/>
+            <argument name="productPrice" value="162.38"/>
+            <argument name="subtotal" value="162.38"/>
+            <argument name="qty" value="1"/>
+            <argument name="weeePrice" value="54.13"/>
+            <argument name="weeeSubtotal" value="54.13"/>
+        </actionGroup>
+        <actionGroup ref="AssertStorefrontNegotiableQuoteItemExcludingTaxWithWeeeAttributeActionGroup" after="assertStorefrontNegotiableQuoteItemWithWeeeAttribute" stepKey="checkStorefrontNegotiableQuoteItemExcludingTax">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+        </actionGroup>
+        <!--Check negotiable quote totals-->
+        <actionGroup ref="AssertStorefrontNegotiableQuoteTotalsWithWeeeAttributeActionGroup" stepKey="assertStorefrontNegotiableQuoteTotalsWithWeeeAttribute">
+            <argument name="subtotal" value="100"/>
+            <argument name="total" value="162.38"/>
+            <argument name="catalogTotal" value="100"/>
+            <argument name="catalogSubtotal" value="100"/>
+            <argument name="weeeCatalogSubtotal" value="50"/>
+            <argument name="weeeSubtotal" value="50"/>
+        </actionGroup>
+        <actionGroup ref="AssertStorefrontNegotiableQuoteTaxTotalsActionGroup" after="assertStorefrontNegotiableQuoteTotalsWithWeeeAttribute" stepKey="assertStorefrontNegotiableQuoteTaxTotals">
+            <argument name="catalogSubtotalInclTax" value="162.38"/>
+            <argument name="catalogTax" value="12.38"/>
+            <argument name="totalTax" value="12.38"/>
+        </actionGroup>
+        <!--Check negotiable quote items data-->
+        <actionGroup ref="AssertAdminNegotiableQuoteItemWithWeeeAttributeIncludingAndExcludingTaxActionGroup" stepKey="assertAdminNegotiableQuoteItemWithWeeeAttribute">
+            <argument name="productName" value="$createSimpleProduct.name$"/>
+            <argument name="productPrice" value="$createSimpleProduct.price$"/>
+            <argument name="subtotal" value="162.38"/>
+            <argument name="qty" value="1"/>
+            <argument name="tax" value="8.25"/>
+            <argument name="weeeAmountExcludingTax" value="50"/>
+            <argument name="weeeAmountIncludingTax" value="54.13"/>
+        </actionGroup>
+        <!--Check negotiable quote totals-->
+        <actionGroup ref="AssertAdminNegotiableQuoteTotalsWithWeeeAttributeActionGroup" stepKey="assertAdminNegotiableQuoteTotalsWithWeeeAttribute">
+            <argument name="subtotal" value="100"/>
+            <argument name="total" value="162.38"/>
+            <argument name="catalogTotal" value="100"/>
+            <argument name="catalogSubtotal" value="100"/>
+            <argument name="weeeCatalogSubtotal" value="50"/>
+            <argument name="weeeSubtotal" value="50"/>
+        </actionGroup>
+        <actionGroup ref="AssertAdminNegotiableQuoteTaxTotalsActionGroup" after="assertAdminNegotiableQuoteTotalsWithWeeeAttribute" stepKey="assertAdminNegotiableQuoteTaxTotals">
+            <argument name="catalogSubtotalInclTax" value="162.38"/>
+            <argument name="catalogTax" value="12.38"/>
+            <argument name="totalTax" value="12.38"/>
+        </actionGroup>
+    </test>
+</tests>

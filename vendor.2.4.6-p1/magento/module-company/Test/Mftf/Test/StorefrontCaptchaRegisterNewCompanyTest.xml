@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCaptchaRegisterNewCompanyTest">
+        <annotations>
+            <features value="Captcha"/>
+            <stories value="Create New Company Account + Captcha"/>
+            <title value="Test creation for company register with captcha on storefront."/>
+            <description value="Test creation for company register with captcha on storefront."/>
+            <severity value="MAJOR"/>
+            <testCaseId value="AC-2633" />
+            <useCaseId value="ACP2E-630" />
+            <group value="company"/>
+        </annotations>
+        <before>
+            <!-- Enable company configuration -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Enable captcha for company -->
+            <magentoCLI command="config:set {{StorefrontCaptchaOnCompanyCreateFormConfigData.path}} {{StorefrontCaptchaOnCompanyCreateFormConfigData.value}}" stepKey="enableCompanyRegistrationCaptcha" />
+            <magentoCLI command="config:set {{StorefrontCustomerCaptchaLength3ConfigData.path}} {{StorefrontCustomerCaptchaLength3ConfigData.value}}" stepKey="setCaptchaLength" />
+            <magentoCLI command="config:set {{StorefrontCustomerCaptchaSymbols1ConfigData.path}} {{StorefrontCustomerCaptchaSymbols1ConfigData.value}}" stepKey="setCaptchaSymbols" />
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanInvalidatedCaches">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Revert company configuration -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+
+            <!-- Set default configuration -->
+            <magentoCLI command="config:set {{StorefrontCaptchaOnCompanyCreateFormConfigData.path}} {{StorefrontCaptchaOnCustomerLoginConfigData.value}},{{StorefrontCaptchaOnCustomerForgotPasswordConfigData.value}}" stepKey="enableCaptchaOnDefaultForms"/>
+            <magentoCLI command="config:set {{StorefrontCustomerCaptchaDefaultLengthConfigData.path}} {{StorefrontCustomerCaptchaDefaultLengthConfigData.value}}" stepKey="setDefaultCaptchaLength" />
+            <magentoCLI command="config:set {{StorefrontCustomerCaptchaDefaultSymbolsConfigData.path}} {{StorefrontCustomerCaptchaDefaultSymbolsConfigData.value}}" stepKey="setDefaultCaptchaSymbols" />
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanInvalidatedCaches">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+        </after>
+
+        <!-- Open Company registration page -->
+        <actionGroup ref="StorefrontGoToCreateCompanyPageActionGroup" stepKey="goToCompanyAccountCreatePage" />
+
+        <!-- Check captcha visibility registration page load -->
+        <actionGroup ref="AssertCaptchaVisibleOnCompanyAccountCreatePageActionGroup" stepKey="verifyCaptchaVisible" />
+
+        <!-- Submit form with incorrect captcha -->
+        <actionGroup ref="StorefrontCreateCompanyAccountFormWithCaptchaActionGroup" stepKey="fillNewCompanyAccountFormWithIncorrectCaptcha">
+            <argument name="captcha" value="{{WrongCaptcha.value}}" />
+        </actionGroup>
+
+        <!-- Assert incorrect captcha message -->
+        <actionGroup ref="AssertMessageCompanyCreateAccountActionGroup" stepKey="assertMessage">
+            <argument name="message" value="Incorrect CAPTCHA" />
+            <argument name="messageType" value="error" />
+        </actionGroup>
+
+        <!-- Assert captcha presence on the page -->
+        <actionGroup ref="AssertCaptchaVisibleOnCompanyAccountCreatePageActionGroup" stepKey="verifyCaptchaVisibleAfterFail" />
+
+        <!-- Submit form with correct captcha -->
+        <actionGroup ref="StorefrontCreateCompanyAccountFormWithCaptchaActionGroup" stepKey="fillNewCustomerAccountFormWithCorrectCaptcha">
+            <argument name="captcha" value="{{PreconfiguredCaptcha.value}}" />
+        </actionGroup>
+
+        <!-- Assert incorrect captcha message -->
+        <actionGroup ref="AssertMessageCustomerCreateAccountActionGroup" stepKey="assertSuccessMessage">
+            <argument name="message" value="Thank you! We're reviewing your request and will contact you soon" />
+        </actionGroup>
+    </test>
+</tests>

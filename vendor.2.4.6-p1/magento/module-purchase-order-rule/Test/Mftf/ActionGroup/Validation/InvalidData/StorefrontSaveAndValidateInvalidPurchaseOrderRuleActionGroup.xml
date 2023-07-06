@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontSaveAndValidateInvalidPurchaseOrderRuleActionGroup">
+        <annotations>
+            <description>Clicks the Save button on the create or edit purchase order page and expects to see invalid field value errors. Must have invalid values in fields.</description>
+        </annotations>
+        <arguments>
+            <argument name="value" defaultValue="conditions_value_grand_total" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.saveRule}}" stepKey="waitSaveRule"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.saveRule}}" stepKey="saveRule"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('rule_name')}}" stepKey="waitRequiredErrorMessageOnName"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('rule_name')}}" userInput="Please enter less or equal than 255 symbols." stepKey="seeErrorMessageOnName"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('rule_description')}}" userInput="Please enter less or equal than 255 symbols." stepKey="seeErrorMessageOnDescription"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage(value)}}" userInput="Please enter a whole number." stepKey="seeErrorMessageOnAmount"/>
+    </actionGroup>
+</actionGroups>

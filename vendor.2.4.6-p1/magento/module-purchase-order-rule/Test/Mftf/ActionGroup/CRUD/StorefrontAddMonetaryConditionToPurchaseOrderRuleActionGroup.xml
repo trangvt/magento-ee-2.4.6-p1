@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup">
+        <annotations>
+            <description>Fills the form fields for a monetary purchase order rule condition (rule type that has an operator, a quantity, and a currency). Must be on the create or edit purchase order page.</description>
+        </annotations>
+        <arguments>
+            <argument name="condition" defaultValue="PurchaseOrderRuleCondition_OrderTotalMoreThan1000"/>
+            <argument name="index" type="string" defaultValue="0"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAttribute(index)}}" stepKey="waitRuleBasedOnField"/>
+        <selectOption selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAttribute(index)}}" userInput="{{condition.attribute}}" stepKey="fillRuleBasedOn"/>
+        <waitForPageLoad stepKey="waitForFormLoad"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionOperator(index)}}" stepKey="waitRuleOperatorField"/>
+        <selectOption selector="{{StorefrontPurchaseOrderRuleFormSection.conditionOperator(index)}}" userInput="{{condition.operator}}" stepKey="fillRuleOperator"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAmount(index)}}" stepKey="waitRuleAmountField"/>
+        <fillField selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAmount(index)}}" userInput="{{condition.value}}" stepKey="fillRuleAmount"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionCurrency(index)}}" stepKey="waitRuleCurrencyField"/>
+        <selectOption selector="{{StorefrontPurchaseOrderRuleFormSection.conditionCurrency(index)}}" userInput="{{condition.currency}}" stepKey="fillRuleCurrency"/>
+    </actionGroup>
+</actionGroups>

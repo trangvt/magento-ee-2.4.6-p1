@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidatePurchaseOrderRuleDeleteModalActionGroup">
+        <annotations>
+            <description>Validates content in the purchase order rule delete modal along with each method of closing the delete modal.</description>
+        </annotations>
+        <arguments>
+            <argument name="index" type="string" defaultValue="1"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleGridSection.deleteAction(index)}}" stepKey="waitForDeleteLinkVisible"/>
+        <click selector="{{StorefrontPurchaseOrderRuleGridSection.deleteAction(index)}}" stepKey="clickDeleteAction"/>
+        <waitForPageLoad stepKey="waitForPageLoadModal"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modal}}" stepKey="waitForModal"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modalTitle('Delete Rule')}}" stepKey="seeDeleteModalTitle"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modalClose}}" stepKey="seeModalClose"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.cancel}}" stepKey="seeModalCancel"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.ok}}" stepKey="seeModalOk"/>
+        <see selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modalText}}" userInput="Are you sure you want to delete this rule?" stepKey="seeDeleteModalText"/>
+        <!-- Verify clicking X closes modal -->
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modalClose}}" stepKey="waitForCloseAction"/>
+        <click selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modalClose}}" stepKey="clickCloseAction"/>
+        <waitForPageLoad stepKey="waitForClose"/>
+        <waitForElementNotVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modal}}" stepKey="waitForModalClose"/>
+        <click selector="{{StorefrontPurchaseOrderRuleGridSection.deleteAction(index)}}" stepKey="clickDeleteAction1"/>
+        <waitForPageLoad stepKey="waitForPageLoadModal1"/>
+        <!-- Verify clicking overlay closes modal -->
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modal}}" stepKey="waitForModalVisible"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.overlay}}" stepKey="waitForOverlayVisible"/>
+        <click selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.overlay}}" stepKey="clickOverlay"/>
+        <waitForPageLoad stepKey="waitForClose1"/>
+        <waitForElementNotVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modal}}" stepKey="waitForModalClose1"/>
+        <click selector="{{StorefrontPurchaseOrderRuleGridSection.deleteAction(index)}}" stepKey="clickDeleteAction2"/>
+        <waitForPageLoad stepKey="waitForPageLoadModal2"/>
+        <!-- Verify clicking cancel closes modal -->
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modal}}" stepKey="waitForModalVisible1"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.cancel}}" stepKey="waitForCancelAction"/>
+        <click selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.cancel}}" stepKey="clickCancelAction"/>
+        <waitForPageLoad stepKey="waitForClose2"/>
+        <waitForElementNotVisible selector="{{StorefrontPurchaseOrderRuleDeleteModalSection.modal}}" stepKey="waitForModalClose2"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminAssertSystemReportDetailsDataActionGroup">
+        <annotations>
+            <description>Asserts that the information on the admin Action Logs Report Details page contains the expected data</description>
+        </annotations>
+        <arguments>
+            <argument name="aggregatedInformation" type="string" defaultValue=""/>
+            <argument name="adminUserName" type="string" defaultValue="{{_ENV.MAGENTO_ADMIN_USERNAME}}"/>
+        </arguments>
+        <waitForElementVisible selector="{{AdminActionLogReportDetailsSection.aggregatedInformationValue}}" stepKey="waitForAggregatedInformation"/>
+        <grabTextFrom selector="{{AdminActionLogReportDetailsSection.aggregatedInformationValue}}" stepKey="grabValueFromAggregatedInformation"/>
+        <assertNotEmpty stepKey="assertAggregatedInformationNotEmpty">
+            <actualResult type="variable">grabValueFromAggregatedInformation</actualResult>
+        </assertNotEmpty>
+        <assertStringContainsString stepKey="assertAggregatedInformationContainsExpectedValue">
+            <expectedResult type="string">{{aggregatedInformation}}</expectedResult>
+            <actualResult type="variable">grabValueFromAggregatedInformation</actualResult>
+        </assertStringContainsString>
+        <waitForElementVisible selector="{{AdminActionLogReportDetailsSection.adminUserIdValue}}" stepKey="waitForAdminUserId"/>
+        <grabTextFrom selector="{{AdminActionLogReportDetailsSection.adminUserIdValue}}" stepKey="grabValueFromAdminUserId"/>
+        <assertRegExp stepKey="checkAdminUserIdIsDecimal">
+            <expectedResult type="string">/^\#\d+$/</expectedResult>
+            <actualResult type="variable">grabValueFromAdminUserId</actualResult>
+        </assertRegExp>
+        <waitForElementVisible selector="{{AdminActionLogReportDetailsSection.adminUserNameValue}}" stepKey="waitForAdminUserName"/>
+        <grabTextFrom selector="{{AdminActionLogReportDetailsSection.adminUserNameValue}}" stepKey="grabValueFromAdminUserName"/>
+        <assertEquals stepKey="assertAdminUserName">
+            <expectedResult type="string">{{adminUserName}}</expectedResult>
+            <actualResult type="variable">grabValueFromAdminUserName</actualResult>
+        </assertEquals>
+        <waitForElementVisible selector="{{AdminActionLogReportDetailsSection.ipAddressValue}}" stepKey="waitForFromIpAddress"/>
+        <grabTextFrom selector="{{AdminActionLogReportDetailsSection.ipAddressValue}}" stepKey="grabValueFromIpAddress"/>
+        <assertRegExp stepKey="checkIpAddressIsCorrect">
+            <expectedResult type="string">/^\d{1,3}\.{1}\d{1,3}\.\d{1,3}\.\d{1,3}$/</expectedResult>
+            <actualResult type="variable">grabValueFromIpAddress</actualResult>
+        </assertRegExp>
+    </actionGroup>
+</actionGroups>

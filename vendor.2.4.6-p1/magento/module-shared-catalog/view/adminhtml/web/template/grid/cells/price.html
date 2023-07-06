@@ -1,0 +1,14 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<div class="data-grid-cell-content">
+    <!-- ko if: $col.hasPriceTemplate($row()) -->
+        <!-- ko template: getPriceTemplate($row()) --><!-- /ko -->
+    <!-- /ko -->
+    <!-- ko ifnot: $col.hasPriceTemplate($row()) -->
+        <span text="$col.getValue($row(), $col.index)"></span>
+    <!-- /ko -->
+</div>

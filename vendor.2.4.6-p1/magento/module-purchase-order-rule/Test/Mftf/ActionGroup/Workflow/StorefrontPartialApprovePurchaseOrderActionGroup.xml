@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontPartialApprovePurchaseOrderActionGroup" extends="StorefrontApprovePurchaseOrderActionGroup">
+        <annotations>
+            <description>Partially approved a purchase order on the storefront. This will not fully approve the order. Must be on the View Purchase Order page</description>
+        </annotations>
+        <arguments>
+            <argument name="approver"/>
+        </arguments>
+        <see userInput="Purchase order has been approved by {{approver.fullName}}" selector="{{StorefrontMessagesSection.success}}" stepKey="seeSuccessMessage"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderViewSection.purchaseOrderStatus(PurchaseOrderStatuses.approvalRequired)}}" stepKey="waitForStatusChange"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderViewSection.purchaseOrderCancelButton}}" stepKey="verifyCancelNotAvailable"/>
+    </actionGroup>
+</actionGroups>

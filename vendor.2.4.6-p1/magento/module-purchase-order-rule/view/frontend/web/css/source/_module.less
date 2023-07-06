@@ -1,0 +1,290 @@
+// /**
+//  * Copyright © Magento, Inc. All rights reserved.
+//  * See COPYING.txt for license details.
+//  */
+//
+
+@import '_action-switcher.less';
+
+@color-my-approval-counter: #f87428;
+@form-field-type-control-inline__margin-top: @form-field-type-label-inline__padding-top;
+
+& when (@media-common = true) {
+    .purchaseorder-purchaseorder-index {
+        .purchase-order-data-items {
+            .requires-approval-counter {
+                border: 1px @color-my-approval-counter solid;
+                border-radius: 4px;
+                color: @color-my-approval-counter;
+                font-size: 1.2rem;
+                margin-left: 7px;
+                padding: 3px 8px;
+            }
+        }
+    }
+
+    .purchaseorderrule-index-index {
+        .data-grid-actions-cell {
+            .action-select-wrap {
+                display: inline-block;
+            }
+            .action-select {
+                display: none;
+            }
+            .action-menu {
+                &:extend(.abs-reset-list all);
+            }
+            li {
+                display: inline-block;
+
+                & + li:before {
+                    content: '|';
+                    display: inline-block;
+                    margin: 0 0 0 4px;
+                }
+            }
+        }
+        .actions-toolbar {
+            &.empty-rules {
+                text-align: center;
+            }
+            a {
+                float: none;
+                margin-top: 2%;
+            }
+            .primary {
+                float: none;
+                margin-bottom: @indent__s
+            }
+        }
+    }
+
+    .purchaseorderrule-create-index,
+    .purchaseorderrule-edit-index,
+    .purchaseorderrule-view-index {
+        .actions-toolbar {
+            > .secondary {
+                .action.back {
+                    display: inline-block;
+                }
+            }
+        }
+    }
+
+    .form-create-purchase-order-rule {
+        &.form-view-purchase-order-rule {
+            .field:not(.choice) {
+                .label {
+                    display: block;
+
+                    & + .control {
+                        margin-top: @form-field-type-control-inline__margin-top;
+                    }
+                }
+            }
+
+            ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0 0 0 5px;
+
+                li {
+                    text-indent: -5px;
+
+                    &:before {
+                        content: '-';
+                        padding-right: 3px;
+                        text-indent: -5px;
+                    }
+                }
+            }
+        }
+
+        .fieldset {
+            margin: 0 0 30px;
+        }
+
+        .fieldset._hide {
+            display: none;
+        }
+
+        .field-condition-order-total {
+            .nested {
+                display: flex;
+                flex-grow: 1;
+            }
+            .additional {
+                flex-grow: 1;
+
+                & + .additional {
+                    margin-left: 10px;
+                    max-width: 80px;
+                    min-width: 80px;
+                }
+            }
+        }
+
+        .field {
+            &.applies-to {
+                .radio-wrapper {
+                    margin-top: @form-field-type-control-inline__margin-top;
+                }
+
+                .control {
+                    padding-bottom: 10px;
+                }
+            }
+
+            &.rule-type {
+                position: relative;
+
+                .field-tooltip {
+                    display: inline-block;
+                    line-height: 1;
+                    margin-left: 5px;
+                    position: relative;
+                    vertical-align: text-top;
+
+                    .field-tooltip-action:before {
+                        font-size: 17px;
+                    }
+
+                    .field-tooltip-content {
+                        &:extend(.abs-add-box-sizing all);
+                        .lib-font-size(12);
+
+                        .field-tooltip-content-title {
+                            display: block;
+                            margin-bottom: 1.8rem;
+                        }
+
+                        ul {
+                            list-style-type: none;
+                            margin-bottom: 0;
+                            padding: 0;
+
+                            li {
+                                line-height: 16px;
+                                margin-bottom: 2rem;
+
+                                &:last-child {
+                                    margin-bottom: 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .applies-to-select {
+            display: none;
+
+            ul {
+                padding-left: 25px;
+            }
+
+            &.show {
+                display: block;
+            }
+
+            select {
+                margin-top: 8px;
+            }
+        }
+    }
+
+    .account .column.main .approval-flow-block-applied-rule.block .box-title {
+        margin-bottom: 1.5rem;
+    }
+
+    ul.approval-rules-approvers {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        > li {
+            background: url('@{baseDir}Magento_PurchaseOrderRule/images/pending.svg') no-repeat left center;
+            background-size: 22px;
+            margin-bottom: 1.5rem;
+            padding-left: 30px;
+
+            &.approved {
+                background: url('@{baseDir}Magento_PurchaseOrderRule/images/approved.svg') no-repeat left center;
+                background-size: 22px;
+            }
+            &.rejected {
+                background: url('@{baseDir}Magento_PurchaseOrderRule/images/rejected.svg') no-repeat left center;
+                background-size: 22px;
+            }
+        }
+    }
+}
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+    .col-150-max {
+        max-width: 150px;
+    }
+
+    .form-create-purchase-order-rule {
+        .field .control {
+            max-width: 500px;
+        }
+
+        .field-condition-order-total {
+            > .control {
+                display: flex;
+                > .control {
+                    max-width: 46%;
+                    width: 100%;
+                }
+            }
+            .additional {
+                margin-left: 10px;
+                margin-top: 0;
+            }
+        }
+
+        .field-tooltip-content {
+            width: 458px;
+        }
+    }
+}
+
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = (@screen__m + 1)) {
+    .form-create-purchase-order-rule {
+        .field {
+            &.rule-type .field-tooltip {
+                position: static;
+            }
+
+            .field-tooltip {
+                .field-tooltip-content {
+                    bottom: 80px;
+                    left: 0;
+                    right: 0;
+                    top: auto;
+                    width: 100%;
+
+                    &:before,
+                    &:after {
+                        border-bottom-color: transparent;
+                        left: 86px;
+                        top: auto;
+                    }
+
+                    &:before {
+                        border-top-color: @color-gray40;
+                        bottom: -20px;
+                    }
+
+                    &:after {
+                        border-top-color: @color-gray-light01;
+                        bottom: -19px;
+                        right: auto;
+                    }
+                }
+            }
+        }
+    }
+}

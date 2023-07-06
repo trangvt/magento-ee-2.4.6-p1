@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminFillCompanyCreditInformationActionGroup">
+        <annotations>
+            <description>Fills the company credit information fields in admin. Does not interact with company Credit Currency. Must be on the Create or Edit Company page.</description>
+        </annotations>
+        <arguments>
+            <argument name="creditLimit" defaultValue="0.00" type="string"/>
+            <argument name="allowExceedCreditLimit" defaultValue="false" type="string"/>
+            <argument name="reasonForChange" defaultValue="" type="string"/>
+        </arguments>
+        <conditionalClick selector="{{AdminCompanyEditSection.customerCredit}}" dependentSelector="{{AdminCompanyEditSection.creditLimit}}" visible="false" stepKey="expandCompanyCreditSection"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.creditLimit}}" stepKey="waitForCompanyCreditLimit"/>
+        <fillField selector="{{AdminCompanyEditSection.creditLimit}}" userInput="{{creditLimit}}" stepKey="fillCompanyCreditLimit"/>
+        <conditionalClick selector="{{AdminCompanyEditSection.allowToExceedCreditLimit}}" dependentSelector="{{AdminCompanyEditSection.allowToExceedCreditLimitValue(allowExceedCreditLimit)}}" visible="false" stepKey="chooseAllowToExceedCreditLimit"/>
+        <fillField selector="{{AdminCompanyEditSection.reasonForChange}}" userInput="{{reasonForChange}}" stepKey="fillReasonForChange"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminOpenCompanyEditPageActionGroup">
+        <annotations>
+            <description>Goes to the Admin Company Edit page for the provided Company ID #.</description>
+        </annotations>
+        <arguments>
+            <argument name="companyId" defaultValue="" type="string"/>
+            <argument name="companyName" defaultValue="" type="string"/>
+        </arguments>
+        <amOnPage url="{{AdminCompanyEditPage.url(companyId)}}" stepKey="openCompanyEditPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{AdminGridHeaders.title}}" stepKey="waitForPageTitle"/>
+        <see userInput="{{companyName}}" selector="{{AdminGridHeaders.title}}" stepKey="seeCompanyNameinPageTitle"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminChangeCompanyAdminActionGroup" deprecated="Use AdminChangeCompanyAdminEmailActionGroup">
+        <arguments>
+            <argument name="customer" type="entity"/>
+        </arguments>
+
+        <click selector="{{AdminCompanyGridSection.editFirstCompany}}" stepKey="clickEditCompanyLink"/>
+        <click selector="{{AdminNewCompanySection.companyAdmin}}" stepKey="expandCompanyAdminSection"/>
+        <click selector="{{AdminNewCompanySection.companyAdminEmail}}" stepKey="clickCompanyAdminEmailField"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminEmail}}" userInput="{{customer.email}}" stepKey="fillCompanyAdminEmailField"/>
+        <pressKey selector="{{AdminNewCompanySection.companyAdminEmail}}" parameterArray="[\Facebook\WebDriver\WebDriverKeys::TAB]" stepKey="LeaveCompanyAdminEmailFiled"/>
+
+        <waitForElementVisible selector="{{AdminNewCompanySection.proceedButton}}" time="30" stepKey="waitForNoticeReplaceCompanyAdmin"/>
+        <click selector="{{AdminNewCompanySection.proceedButton}}" stepKey="clickNoticeReplaceCompanyAdminProceedButton"/>
+    </actionGroup>
+</actionGroups>

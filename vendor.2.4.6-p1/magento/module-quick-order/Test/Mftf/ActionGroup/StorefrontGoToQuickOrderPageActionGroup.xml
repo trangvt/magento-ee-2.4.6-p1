@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontGoToQuickOrderPageActionGroup">
+        <annotations>
+            <description>Goes to the storefront Quick Order page.</description>
+        </annotations>
+        <amOnPage url="{{StorefrontQuickOrderPage.url}}" stepKey="goQuickOrderPage"/>
+        <waitForPageLoad stepKey="waitForQuickOrderPage"/>
+        <waitForText selector="{{StorefrontQuickOrderSection.pageTitle}}" userInput="Quick Order" stepKey="waitForPageTitle"/>
+    </actionGroup>
+</actionGroups>

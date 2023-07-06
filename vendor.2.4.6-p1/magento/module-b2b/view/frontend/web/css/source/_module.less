@@ -1,0 +1,331 @@
+// /**
+//  * Copyright © Magento, Inc. All rights reserved.
+//  * See COPYING.txt for license details.
+//  */
+@import 'actions/_actions-select.less';
+@import 'actions/_actions-multicheck.less';
+@import 'actions/_actions-multiselect.less';
+
+//
+//  Variables
+//  _____________________________________________
+
+//  Checkboxes
+@smooth__border-color: border-color .1s linear;
+@control-checkbox-radio__size: 1.6rem;
+@control-checkbox-radio__background-color: @color-white;
+@control-checkbox-radio-mark__color: @color-brownie;
+@icon-check-mage__content: @icon-checkmark; // icon resource requires
+
+@action-group-action-link__border-color: @color-gray80;
+@action-group-form-element__focus__border-color: @color-gray68;
+@action-group-list__z-index: @z-index-1;
+@action-group-option__hover__background-color: @color-gray89;
+
+@action-multiselect-menu-wrap__max-height: 210px;
+
+//
+//  Actions
+//  _____________________________________________
+
+.action-reset() {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+
+    &:hover {
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+    }
+}
+
+//  Effects
+//  _____________________________________________
+
+.transition (
+    @_property: all,
+    @_duration: .1s,
+    @_timing-function: linear
+) {
+    transition: @_property @_duration @_timing-function;
+}
+
+.scale (
+    @_size: .9
+) {
+    transform: scale(@_size);
+}
+
+//
+//  Utilities
+//  _____________________________________________
+
+.hidden() {
+    clip: rect(0, 0, 0, 0);
+    overflow: hidden;
+    position: absolute;
+}
+
+//
+//  Extends
+//  _____________________________________________
+
+.abs-action-reset {
+    .action-reset();
+}
+
+//
+//  Specific actions
+//  ---------------------------------------------
+
+.action-close {
+    > span {
+        .hidden();
+    }
+
+    &:extend(.abs-action-reset all);
+
+    &:active {
+        .scale();
+    }
+
+    .lib-icon-font(
+        @_icon-font: @icon-font,
+        @_icon-font-content: @icon-close-mage__content,
+        @_icon-font-line-height: 1,
+        @_icon-font-vertical-align: middle,
+        @_icon-font-position: before
+    );
+
+    &:before {
+        .transition(color);
+    }
+
+    &:hover {
+        cursor: pointer;
+        text-decoration: none;
+    }
+}
+
+//
+//  Action List
+//  ---------------------------------------------
+
+.admin__action-group-list {
+    background-color: @page-wrapper__background-color;
+    border: 1px solid @action__active__border-color;
+    border-radius: 1px;
+    box-shadow: @component__box-shadow__base;
+    color: @text__color;
+    display: none;
+    font-weight: @font-weight__regular;
+    left: 0;
+    list-style: none;
+    margin: 2px 0 0; // Action box-shadow + 1px indent
+    min-width: 0; // ToDo UI Should be deleted with old styles
+    padding: 0;
+    position: absolute;
+    right: 0;
+
+    &._active {
+        display: block;
+    }
+}
+
+//
+//  Common
+//  _____________________________________________
+
+& when (@media-common = true) {
+    //
+    .admin__action-group-wrap {
+        width: 15rem;
+
+        &._active {
+            min-height: 120px;
+        }
+
+        &._disabled {
+            pointer-events: none;
+        }
+
+        &._multiple {
+            width: 100%;
+        }
+
+        .admin__action-multiselect {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        &.admin__action-multiselect-wrap {
+            &.action-select-wrap {
+                .crumb-action {
+                    padding: 0;
+
+                    &:before {
+                        font-size: 1.1rem;
+                    }
+                }
+
+                &._active {
+                    .action-select-list {
+                        min-width: 20rem;
+                        z-index: @action-group-list__z-index;
+
+                        .action-menu-item {
+                            height: 2.5rem;
+                            padding: @indent__xs @indent__s @indent__xs @indent__s;
+
+                            &._selected {
+                                background-color: transparent;
+                            }
+
+                            .admin__action-multiselect-label {
+                                width: 100%;
+                                .lib-text-overflow();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        input::-ms-clear {
+            display: none;
+        }
+
+        &._focus {
+            .admin__action-multiselect,
+            .admin__action-multiselect:before {
+                border-color: @action-group-form-element__focus__border-color;
+            }
+        }
+
+        .admin__action-multiselect-text {
+            .lib-text-overflow();
+        }
+
+        .admin__action-multiselect-menu-inner {
+            list-style: none;
+            max-height: 30.5rem;
+            padding-left: 0;
+
+            &:empty {
+                overflow-y: visible;
+            }
+        }
+
+        .admin__action-group-optgroup {
+            padding: @indent__xs @indent__s;
+        }
+
+        .admin__action-group-option {
+            margin-bottom: 0;
+
+            &:hover,
+            &._hover {
+                background-color: @action-group-option__hover__background-color;
+                cursor: pointer;
+            }
+        }
+
+        .admin__action-multiselect-search-label {
+            right: 1.2rem;
+        }
+
+        .admin__action-multiselect-remove-label {
+            cursor: pointer;
+            display: block;
+            overflow: hidden;
+            position: absolute;
+            right: .7rem;
+            top: 1.5rem;
+
+            &:extend(.abs-icon-add all);
+
+            &:before {
+                content: @icon-remove;
+                font-size: 2rem;
+                line-height: 1;
+                vertical-align: baseline;
+            }
+        }
+
+        .admin__action-multiselect-search-count {
+            font-size: @font-size__s;
+            line-height: 2;
+        }
+
+        .admin__action-multiselect-action-links {
+            float: right;
+
+            .action {
+                float: left;
+                padding: 0;
+                &:extend(.abs-action-button-as-link all);
+
+                span {
+                    font-size: @font-size__s;
+                    font-weight: @font-weight__regular;
+                }
+
+                &:not(:last-child) {
+                    &:after {
+                        border-left: 1px solid @action-group-action-link__border-color;
+                        content: '';
+                        display: inline-block;
+                        height: 1.2rem;
+                        margin: 0 @indent__s;
+                        vertical-align: middle;
+                    }
+                }
+            }
+        }
+
+        .admin__action-multiselect-actions-wrap {
+            text-align: right;
+
+            .action-tertiary {
+                &:extend(.abs-action-button-as-link all);
+                padding: @button__padding;
+            }
+
+            .action-secondary {
+                .lib-button-primary();
+            }
+        }
+
+        .admin__action-multiselect-menu-wrap {
+            max-height: @action-multiselect-menu-wrap__max-height;
+            overflow-y: auto;
+            position: relative;
+
+            .action-menu-item._with-checkbox {
+                .lib-vendor-prefix-display(flex);
+                .lib-vendor-box-align(center);
+
+                .admin__control-checkbox {
+                    margin: auto;
+                    position: absolute;
+                    top: auto;
+                }
+
+                .admin__action-multiselect-label {
+                    padding-left: 2.6rem;
+                }
+            }
+        }
+    }
+}
+
+//
+//  Desktop
+//  _____________________________________________
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminFillCustomPriceForProductInProductsGridInSharedCatalogActionGroup">
+        <annotations>
+            <description>Fill custom price for product in shared catalog structure product grid on pricing step</description>
+        </annotations>
+        <arguments>
+            <argument name="productName" type="string" defaultValue="{{SimpleProduct.name}}"/>
+            <argument name="priceType" type="string" defaultValue="Fixed"/>
+            <argument name="value" type="string" defaultValue="10"/>
+        </arguments>
+        <waitForElementVisible selector="{{AdminSharedCatalogCatalogStructureProductGridSection.customPriceTypeSelectByName('productName')}}" stepKey="waitForSelectVisible"/>
+        <selectOption selector="{{AdminSharedCatalogCatalogStructureProductGridSection.customPriceTypeSelectByName('productName')}}" userInput="{{priceType}}"  stepKey="selectPriceType"/>
+        <fillField selector="{{AdminSharedCatalogCatalogStructureProductGridSection.customPriceInputByName('productName')}}" userInput="{{value}}" stepKey="fillPriceInput"/>
+    </actionGroup>
+</actionGroups>

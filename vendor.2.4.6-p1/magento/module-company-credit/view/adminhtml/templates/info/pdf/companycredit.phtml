@@ -1,0 +1,18 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+/**
+ * @var $block \Magento\CompanyCredit\Block\Info\CompanyCredit
+ * @var $escaper \Magento\Framework\Escaper
+ */
+?>
+<?php
+if ($block->getInfo()->getPoNumber()) {
+    echo $escaper->escapeHtml(__('Custom Reference Number: %1', $block->getInfo()->getPoNumber()));
+    echo '{{pdf_row_separator}}';
+}
+echo $escaper->escapeHtml(__('Charged off the company credit: %1', $block->getChargedAmount()));
+?>
+{{pdf_row_separator}}

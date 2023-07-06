@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontValidatePurchaseOrderAutoApprovePermissionTest" deprecated="Use StorefrontVerifyPurchaseOrderAutoApprovePermissionTest instead">
+        <before>
+            <!-- Create Approver Role from Default User Role -->
+            <actionGroup ref="StorefrontClickDuplicateForRoleInRolesGridActionGroup" stepKey="clickDuplicateForDefaultUserRole" after="saveCompanyRole">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditRoleInformationActionGroup" stepKey="editApproverRole" after="clickDuplicateForDefaultUserRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveApproverRole" after="editApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <!-- Create rule with new approve role -->
+            <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToApprovalRules" after="saveApproverRole"/>
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule" after="navigateToApprovalRules"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm" after="clickAddNewRule">
+                <argument name="rule" value="PurchaseOrderRule_Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToAllActionGroup" stepKey="selectAppliesTo" after="fillRuleForm"/>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition" after="selectAppliesTo">
+                <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan500"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers" after="fillRuleCondition">
+                <argument name="approver" value="PurchaseOrderRuleApprover_Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule" after="selectApprovers"/>
+        </before>
+        <actionGroup ref="StorefrontVerifyHistoryLogMessageActionGroup" stepKey="checkCreatePurchaseOrderHistoryLog">
+            <argument name="index" value="2"/>
+            <argument name="logMessage" value='Purchase Order #$purchaseOrderId was Submitted By {{Simple_US_Customer.fullname}}'/>
+            <argument name="date" value="{$poSubmittedTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderPending" after="clickPurchaseOrderLink">
+            <argument name="status" value="{{PurchaseOrderStatuses.pending}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPage" after="validatePurchaseOrderPending"/>
+    </test>
+</tests>

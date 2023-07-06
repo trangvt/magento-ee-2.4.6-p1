@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontOrderDateFiltersTest">
+        <annotations>
+            <features value="Customer can use order date filters to get specific order."/>
+            <stories value="B2B-228: Storefront Order Search"/>
+            <title value="B2B-284: Customer can use order date filters to get specific order."/>
+            <description value="Customer can use order date filters to get specific order."/>
+            <severity value="CRITICAL"/>
+            <group value="customer"/>
+            <useCaseId value="B2B-228"/>
+        </annotations>
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="SimpleProductOrderHistory1" stepKey="product1">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <createData entity="Simple_US_Customer" stepKey="customer"/>
+
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$customer$$"/>
+            </actionGroup>
+          <magentoCLI command="config:set {{EnableFlatRateConfigData.path}} {{EnableFlatRateConfigData.value}}" stepKey="enableFlatRate"/>
+        </before>
+        <after>
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="product1" stepKey="deleteProduct1"/>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+        </after>
+
+        <actionGroup ref="AddSimpleProductToCartActionGroup" stepKey="addProduct1ToCart">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <!-- Complete Checkout -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlacePurchaseOrder"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="orderNumber1"/>
+
+        <amOnPage url="{{StorefrontCustomerMyOrdersPage.url}}" stepKey="amOnMyOrdersPage"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.showFiltersButton}}" stepKey="clickShowFilters1"/>
+        <see userInput="{$orderNumber1}" selector="{{StorefrontCustomerMyOrdersSection.orderHistoryTableOrderNumber('$orderNumber1')}}" stepKey="assertSeeOrder1BeforeFilter"/>
+        <executeJS function="jQuery('{{StorefrontCustomerMyOrdersSection.orderDateFromFilter}}').val(jQuery.datepicker.formatDate('mm/dd/yy', new Date()));" stepKey="fillOrderFromField"/>
+        <executeJS function="jQuery('{{StorefrontCustomerMyOrdersSection.orderDateToFilter}}').val(jQuery.datepicker.formatDate('mm/dd/yy', new Date()));" stepKey="fillOrderToField"/>
+        <magentoCLI command="cache:clean" stepKey="cleanCache"/>
+        <magentoCLI command="indexer:reindex" stepKey="reindex"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.applyFiltersButton}}" stepKey="clickApplyFilters1"/>
+        <waitForPageLoad stepKey="waitForPageLoad1"/>
+        <see userInput="{$orderNumber1}" selector="{{StorefrontCustomerMyOrdersSection.orderHistoryTableOrderNumber('$orderNumber1')}}" stepKey="assertSeeFilteredDateOrder"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.showFiltersButton}}" stepKey="clickShowFilters2"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.resetFiltersButton}}" stepKey="clickResetFilters1"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.showFiltersButton}}" stepKey="clickShowFilters3"/>
+        <executeJS function="jQuery('{{StorefrontCustomerMyOrdersSection.orderDateFromFilter}}').val('03/11/2008');" stepKey="fillOrderFromFieldPastDate"/>
+        <executeJS function="jQuery('{{StorefrontCustomerMyOrdersSection.orderDateToFilter}}').val('03/11/2008');" stepKey="fillOrderToFieldPastDate"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.applyFiltersButton}}" stepKey="clickApplyFilters2"/>
+        <waitForPageLoad stepKey="waitForPageLoad2"/>
+        <seeElement selector="{{StorefrontCustomerMyOrdersSection.noOrdersInformation}}" stepKey="assertNoOrders"/>
+    </test>
+</tests>

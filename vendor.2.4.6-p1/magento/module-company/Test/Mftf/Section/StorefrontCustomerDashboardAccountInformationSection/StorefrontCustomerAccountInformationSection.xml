@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCustomerAccountInformationSection">
+        <element name="companyName" type="text" selector=".form-edit-account .fieldset.company .field.company-name .control span"/>
+        <element name="companyNameLabel" type="text" selector=".form-edit-account .fieldset.company .field.company-name .label span"/>
+        <element name="jobTitle" type="text" selector=".form-edit-account .fieldset.company .field.job-title .control span"/>
+        <element name="jobTitleLabel" type="text" selector=".form-edit-account .fieldset.company .field.job-title .label span"/>
+        <element name="companyFieldset" type="text" selector=".form-edit-account .fieldset.company"/>
+    </section>
+</sections>

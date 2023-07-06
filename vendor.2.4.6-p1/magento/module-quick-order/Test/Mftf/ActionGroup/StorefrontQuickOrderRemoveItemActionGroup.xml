@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontQuickOrderRemoveItemActionGroup">
+        <annotations>
+            <description>Removes a line item from the Quick Order form on the storefront</description>
+        </annotations>
+        <arguments>
+            <argument name="rowToDelete" defaultValue="1" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.removeButtonByIndex(rowToDelete)}}" stepKey="waitForRemoveButton"/>
+        <executeJS function="return document.querySelectorAll(&quot;{{StorefrontQuickOrderSection.allRows}}&quot;).length-1" stepKey="expectedRowCount"/>
+        <click selector="{{StorefrontQuickOrderSection.removeButtonByIndex(rowToDelete)}}" stepKey="clickRemoveButton"/>
+        <waitForPageLoad stepKey="waitForRowDelete"/>
+        <executeJS function="return document.querySelectorAll(&quot;{{StorefrontQuickOrderSection.allRows}}&quot;).length" stepKey="resultingRowCount"/>
+        <assertEquals stepKey="assertRowCount">
+            <actualResult type="variable">$resultingRowCount</actualResult>
+            <expectedResult type="variable">$expectedRowCount</expectedResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

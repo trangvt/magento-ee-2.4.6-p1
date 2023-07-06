@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyPOCreatedByApproverRoleNotApproved" extends="StorefrontVerifyPOCreatedByApproverRoleApproved">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="Workflow"/>
+            <title value="Verify Creator Cannot Approve Purchase Order When in Approver Role With Multiple Users"/>
+            <description value="Verify that a purchase order cannot be approved by a creator when the creator is a user in a purchase order rule's approver role and the role has multiple users."/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-34116"/>
+            <useCaseId value="B2B-589"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="CompanyRegularPurchaser" after="createPurchaser" stepKey="createSecondApprover"/>
+            <!-- Assign Second User to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" after="assignPurchaserToCompany" stepKey="openSecondApprover">
+                <argument name="customerId" value="$$createSecondApprover.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" after="openSecondApprover" stepKey="assignSecondApproverToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="createSecondApprover" after="deletePurchaseOrderPurchaser" stepKey="deleteSecondApprover"/>
+        </after>
+        <!-- Process Queue and Verify Purchase Order is Not Approved -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderApproved">
+            <argument name="status" value="{{PurchaseOrderStatuses.approvalRequired}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateNoApproveRejectButtonsActionGroup" after="validatePurchaseOrderApproved" stepKey="validateNoApproveRejectButtons"/>
+        <actionGroup ref="StorefrontValidateNumberOfEntriesInHistoryLogActionGroup" stepKey="verifyNumberHistoryLogMessages">
+            <argument name="numMessages" value="2"/>
+        </actionGroup>
+        <remove keyForRemoval="validateLogEntryForApproval"/>
+    </test>
+</tests>

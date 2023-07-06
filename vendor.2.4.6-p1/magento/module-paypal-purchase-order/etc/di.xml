@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Paypal\Model\ExpressConfigProvider">
+        <plugin name="purchase_order_paypal_express_config_urls" type="Magento\PaypalPurchaseOrder\Plugin\Paypal\Model\ExpressConfigProvider"/>
+    </type>
+    <type name="Magento\Paypal\Controller\Express\AbstractExpress\Cancel">
+        <plugin name="purchase_order_paypal_express_cancel_url" type="Magento\PaypalPurchaseOrder\Plugin\Paypal\Controller\Express\AbstractExpress\Cancel"/>
+    </type>
+    <type name="Magento\Paypal\Model\Api\Nvp">
+        <plugin name="purchase_order_paypal_token_store" type="Magento\PaypalPurchaseOrder\Plugin\Paypal\Model\Api\NvpPlugin"/>
+    </type>
+    <type name="Magento\Paypal\Controller\Express\AbstractExpress">
+        <plugin name="purchase_order_paypal_express_abstract" type="Magento\PaypalPurchaseOrder\Plugin\Paypal\Controller\Express\AbstractExpress"/>
+    </type>
+</config>

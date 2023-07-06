@@ -1,0 +1,10 @@
+# Copyright © Magento, Inc. All rights reserved.
+# See COPYING.txt for license details.
+
+type ConfigurableRequisitionListItem implements RequisitionListItemInterface @doc(description: "Contains details about configurable products added to a requisition list.") {
+    uid: ID! @doc(description: "The unique ID of an item in a requisition list.")
+    product: ProductInterface! @doc(description: "Details about a requisition list item.")
+    quantity: Float! @doc(description: "The quantity of the product added to the requisition list.")
+    customizable_options: [SelectedCustomizableOption]! @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\CustomizableOptions") @doc(description: "Selected custom options for an item in the requisition list.")
+    configurable_options: [SelectedConfigurableOption] @resolver(class: "Magento\\ConfigurableRequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\ConfigurableOptions") @doc(description: "Selected configurable options for an item in the requisition list.")
+}

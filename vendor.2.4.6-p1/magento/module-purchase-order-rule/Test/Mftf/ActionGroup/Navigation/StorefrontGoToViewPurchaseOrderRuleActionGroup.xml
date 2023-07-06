@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontGoToViewPurchaseOrderRuleActionGroup">
+        <annotations>
+            <description>Go to View a purchase order rule from the purchase rule listing page.</description>
+        </annotations>
+        <arguments>
+            <argument name="index" type="string" defaultValue="1"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleGridSection.viewAction(index)}}" stepKey="waitForEditLinkVisible"/>
+        <click selector="{{StorefrontPurchaseOrderRuleGridSection.viewAction(index)}}" stepKey="clickEditAction"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{StorefrontCustomerAccountMainSection.pageTitle}}" stepKey="waitForPageTitleVisible"/>
+        <see selector="{{StorefrontCustomerAccountMainSection.pageTitle}}" userInput="View Approval Rule" stepKey="verifyEditApprovalRulePage"/>
+    </actionGroup>
+</actionGroups>

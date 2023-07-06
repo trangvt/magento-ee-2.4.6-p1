@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCompanyShippingMethodsTest">
+        <annotations>
+            <features value="Company Shipping"/>
+            <stories value="Shipping Methods"/>
+            <title value="Verify Company Shipping Methods Configuration"/>
+            <description value="Verify that a merchant can set Shipping methods for the store, for B2B, and for a
+            specific company. Verify storefront respects configuration settings"/>
+            <severity value="BLOCKER"/>
+            <group value="company"/>
+            <group value="company-shipping"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies, Flat Rate, & Free Shipping -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableFlatRateConfigData.path}} {{EnableFlatRateConfigData.value}}" stepKey="enableFlatRateShippingMethod"/>
+            <magentoCLI command="config:set {{EnableFreeShippingConfigData.path}} {{EnableFreeShippingConfigData.value}}" stepKey="enableFreeShippingMethod"/>
+
+            <!-- Create Company Admin & 1 Product -->
+            <createData entity="CompanyAdminUser" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <createData entity="SimpleSubCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{B2BConfigAllShippingMethods.path}} {{B2BConfigAllShippingMethods.value}}" stepKey="enableB2BAllShippingMethods"/>
+            <magentoCLI command="config:set {{DisableFreeShippingConfigData.path}} {{DisableFreeShippingConfigData.value}}" stepKey="disableFreeShippingMethod"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogout"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+        </after>
+
+        <!-- Go To B2B Shipping Methods Configuration -->
+        <actionGroup ref="AdminGoToExpandedB2BConfigPageActionGroup" stepKey="goToB2BShippingMethodsConfigPage"/>
+
+        <!-- Confirm Default B2B Shipping Configuration -->
+        <waitForElementVisible selector="{{AdminB2BConfigSection.applicableShippingMethods}}" stepKey="waitForApplicableShippingMethods"/>
+        <waitForElementVisible selector="{{AdminB2BConfigSection.availableShippingMethodsDisabled}}" stepKey="waitForAvailableShippingMethodsDisabled"/>
+        <seeInField selector="{{AdminB2BConfigSection.applicableShippingMethods}}" userInput="All Shipping Methods" stepKey="seeAllShippingMethods"/>
+
+        <!-- Select Flat Rate and Free Shipping -->
+        <selectOption selector="{{AdminB2BConfigSection.applicableShippingMethods}}" userInput="Selected Shipping Methods" stepKey="selectSelectedShippingMethods"/>
+        <dontSeeElementInDOM selector="{{AdminB2BConfigSection.availableShippingMethodsDisabled}}" stepKey="dontSeeShippingMethodsDisabled"/>
+        <selectOption selector="{{AdminB2BConfigSection.availableShippingMethods}}" parameterArray="[Free Shipping, Flat Rate, DHL (disabled)]" stepKey="selectFlatRateFreeShippingDHL"/>
+        <actionGroup ref="AdminSaveConfigActionGroup" stepKey="saveStoreConfiguration"/>
+
+        <!-- Go To Company Edit Page -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$createCompany.id$"/>
+            <argument name="companyName" value="$createCompany.company_name$"/>
+        </actionGroup>
+        <actionGroup ref="AdminExpandCompanyAdvancedSettingsSectionActionGroup" stepKey="expandCompanyAdvancedSettingsSection"/>
+
+        <!-- Confirm Default Company Shipping Configuration -->
+        <waitForElementVisible selector="{{AdminCompanyEditSection.applicableShippingMethodsCheckBox}}" stepKey="waitForShippingMethodsCheckbox"/>
+        <seeCheckboxIsChecked selector="{{AdminCompanyEditSection.applicableShippingMethodsCheckBox}}" stepKey="seeShippingMethodsCheckboxIsChecked"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.applicableShippingMethodsDisabled}}" stepKey="waitForApplicableShippingMethodsDisabled"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.availableShippingMethodsDisabled}}" stepKey="waitForAvailableShippingMethodsDisabled2"/>
+        <seeInField selector="{{AdminCompanyEditSection.applicableShippingMethods}}" userInput="B2B Shipping Methods" stepKey="seeB2BShippingMethods"/>
+
+        <!-- Uncheck Use Config Settings -->
+        <uncheckOption selector="{{AdminCompanyEditSection.applicableShippingMethodsCheckBox}}" stepKey="uncheckShippingMethodsCheckbox"/>
+        <dontSeeElementInDOM selector="{{AdminCompanyEditSection.applicableShippingMethodsDisabled}}" stepKey="dontSeeApplicableShippingMethodsDisabled"/>
+        <seeElement selector="{{AdminCompanyEditSection.availableShippingMethodsDisabled}}" stepKey="stillSeeAvailableShippingMethodsDisabled"/>
+
+        <!-- Select All Enabled Shipping Settings -->
+        <selectOption selector="{{AdminCompanyEditSection.applicableShippingMethods}}" userInput="All Enabled Shipping Methods" stepKey="selectAllEnabledShippingMethods"/>
+        <seeElement selector="{{AdminCompanyEditSection.availableShippingMethodsDisabled}}" stepKey="stillSeeAvailableShippingMethodsDisabled2"/>
+
+        <!-- Select Selected Shipping Settings -->
+        <selectOption selector="{{AdminCompanyEditSection.applicableShippingMethods}}" userInput="Selected Shipping Methods" stepKey="selectSelectedShippingMethods2"/>
+        <dontSeeElementInDOM selector="{{AdminCompanyEditSection.availableShippingMethodsDisabled}}" stepKey="dontSeeAvailableShippingMethodsDisabled"/>
+
+        <!-- Verify Available Shipping Methods is Required and Can't Save Company -->
+        <selectOption selector="{{AdminCompanyEditSection.availableShippingMethods}}" userInput="Free Shipping" stepKey="selectFreeShipping"/>
+        <unselectOption selector="{{AdminCompanyEditSection.availableShippingMethods}}" userInput="Free Shipping" stepKey="unselectFreeShipping"/>
+        <waitForText selector="{{AdminCompanyEditSection.availableShippingMethodsRequiredMessage}}" userInput="This is a required field." stepKey="waitForRequiredFieldError"/>
+        <scrollToTopOfPage stepKey="scrollToTopOfPage"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.saveButton}}" stepKey="waitForSaveButton"/>
+        <click selector="{{AdminCompanyEditSection.saveButton}}" stepKey="clickSaveButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <!-- Select Only Flat Rate and Save -->
+        <selectOption selector="{{AdminCompanyEditSection.availableShippingMethods}}" userInput="Flat Rate" stepKey="selectFlatRateShipping"/>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+
+        <!-- Go to Checkout Shipping Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCustomer">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="goToProductPage">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProductToCart"/>
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+
+        <!-- Verify Only Flat Rate Shipping is Available -->
+        <waitForElementVisible selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Flat Rate')}}" stepKey="waitForFlatRate"/>
+        <dontSeeElementInDOM selector="{{CheckoutShippingMethodsSection.checkShippingMethodByName('Free Shipping')}}" stepKey="dontSeeFreeShipping"/>
+    </test>
+</tests>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontEditCompanyUserActionGroup">
+        <annotations>
+            <description>Edits all form fields on the Edit Company User modal on the storefront. customerData uses data from a createData entity whereas companyUserData uses data from a custom data entity</description>
+        </annotations>
+        <arguments>
+            <argument name="customerData" defaultValue="DefaultCompanyUser"/>
+            <argument name="companyUserData" defaultValue="DefaultCompanyUser"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCompanyUserCreateFormSection.jobTitle}}" stepKey="waitForJobTitle"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.jobTitle}}" userInput="{{companyUserData.job_title}}" stepKey="fillCompanyUserJobTitle"/>
+        <selectOption selector="{{StorefrontCompanyUserCreateFormSection.role}}" userInput="{{companyUserData.role}}" stepKey="selectCompanyUserRole"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.firstname}}" userInput="{{customerData.firstname}}" stepKey="fillCompanyUserFirstName"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.lastname}}" userInput="{{customerData.lastname}}" stepKey="fillCompanyUserLastName"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.email}}" userInput="{{customerData.email}}" stepKey="fillCompanyUserEmail"/>
+        <click selector="{{StorefrontCompanyUserCreateFormSection.telephone}}" stepKey="focusOutOfEmail"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <fillField selector="{{StorefrontCompanyUserCreateFormSection.telephone}}" userInput="{{companyUserData.telephone}}" stepKey="fillCompanyUserTelephone"/>
+        <selectOption selector="{{StorefrontCompanyUserCreateFormSection.status}}" userInput="{{companyUserData.status}}" stepKey="selectCompanyUserStatus"/>
+    </actionGroup>
+</actionGroups>

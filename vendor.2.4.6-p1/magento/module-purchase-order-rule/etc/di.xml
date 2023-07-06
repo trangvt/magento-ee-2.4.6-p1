@@ -1,0 +1,265 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\PurchaseOrderRule\Api\RuleRepositoryInterface"
+                type="Magento\PurchaseOrderRule\Model\RuleRepository"/>
+    <preference for="Magento\PurchaseOrderRule\Api\Data\RuleInterface" type="Magento\PurchaseOrderRule\Model\Rule"/>
+    <preference for="Magento\PurchaseOrderRule\Api\Data\RuleSearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Magento\PurchaseOrderRule\Model\Rule\ConditionInterface"
+                type="Magento\PurchaseOrderRule\Model\Rule\Condition"/>
+
+    <preference for="Magento\PurchaseOrderRule\Api\AppliedRuleRepositoryInterface"
+                type="Magento\PurchaseOrderRule\Model\AppliedRuleRepository"/>
+    <preference for="Magento\PurchaseOrderRule\Api\Data\AppliedRuleInterface"
+                type="Magento\PurchaseOrderRule\Model\AppliedRule"/>
+    <preference for="Magento\PurchaseOrderRule\Api\Data\AppliedRuleSearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults"/>
+
+    <preference for="Magento\PurchaseOrderRule\Api\AppliedRuleApproverRepositoryInterface"
+                type="Magento\PurchaseOrderRule\Model\AppliedRuleApproverRepository"/>
+    <preference for="Magento\PurchaseOrderRule\Api\Data\AppliedRuleApproverInterface"
+                type="Magento\PurchaseOrderRule\Model\AppliedRuleApprover"/>
+    <preference for="Magento\PurchaseOrderRule\Api\Data\AppliedRuleApproverSearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults"/>
+
+    <type name="Magento\PurchaseOrderRule\Model\RuleConditionPool">
+        <arguments>
+            <argument name="ruleConditions" xsi:type="array">
+                <item name="grand_total" xsi:type="array">
+                    <item name="label" xsi:type="string" translatable="true">Order Total</item>
+                    <item name="operators" xsi:type="array">
+                        <item name="more_than" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is more than</item>
+                            <item name="value" xsi:type="string">></item>
+                        </item>
+                        <item name="less_than" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is less than</item>
+                            <item name="value" xsi:type="string">&lt;</item>
+                        </item>
+                        <item name="more_than_or_equal" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is more than or equal to</item>
+                            <item name="value" xsi:type="string">>=</item>
+                        </item>
+                        <item name="less_than_or_equal" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is less than or equal to</item>
+                            <item name="value" xsi:type="string">&lt;=</item>
+                        </item>
+                    </item>
+                    <item name="validate" xsi:type="object">Magento\PurchaseOrderRule\Model\Rule\Validate\OrderTotal</item>
+                    <item name="type" xsi:type="object">Magento\PurchaseOrderRule\Model\Rule\Condition\Address</item>
+                </item>
+                <item name="shipping_incl_tax" xsi:type="array">
+                    <item name="label" xsi:type="string" translatable="true">Shipping Cost</item>
+                    <item name="operators" xsi:type="array">
+                        <item name="more_than" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is more than</item>
+                            <item name="value" xsi:type="string">></item>
+                        </item>
+                        <item name="less_than" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is less than</item>
+                            <item name="value" xsi:type="string">&lt;</item>
+                        </item>
+                        <item name="more_than_or_equal" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is more than or equal to</item>
+                            <item name="value" xsi:type="string">>=</item>
+                        </item>
+                        <item name="less_than_or_equal" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is less than or equal to</item>
+                            <item name="value" xsi:type="string">&lt;=</item>
+                        </item>
+                    </item>
+                    <item name="validate" xsi:type="object">Magento\PurchaseOrderRule\Model\Rule\Validate\OrderTotal</item>
+                    <item name="type" xsi:type="object">Magento\PurchaseOrderRule\Model\Rule\Condition\Address</item>
+                </item>
+                <item name="number_of_skus" xsi:type="array">
+                    <item name="label" xsi:type="string" translatable="true">Number of SKUs</item>
+                    <item name="operators" xsi:type="array">
+                        <item name="more_than" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is more than</item>
+                            <item name="value" xsi:type="string">></item>
+                        </item>
+                        <item name="less_than" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is less than</item>
+                            <item name="value" xsi:type="string">&lt;</item>
+                        </item>
+                        <item name="more_than_or_equal" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is more than or equal to</item>
+                            <item name="value" xsi:type="string">>=</item>
+                        </item>
+                        <item name="less_than_or_equal" xsi:type="array">
+                            <item name="label" xsi:type="string" translatable="true">is less than or equal to</item>
+                            <item name="value" xsi:type="string">&lt;=</item>
+                        </item>
+                    </item>
+                    <item name="validate" xsi:type="object">Magento\PurchaseOrderRule\Model\Rule\Validate\OrderTotal</item>
+                    <item name="type" xsi:type="object">Magento\PurchaseOrderRule\Model\Rule\Condition\NumberOfSkus</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="purchase_order_rule_listing_data_source" xsi:type="string">Magento\PurchaseOrderRule\Model\ResourceModel\Rule\Grid\Collection</item>
+                <item name="require_my_approval_purchaseorder_listing_data_source" xsi:type="string">Magento\PurchaseOrderRule\Model\ResourceModel\PurchaseOrder\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\PurchaseOrderRule\Model\ResourceModel\Rule\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">purchase_order_rule</argument>
+            <argument name="eventPrefix" xsi:type="string">purchase_order_rule_listing_collection</argument>
+            <argument name="eventObject" xsi:type="string">purchase_order_rule_listing</argument>
+            <argument name="resourceModel" xsi:type="string">Magento\PurchaseOrderRule\Model\ResourceModel\Rule
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="placePoValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="rulesValidate" xsi:type="array">
+                    <item name="validatorClass" xsi:type="string">Magento\PurchaseOrderRule\Model\Validator\Rule</item>
+                    <item name="priority" xsi:type="string">20</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="approvalProcessorComposite">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="managerApproval" xsi:type="array">
+                    <item name="processorClass" xsi:type="string">
+                        Magento\PurchaseOrder\Model\Processor\DummyApprovalProcessor
+                    </item>
+                </item>
+                <item name="ruleApproval" xsi:type="array">
+                    <item name="processorClass" xsi:type="string">
+                        Magento\PurchaseOrderRule\Model\Processor\RuleApproval
+                    </item>
+                    <item name="priority" xsi:type="string">20</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\PurchaseOrderRule\Model\Validator">
+        <arguments>
+            <argument name="purchaseOrderApprovalsProcessor" xsi:type="object">approvalProcessorComposite</argument>
+        </arguments>
+    </type>
+
+    <!-- Save Purchase Order Config -->
+    <type name="Magento\PurchaseOrder\Model\Customer\Authorization\ApproveRejectPurchaseOrder">
+        <plugin
+            name="purchase_order_approve_reject_after_is_allowed"
+            type="Magento\PurchaseOrderRule\Plugin\Customer\Authorization\ApproveRejectPurchaseOrderPlugin"/>
+    </type>
+    <type name="Magento\PurchaseOrder\Model\Customer\Authorization\ViewPurchaseOrder">
+        <plugin
+            name="purchase_order_view_after_is_allowed"
+            type="Magento\PurchaseOrderRule\Plugin\Customer\Authorization\ViewPurchaseOrderPlugin"/>
+    </type>
+
+    <type name="Magento\PurchaseOrder\Model\Notification\Email\ContentSource\ApprovalRequiredAction">
+        <plugin
+            name="purchase_order_approve_required_action_after_get_template_vars"
+            type="Magento\PurchaseOrderRule\Plugin\Notification\Email\ContentSource\ApprovalRequiredActionPlugin" />
+    </type>
+
+    <type name="Magento\PurchaseOrder\Model\Notification\Email\ContentSource\ApprovalAndPaymentDetailsRequiredAction">
+        <plugin
+            name="purchase_order_approve_required_payment_details_action_after_get_template_vars"
+            type="Magento\PurchaseOrderRule\Plugin\Notification\Email\ContentSource\ApprovalAndPaymentDetailsRequiredActionPlugin" />
+    </type>
+
+    <type name="Magento\PurchaseOrder\Model\PurchaseOrderManagement">
+        <plugin name="purchase_order_reject" type="Magento\PurchaseOrderRule\Plugin\PurchaseOrderManagement" />
+    </type>
+
+    <type name="Magento\PurchaseOrder\Block\PurchaseOrder\Grid">
+        <plugin name="purchase_order_grid" type="\Magento\PurchaseOrderRule\Plugin\PurchaseOrder\Grid" />
+    </type>
+
+    <type name="Magento\Framework\MessageQueue\MergerFactory">
+        <arguments>
+            <argument name="mergers" xsi:type="array">
+                <item name="purchaseorder.validation" xsi:type="string">Magento\PurchaseOrder\Model\Merger</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrder\Model\Validator\ActionReady\ValidatorLocator">
+        <arguments>
+            <argument name="actionReadyValidatorPool" xsi:type="array">
+                <item name="validate" xsi:type="string">Magento\PurchaseOrderRule\Model\Validator\ActionReady\ValidatePurchaseOrderValidator</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrder\Model\Customer\Authorization">
+        <arguments>
+            <argument name="actionAuthorizationPool" xsi:type="array">
+                <item name="validate" xsi:type="string">Magento\PurchaseOrderRule\Model\Customer\Authorization\ValidatePurchaseOrder</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrder\Model\Notification\Action\RequestApproval">
+        <arguments>
+            <argument name="recipientResolver" xsi:type="object">
+                Magento\PurchaseOrderRule\Model\Notification\Action\Recipient\Resolver\RuleApprover
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Magento\PurchaseOrderRule\Model\Api\SearchCriteria\CollectionProcessor\RuleFilterProcessor"
+                 type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
+        <arguments>
+            <argument name="customFilters" xsi:type="array">
+                <item name="applies_to_role_ids" xsi:type="object">
+                    Magento\PurchaseOrderRule\Model\Api\SearchCriteria\CollectionProcessor\FilterProcessor\RuleAppliesToFilter
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Magento\PurchaseOrderRule\Model\Api\SearchCriteria\RuleCollectionProcessor"
+                 type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">Magento\PurchaseOrderRule\Model\Api\SearchCriteria\CollectionProcessor\RuleFilterProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\PurchaseOrderRule\Model\RuleRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">
+                Magento\PurchaseOrderRule\Model\Api\SearchCriteria\RuleCollectionProcessor
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrder\Block\PurchaseOrder\History">
+        <arguments>
+            <argument name="actions" xsi:type="array">
+                <item name="apply_rules" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Rules: %rule  applied to Purchase Order</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Company\Model\ResourcePool">
+        <arguments>
+            <argument name="resources" xsi:type="array">
+                <item name="purchase_order_rule_view_approval_rules" xsi:type="string">Magento_PurchaseOrderRule::view_approval_rules</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

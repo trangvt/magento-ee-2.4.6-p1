@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontQuickOrderAddProductWithEnterActionGroup" extends="StorefrontQuickOrderAddProductActionGroup">
+        <annotations>
+            <description>Adds a product and quantity to the Quick Order line item form on the storefront with enter key</description>
+        </annotations>
+        <pressKey selector="{{StorefrontQuickOrderSection.enterSkuOrProductName}}" parameterArray="[\Facebook\WebDriver\WebDriverKeys::ENTER]" stepKey="clickAway"/>
+        <executeJS function="return document.activeElement === document.querySelector('#id-items'+{{index}}+'sku') ? 'true' : 'false'" stepKey="isFocusedField"/>
+        <assertEquals stepKey="checkFocusOnField">
+            <expectedResult type="string">true</expectedResult>
+            <actualResult type="variable">isFocusedField</actualResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminGoToExpandedB2BConfigPageActionGroup">
+        <annotations>
+            <description>Goes to the admin Store > Configuration > B2B Features page and expands the B2B Features > Default B2B Payment Methods section</description>
+        </annotations>
+        <conditionalClick selector="{{AdminB2BConfigSection.b2bFeaturesSectionHeader}}" dependentSelector="{{AdminB2BConfigSection.paymentMethodsAccordion}}" visible="false" stepKey="expandB2BFeaturesAccordion" after="waitForConfigurationPageTitle"/>
+        <waitForElementVisible selector="{{AdminB2BConfigSection.paymentMethodsAccordion}}" stepKey="waitForB2BPaymentMethods" after="expandB2BFeaturesAccordion"/>
+        <conditionalClick selector="{{AdminB2BConfigSection.paymentMethodsAccordion}}" dependentSelector="{{AdminB2BConfigSection.applicablePaymentMethods}}" visible="false" stepKey="expandB2BPaymentMethodsAccordion" after="waitForB2BPaymentMethods"/>
+        <waitForElementVisible selector="{{AdminB2BConfigSection.applicablePaymentMethods}}" stepKey="waitForApplicablePaymentMethods" after="expandB2BPaymentMethodsAccordion"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCompanyRolePermissionsSection">
+        <!-- Click permission by permission ID, e.g. permissionId='Magento_Company::edit' -->
+        <element name="permissionNode" type="text" selector="//a[@id='{{permissionId}}_anchor']" parameterized="true" timeout="30"/>
+        <element name="permissionNodeOn" type="text" selector="//a[@id='{{permissionId}}_anchor'][contains(@class, 'jstree-clicked')]" parameterized="true" timeout="30"/>
+        <element name="permissionNodeOff" type="text" selector="//a[@id='{{permissionId}}_anchor'][not(contains(@class, 'jstree-clicked'))]" parameterized="true" timeout="30"/>
+        <element name="roleNameField" type="input" selector="//input[@id='role_name']" timeout="30"/>
+        <element name="saveRoleButton" type="text" selector="//button[@title='Save Role']" timeout="30"/>
+        <element name="collapseAllLink" type="text" selector="//button[@data-action='collapse-tree']" timeout="30"/>
+        <element name="expandAllLink" type="text" selector="//button[@data-action='expand-tree']" timeout="30"/>
+    </section>
+</sections>

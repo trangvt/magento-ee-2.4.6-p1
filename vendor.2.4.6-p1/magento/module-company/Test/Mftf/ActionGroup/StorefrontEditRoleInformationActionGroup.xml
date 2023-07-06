@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontEditRoleInformationActionGroup">
+        <annotations>
+            <description>Edits all fields in the Role Information section on the company role edit page on the storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="roleName" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCompanyRolePermissionsSection.roleNameField}}" stepKey="waitForRoleName"/>
+        <fillField selector="{{StorefrontCompanyRolePermissionsSection.roleNameField}}" userInput="{{roleName}}" stepKey="enterRoleName"/>
+    </actionGroup>
+</actionGroups>

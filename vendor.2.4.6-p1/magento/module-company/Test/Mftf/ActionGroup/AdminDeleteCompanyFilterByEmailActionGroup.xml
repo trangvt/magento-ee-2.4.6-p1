@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminDeleteCompanyFilterByEmailActionGroup">
+        <annotations>
+            <description>Navigates to companies grid, filter it by email and delete found companies using bulk action.</description>
+        </annotations>
+        <arguments>
+            <argument name="email" type="string" defaultValue="{{UniqueCompany.companyEmail}}"/>
+        </arguments>
+
+        <amOnPage url="{{AdminCompanyIndexPage.url}}" stepKey="goToCompanyIndexPage"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <conditionalClick selector="{{AdminCompanyGridFiltersSection.clearFilters}}" dependentSelector="{{AdminCompanyGridFiltersSection.clearFilters}}" visible="true" stepKey="clickClearFilters"/>
+        <click selector="{{AdminCompanyGridFiltersSection.filtersButton}}" stepKey="openFilter"/>
+        <fillField userInput="{{email}}" selector="{{AdminCompanyGridFiltersSection.companyEmailInput}}" stepKey="fillCompanyEmailFilter"/>
+        <click selector="{{AdminCompanyGridFiltersSection.apply}}" stepKey="applyFilter"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappear"/>
+        <click selector="{{AdminCompaniesSection.selectAll}}" stepKey="selectAll"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <scrollToTopOfPage stepKey="scrollToTopToShowActionsMenu"/>
+        <click selector="{{AdminGridSelectRows.bulkActionDropdown}}" stepKey="clickActions"/>
+        <waitForElementVisible selector="{{AdminCompaniesSection.delete}}" stepKey="waitDeleteButtonAppeared"/>
+        <click selector="{{AdminCompaniesSection.delete}}" stepKey="clickDelete"/>
+        <waitForElementVisible selector="{{AdminConfirmationModalSection.ok}}" stepKey="waitConfirmationDialogAppeared"/>
+        <click selector="{{AdminConfirmationModalSection.ok}}" stepKey="confirmDelete"/>
+        <conditionalClick selector="{{AdminDataGridHeaderSection.clearFilters}}" dependentSelector="{{AdminDataGridHeaderSection.clearFilters}}" visible="true" stepKey="clickOnButtonToRemoveFiltersIfPresent1"/>
+    </actionGroup>
+</actionGroups>
+

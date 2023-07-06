@@ -1,0 +1,23 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var \Magento\PurchaseOrderRule\Block\PurchaseOrder\Info\Validate $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->canValidate()): ?>
+    <form data-role="validate-form" class="quote-validate-action"
+          action="<?= $escaper->escapeUrl($block->getValidateUrl()) ?>"
+          method="post"
+          data-mage-init='{"Magento_PurchaseOrder/js/view/purchase-order/action-button":
+            {"commentSelector": ".block-comments .comments-field-control textarea"}}'>
+        <?= $block->getBlockHtml('formkey') ?>
+        <button type="submit" class="action">
+            <span><?= $escaper->escapeHtml(__('Validate Purchase Order')) ?></span>
+        </button>
+    </form>
+<?php endif; ?>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontSelectAllProductAtRequisitionListTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="Requisition list Select all feature is not getting deselected when we uncheck items"/>
+            <title value="Verify that select all features is getting deselected when we uncheck items"/>
+            <description value="Verify that select all and deselect all works at requisition list"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-19836"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <!-- Create customer and product -->
+            <createData entity="Simple_US_Customer" stepKey="createSimpleUSCustomer">
+                <field key="group_id">1</field>
+            </createData>
+            <createData entity="ApiCategory" stepKey="createCategory"/>
+            <magentoCLI command="config:set btob/website_configuration/requisition_list_active 1" stepKey="enableRequisitionListFunctionality"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <amOnPage url="{{AdminProductIndexPage.url}}" stepKey="adminProductIndexPageAdd"/>
+            <waitForPageLoad stepKey="waitForProductIndexPageLoad"/>
+            <!--Create First Product-->
+            <actionGroup ref="GoToCreateProductPageActionGroup" stepKey="goToCreateFirstProductPage">
+                <argument name="product" value="RequisitionListProduct1"/>
+            </actionGroup>
+
+            <actionGroup ref="FillMainProductFormActionGroup" stepKey="fillFirstProductForm">
+                <argument name="product" value="RequisitionListProduct1"/>
+            </actionGroup>
+            <click selector="{{AdminProductFormActionSection.saveArrow}}" stepKey="openSaveDropDown2"/>
+            <click selector="{{AdminGridMainControls.saveAndNew}}" stepKey="clickOnSaveAndNew2"/>
+
+            <!--Create Second Product-->
+            <actionGroup ref="FillMainProductFormActionGroup" stepKey="fillSecondProductForm">
+                <argument name="product" value="RequisitionListProduct2"/>
+            </actionGroup>
+            <click selector="{{AdminProductFormActionSection.saveArrow}}" stepKey="openSaveDropDown3"/>
+            <click selector="{{AdminGridMainControls.saveAndNew}}" stepKey="clickOnSaveAndNew3"/>
+
+            <!--Create Third Product-->
+            <actionGroup ref="FillMainProductFormActionGroup" stepKey="fillThirdProductForm">
+                <argument name="product" value="RequisitionListProduct3"/>
+            </actionGroup>
+            <click selector="{{AdminProductFormActionSection.saveButton}}" stepKey="saveThirdProduct"/>
+            <waitForPageLoad time="10" stepKey="waitForSavingThirdProduct"/>
+        </before>
+
+        <!-- Login at store front -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin1">
+            <argument name="Customer" value="$$createSimpleUSCustomer$$"/>
+        </actionGroup>
+
+        <!--Create new Requisition list-->
+        <actionGroup ref="StorefrontCreateNewRequisitionListActionGroup" stepKey="createRequisitionList">
+            <argument name="requisitionListName" value="RL1"/>
+        </actionGroup>
+
+        <!--Attach multiple products to requisition list-->
+        <actionGroup ref="StorefrontAddMultipleProductsAtRequisitionListActionGroup" stepKey="addProductsToRequisitionList">
+            <argument name="requisitionListName" value="RL1"/>
+        </actionGroup>
+
+        <!--Check products existence in Requisition List-->
+        <actionGroup ref="StorefrontCheckProductsExistenceAtRequisitionListActionGroup" stepKey="checkProductsAtRequisitionList">
+            <argument name="requisitionListName" value="RL1"/>
+        </actionGroup>
+
+        <!--Check selection value matches with the parent selection-->
+        <actionGroup ref="StorefrontCheckSelectBoxAtRequisitionListActionGroup" stepKey="checkSelectOptionAtRequisitionList"/>
+
+        <after>
+            <deleteData createDataKey="createSimpleUSCustomer" stepKey="deleteCreatedSimpleUSCustomer"/>
+            <deleteData createDataKey="createCategory" stepKey="deletePreReqCategory"/>
+            <magentoCLI command="config:set btob/website_configuration/requisition_list_active 0" stepKey="enableRequisitionListFunctionality"/>
+            <actionGroup ref="DeleteProductBySkuActionGroup" stepKey="deleteFirstProduct">
+                <argument name="sku" value="{{RequisitionListProduct1.sku}}"/>
+            </actionGroup>
+            <actionGroup ref="DeleteProductBySkuActionGroup" stepKey="deleteSecondProduct">
+                <argument name="sku" value="{{RequisitionListProduct2.sku}}"/>
+            </actionGroup>
+            <actionGroup ref="DeleteProductBySkuActionGroup" stepKey="deleteThirdProduct">
+                <argument name="sku" value="{{RequisitionListProduct3.sku}}"/>
+            </actionGroup>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="clearFilters"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+    </test>
+</tests>

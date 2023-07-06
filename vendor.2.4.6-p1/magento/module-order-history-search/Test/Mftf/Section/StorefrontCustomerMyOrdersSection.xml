@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCustomerMyOrdersSection">
+        <element name="showFiltersButton" type="button" selector="#filter-show-btn"/>
+        <element name="filtersFieldset" type="text" selector="#extra-order-search-filters"/>
+        <element name="applyFiltersButton" type="button" selector="button[title='Apply']"/>
+        <element name="resetFiltersButton" type="button" selector="button[title='Clear All']"/>
+        <element name="orderNumberFilter" type="text" selector="#order-number"/>
+        <element name="productFilter" type="text" selector="#product-name-sku"/>
+        <element name="shipToFilter" type="select" selector="#ship-to"/>
+        <element name="orderStatusFilter" type="select" selector="#order-status"/>
+        <element name="orderDateFromFilter" type="text" selector="#order-date-from"/>
+        <element name="orderDateToFilter" type="text" selector="#order-date-to"/>
+        <element name="orderTotalMinFilter" type="text" selector="#order-total-min"/>
+        <element name="orderTotalMaxFilter" type="text" selector="#order-total-max"/>
+        <element name="invoiceNumberFilter" type="text" selector="#invoice-number"/>
+        <element name="noOrdersInformation" type="text" selector="//span[contains(text(),'Your search did not return any results.')]"/>
+        <element name="orderHistoryTableOrderNumber" type="text" selector="//td[contains(text(),'{{var1}}')]" parameterized="true"/>
+    </section>
+</sections>

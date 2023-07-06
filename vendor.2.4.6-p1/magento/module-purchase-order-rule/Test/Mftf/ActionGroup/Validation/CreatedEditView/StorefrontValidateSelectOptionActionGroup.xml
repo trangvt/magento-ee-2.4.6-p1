@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidateSelectOptionActionGroup">
+        <annotations>
+            <description>Verifies multiple selected options</description>
+        </annotations>
+        <arguments>
+            <argument name="multiSelect" defaultValue="StorefrontPurchaseOrderRuleFormSection.approvers"/>
+            <argument name="expectedOptions" type="string" defaultValue="Default User"/>
+        </arguments>
+        <waitForElementVisible selector="{{multiSelect}}" stepKey="waitRuleApproversField"/>
+        <executeJS function="return document.evaluate(&quot;{{multiSelect}}//span[contains(@class,'admin__action-multiselect-crumb')]/span&quot;,
+document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent" stepKey="actualOptions"/>
+        <assertEquals stepKey="assertSelectedOptions">
+            <actualResult type="variable">actualOptions</actualResult>
+            <expectedResult type="string">{{expectedOptions}}</expectedResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

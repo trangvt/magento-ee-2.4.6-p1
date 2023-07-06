@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontSelectPurchaseOrderRuleAppliesToAllActionGroup">
+        <annotations>
+            <description>Selects the applies to option with "All". Must be on the create Purchase Order Rule page.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToAll}}" stepKey="waitForAppliesToAll"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToAll}}" stepKey="clickAppliesToAll"/>
+        <waitForPageLoad stepKey="waitForClickAppliesToAll"/>
+    </actionGroup>
+</actionGroups>

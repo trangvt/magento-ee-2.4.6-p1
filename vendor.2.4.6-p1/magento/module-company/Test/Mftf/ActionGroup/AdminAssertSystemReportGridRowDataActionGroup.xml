@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminAssertSystemReportGridRowDataActionGroup">
+        <annotations>
+            <description>Verifies row data in the admin Actions Log Report grid. Note that some core selectors are hard coded to the first row in the grid. Should be moved to CE.</description>
+        </annotations>
+        <arguments>
+            <argument name="rowNumber" type="string" defaultValue="1"/>
+            <argument name="time" type="string"/>
+            <argument name="actionGroup" type="string"/>
+            <argument name="action" type="string"/>
+            <argument name="userName" type="string" defaultValue="{{_ENV.MAGENTO_ADMIN_USERNAME}}"/>
+            <argument name="result" type="string" defaultValue="Success"/>
+            <argument name="fullActionName" type="string"/>
+            <argument name="details" type="string"/>
+        </arguments>
+        <waitForText selector="{{AdminActionLogReportGridSection.timeRow(rowNumber)}}" userInput="{{time}}" stepKey="waitForTime"/>
+        <waitForText selector="{{AdminActionLogReportGridSection.actionGroup}}" userInput="{{actionGroup}}" stepKey="waitForActionGroup"/>
+        <waitForText selector="{{AdminActionLogReportGridSection.action}}" userInput="{{action}}" stepKey="waitForAction"/>
+        <waitForElementVisible selector="{{AdminActionLogReportGridSection.ip(rowNumber)}}" stepKey="waitForIpAddress"/>
+        <grabTextFrom selector="{{AdminActionLogReportGridSection.ip(rowNumber)}}" stepKey="grabValueFromIpAddress"/>
+        <assertRegExp stepKey="checkIpAddressIsCorrect">
+            <expectedResult type="string">/^\d{1,3}\.{1}\d{1,3}\.\d{1,3}\.\d{1,3}$/</expectedResult>
+            <actualResult type="variable">grabValueFromIpAddress</actualResult>
+        </assertRegExp>
+        <waitForText selector="{{AdminActionLogReportGridSection.user}}" userInput="{{userName}}" stepKey="waitForUsername"/>
+        <waitForText selector="{{AdminActionLogReportGridSection.result}}" userInput="{{result}}" stepKey="waitForResult"/>
+        <waitForText selector="{{AdminActionLogReportGridSection.fullActionName}}" userInput="{{fullActionName}}" stepKey="waitForFullActionName"/>
+        <waitForElementVisible selector="{{AdminActionLogReportGridSection.details}}" stepKey="waitForDetails"/>
+        <grabTextFrom selector="{{AdminActionLogReportGridSection.details}}" stepKey="grabValueFromDetails"/>
+        <assertNotEmpty stepKey="assertAggregatedInformationNotEmpty">
+            <actualResult type="variable">grabValueFromDetails</actualResult>
+        </assertNotEmpty>
+        <assertStringContainsString stepKey="assertAggregatedInformationContainsExpectedData">
+            <expectedResult type="string">{{details}}</expectedResult>
+            <actualResult type="variable">grabValueFromDetails</actualResult>
+        </assertStringContainsString>
+        <waitForElementVisible selector="{{AdminActionLogReportGridSection.viewLink}}" stepKey="waitForViewLink"/>
+    </actionGroup>
+</actionGroups>

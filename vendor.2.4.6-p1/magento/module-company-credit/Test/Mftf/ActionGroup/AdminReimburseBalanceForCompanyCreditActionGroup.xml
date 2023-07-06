@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminReimburseBalanceForCompanyCreditActionGroup">
+        <annotations>
+            <description>Clicks the Reimburse Balance button on the admin Edit Company Page, fills out the form, and clicks Reimburse.</description>
+        </annotations>
+        <arguments>
+            <argument name="amount" type="string"/>
+            <argument name="customReferenceNumber" defaultValue="" type="string"/>
+            <argument name="comment" defaultValue="" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.reimburseBalance}}" stepKey="waitForReimburseBalanceButton"/>
+        <click selector="{{AdminCompanyEditSection.reimburseBalance}}" stepKey="clickReimburseBalanceButton"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.reimburseAmount}}" stepKey="waitForReimburseForm"/>
+        <fillField selector="{{AdminCompanyEditSection.reimburseAmount}}" userInput="{{amount}}" stepKey="enterAmount"/>
+        <fillField selector="{{AdminCompanyEditSection.customReferenceNumber}}" userInput="{{customReferenceNumber}}" stepKey="enterCustomReferenceNumber"/>
+        <fillField selector="{{AdminCompanyEditSection.comment}}" userInput="{{comment}}" stepKey="enterComment"/>
+        <click selector="{{AdminCompanyEditSection.reimburseButton}}" stepKey="clickReimburseButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementNotVisible selector="{{AdminCompanyEditSection.reimburseAmount}}" stepKey="waitForReimburseFormGone"/>
+    </actionGroup>
+</actionGroups>

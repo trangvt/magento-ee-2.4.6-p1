@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="EnableCompanyConfigData">
+        <data key="path">btob/website_configuration/company_active</data>
+        <data key="scope_id">0</data>
+        <data key="label">Yes</data>
+        <data key="value">1</data>
+    </entity>
+    <entity name="DisableCompanyConfigData">
+        <!-- Magento default value -->
+        <data key="path">btob/website_configuration/company_active</data>
+        <data key="scope_id">0</data>
+        <data key="label">No</data>
+        <data key="value">0</data>
+    </entity>
+    <entity name="EnableB2BQuoteConfigData">
+        <data key="path">btob/website_configuration/negotiablequote_active</data>
+        <data key="scope_id">1</data>
+        <data key="label">Yes</data>
+        <data key="value">1</data>
+    </entity>
+    <entity name="DisableB2BQuoteConfigData">
+        <!-- Magento default value -->
+        <data key="path">btob/website_configuration/negotiablequote_active</data>
+        <data key="scope_id">0</data>
+        <data key="label">No</data>
+        <data key="value">0</data>
+    </entity>
+    <entity name="StorefrontCaptchaOnCompanyCreateFormConfigData">
+        <data key="path">customer/captcha/forms</data>
+        <data key="scope_id">0</data>
+        <data key="label">Create company</data>
+        <data key="value">company_create</data>
+    </entity>
+</entities>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontQuickOrderAddToCartActionGroup">
+        <annotations>
+            <description>Clicks the Add to Cart button on the storefront Quick Order page and verifies success</description>
+        </annotations>
+        <arguments>
+            <argument name="successMessage" defaultValue="You added 1 product to your shopping cart." type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.addToCart}}" stepKey="waitAddToCartButton"/>
+        <click selector="{{StorefrontQuickOrderSection.addToCart}}" stepKey="clickAddToCartButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <seeInCurrentUrl url="{{CheckoutCartPage.url}}" stepKey="assertCheckoutCartUrl"/>
+        <waitForText selector="{{StorefrontMessagesSection.success}}" userInput="{{successMessage}}" stepKey="waitForSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

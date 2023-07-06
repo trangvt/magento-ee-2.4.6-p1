@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Quote\Model\Quote\Address">
+        <plugin name="companyShippingQuoteAddressPlugin" type="Magento\CompanyShipping\Plugin\Model\Quote\AddressPlugin"/>
+    </type>
+    <type name="Magento\Company\Model\Company\DataProvider">
+        <plugin name="companyShippingDataProviderPlugin" type="Magento\CompanyShipping\Plugin\Company\DataProviderPlugin"/>
+    </type>
+    <type name="Magento\Company\Api\CompanyRepositoryInterface">
+        <plugin name="companyShippingCompanyRepositoryPlugin" type="Magento\CompanyShipping\Plugin\Company\CompanyRepositoryPlugin"/>
+    </type>
+    <type name="Magento\Company\Model\SaveHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="availableShippingMethods" xsi:type="object">Magento\CompanyShipping\Model\Company\SaveHandler\AvailableShippingMethods</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Company\Model\ResourcePool">
+        <arguments>
+            <argument name="resources" xsi:type="array">
+                <item name="company_shipping_information" xsi:type="string">Magento_Company::shipping_information</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

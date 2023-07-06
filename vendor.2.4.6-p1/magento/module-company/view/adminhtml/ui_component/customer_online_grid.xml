@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <columns name="customer_online_columns">
+        <column name="customer_id" sortOrder="10">
+        </column>
+        <column name="firstname" sortOrder="20">
+        </column>
+        <column name="lastname" sortOrder="30">
+        </column>
+         <column name="company_name" sortOrder="40">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Company</label>
+                <visible>false</visible>
+                <sortable>true</sortable>
+            </settings>
+        </column>
+        <column name="email" sortOrder="50">
+        </column>
+    </columns>
+</listing>

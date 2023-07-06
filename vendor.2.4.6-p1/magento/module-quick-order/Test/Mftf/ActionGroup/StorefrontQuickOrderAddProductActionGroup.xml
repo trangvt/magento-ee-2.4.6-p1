@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontQuickOrderAddProductActionGroup">
+        <annotations>
+            <description>Adds a product and quantity to the Quick Order line item form on the storefront</description>
+        </annotations>
+        <arguments>
+            <argument name="productSku" defaultValue="{{SimpleProduct.sku}}" type="string"/>
+            <argument name="productName" defaultValue="{{SimpleProduct.name}}" type="string"/>
+            <argument name="quantity" defaultValue="1" type="string"/>
+            <argument name="index" defaultValue="1" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.quantityByIndex(index)}}" stepKey="waitForQuantityVisible"/>
+        <fillField selector="{{StorefrontQuickOrderSection.quantityByIndex(index)}}" userInput="{{quantity}}" stepKey="enterQuantity"/>
+        <fillField selector="{{StorefrontQuickOrderSection.skuOrProductNameByIndex(index)}}" userInput="{{productSku}}" stepKey="enterProductSku"/>
+        <click selector="{{StorefrontQuickOrderSection.pageTitle}}" stepKey="clickAway"/>
+        <waitForText selector="{{StorefrontQuickOrderSection.productNameByIndex(index)}}" userInput="{{productName}}" stepKey="waitForProductName"/>
+    </actionGroup>
+</actionGroups>

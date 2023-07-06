@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="CheckoutCartProductSection">
+        <element name="cartItemAddToRequisitionListButton" type="button" selector="//*[@data-cart-item-id='{{productSku}}']/ancestor::tbody//button[contains(@class, 'requisition-list-button')]" parameterized="true" timeout="30"/>
+        <element name="requisitionListNameButtonInPopup" type="button" selector="//*[contains(@class, 'requisition-list-action')][contains(@class, 'active')]//span[contains(text(), '{{requisitionListName}}')]" parameterized="true"/>
+        <element name="cartItemCreateNewRequisitionListButtonInPopup" type="button" selector="//*[@data-cart-item-id='{{productSku}}']/ancestor::tbody//span[@data-action='add-to-requisition-list']//span[contains(., 'Create New Requisition List')]" parameterized="true" timeout="30"/>
+        <element name="requisitionListNameInput" type="input" selector="#requisition-list-name" timeout="30"/>
+        <element name="addToNewRequisitionListModalButton" type="button" selector="//*[contains(@class, 'modal-title')][contains(text(), 'Create Requisition List')]/ancestor::aside//*[@class='modal-footer']//button[contains(@class, 'action')][contains(@class, 'confirm')]" timeout="30"/>
+        <element name="cancelAddToNewRequisitionListModalButton" type="button" selector="//*[contains(@class, 'modal-title')][contains(text(), 'Create Requisition List')]/ancestor::aside//*[@class='modal-footer']//button[contains(@class, 'action')][contains(@class, 'cancel')]" timeout="30"/>
+        <element name="confirmQtyAdditionAddToRequisitionListModalButton" type="button" selector="//*[contains(@class, 'modal-title')][contains(text(), 'Add item to requisition list')]/ancestor::aside//*[@class='modal-footer']//button[contains(@class, 'action')][contains(@class, 'add')]" timeout="30"/>
+        <element name="cancelQtyAdditionAddToRequisitionListModalButton" type="button" selector="//*[contains(@class, 'modal-title')][contains(text(), 'Add item to requisition list')]/ancestor::aside//*[@class='modal-footer']//button[contains(@class, 'action')][contains(@class, 'cancel')]" timeout="30"/>
+    </section>
+</sections>

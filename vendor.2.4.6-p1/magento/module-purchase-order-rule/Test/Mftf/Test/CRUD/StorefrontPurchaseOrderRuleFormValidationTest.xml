@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRuleFormValidationTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="CRUD"/>
+            <title value="Purchase Order Rule Form Validation"/>
+            <description value="This test is intended to ensure that Purchase Order Rule form validation works on storefront."/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-32368"/>
+            <useCaseId value="B2B-461"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <!-- Enable Company Order Approvals -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+                <argument name="companyId" value="$createCompany.id$"/>
+                <argument name="companyName" value="$createCompany.company_name$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnablePurchaseOrderForCompanyActionGroup" stepKey="enablePurchaseOrderForCompany"/>
+            <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+            <!-- Create Approver Role from Default User Role -->
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+                <argument name="Customer" value="$$createCompanyAdmin$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage"/>
+            <actionGroup ref="StorefrontClickDuplicateForRoleInRolesGridActionGroup" stepKey="clickDuplicateForDefaultUserRole">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditRoleInformationActionGroup" stepKey="editApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <!-- Create Purchase Order Rule -->
+            <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToApprovalRules"/>
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm">
+                <argument name="rule" value="PurchaseOrderRule_Simple"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers"/>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule"/>
+        </before>
+        <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteAdminCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <comment userInput="BIC workaround" stepKey="storefrontCustomerLogout"/>
+        </after>
+        <!-- Create Purchase Order Rule -->
+        <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule"/>
+        <!-- Validate with Empty Data -->
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillFormWithEmptyRule">
+            <argument name="rule" value="PurchaseOrderRule_Empty"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToSpecificEmptyActionGroup" stepKey="selectEmptySpecificAppliesTo"/>
+        <actionGroup ref="StorefrontSaveAndValidateEmptyPurchaseOrderRuleActionGroup" stepKey="saveEmptyRule"/>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillEmptyRuleConditionOrderTotal">
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalEmpty"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleFormWithoutApproverActionGroup" stepKey="fillFormWithEmptyApprovers"/>
+        <actionGroup ref="StorefrontSaveAndValidateEmptyPurchaseOrderRuleWithConditionActionGroup" stepKey="saveEmptyRuleOrderTotal"/>
+        <!-- Validate with Empty Data - Shipping Cost -->
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillEmptyRuleConditionShippingCost">
+            <argument name="condition" value="PurchaseOrderRuleCondition_ShippingCostEmpty"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveAndValidateEmptyPurchaseOrderRuleWithConditionActionGroup" stepKey="saveEmptyRuleShippingCost">
+            <argument name="operator" value="conditions_operator_shipping_incl_tax"/>
+            <argument name="value" value="conditions_value_shipping_incl_tax"/>
+        </actionGroup>
+        <!-- Validate with Empty Data - Number of SKUs -->
+        <actionGroup ref="StorefrontAddQuantityConditionToPurchaseOrderRuleActionGroup" stepKey="fillFormWithEmptyRuleNumberOfSKUs">
+            <argument name="condition" value="PurchaseOrderRuleCondition_NumberOfSKUsEmpty"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveAndValidateEmptyPurchaseOrderRuleWithConditionActionGroup" stepKey="saveEmptyRuleNumberOfSKUs">
+            <argument name="operator" value="conditions_operator_number_of_skus"/>
+            <argument name="value" value="conditions_value_number_of_skus"/>
+        </actionGroup>
+        <!-- Validate with Invalid Data -->
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillFormWithInvalidRule">
+            <argument name="rule" value="PurchaseOrderRule_Invalid"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillLongStringAmountRuleCondition">
+            <argument name="condition" value="PurchaseOrderRuleCondition_LongStringAmount"/>
+        </actionGroup>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.saveRule}}" stepKey="clickSubmitButton"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('conditions_value_grand_total')}}" userInput="Please enter less or equal than 255 symbols." stepKey="seeErrorMessageOnAmountField"/>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillInvalidRuleCondition">
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalInvalid"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveAndValidateInvalidPurchaseOrderRuleActionGroup" stepKey="saveInvalidRule"/>
+
+        <!-- Validate with Invalid Data - Shipping Cost -->
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillFormWithInvalidRuleShippingCost">
+            <argument name="condition" value="PurchaseOrderRuleCondition_ShippingCostInvalid"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveAndValidateInvalidPurchaseOrderRuleActionGroup" stepKey="saveInvalidRuleShippingCost">
+            <argument name="value" value="conditions_value_shipping_incl_tax"/>
+        </actionGroup>
+        <!-- Validate with Invalid Data - Number of SKUs -->
+        <actionGroup ref="StorefrontAddQuantityConditionToPurchaseOrderRuleActionGroup" stepKey="fillFormWithInvalidRuleNumberOfSKUs">
+            <argument name="condition" value="PurchaseOrderRuleCondition_NumberOfSKUsInvalid"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveAndValidateInvalidPurchaseOrderRuleActionGroup" stepKey="saveInvalidRuleNumberOfSKUs">
+            <argument name="value" value="conditions_value_number_of_skus"/>
+        </actionGroup>
+        <!-- Validate with Existent Rule Name -->
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillFormWithInvalidRuleName">
+            <argument name="rule" value="PurchaseOrderRule_Simple"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateNotUniquePurchaseOrderRuleNameActionGroup" stepKey="saveInvalidRuleName"/>
+        <!-- Validate Can Fix Values and Save with Valid Data -->
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleFormValidData">
+            <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToSpecificActionGroup" stepKey="selectSpecificRoleValidData">
+            <argument name="appliesTo" value="PurchaseOrderRuleAppliesTo_Multiple"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleConditionValidData"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers">
+            <argument name="approver" value="PurchaseOrderRuleApprover_MultipleApprovers"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRuleValidData"/>
+        <!-- Verify Rule in Grid -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleCreated">
+            <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+            <argument name="approvers" value="{{PurchaseOrderRuleApprover_MultipleApprovers.approvers[0]}}, {{PurchaseOrderRuleApprover_MultipleApprovers.approvers[1]}}"/>
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan1000"/>
+            <argument name="appliesTo" value="{{PurchaseOrderRuleAppliesTo_Multiple.roles[0]}}, {{PurchaseOrderRuleAppliesTo_Multiple.roles[1]}}"/>
+        </actionGroup>
+    </test>
+</tests>

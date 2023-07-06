@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAddProductToRequisitionListActionGroup">
+         <annotations>
+            <description>Adds a product to a specified requisition list. Must be on the Product Details page</description>
+        </annotations>
+        <arguments>
+            <argument name="requisitionListName" type="string" defaultValue="RL1" />
+            <argument name="productName" type="string" defaultValue="{{SimpleProduct.name}}"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontProductPageSection.addToRequisitionListButton}}" stepKey="waitAddToRequisitionListButton"/>
+        <click selector="{{StorefrontProductPageSection.addToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton"/>
+        <waitForElementVisible selector="{{StorefrontProductPageSection.selectRequisitionListName(requisitionListName)}}" stepKey="waitForSelectRequisitionListName"/>
+        <click selector="{{StorefrontProductPageSection.selectRequisitionListName(requisitionListName)}}" stepKey="clickRequisitionList"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForText selector="{{StorefrontMessagesSection.success}}" userInput="Product {{productName}} has been added to the requisition list {{requisitionListName}}." stepKey="waitForSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

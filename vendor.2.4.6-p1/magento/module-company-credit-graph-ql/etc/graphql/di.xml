@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\CompanyCreditGraphQl\Model\Resolver\Credit">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_credit" xsi:type="string">Magento_Company::credit</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyCreditGraphQl\Model\Resolver\CreditHistory">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_credit_history" xsi:type="string">Magento_Company::credit_history</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyCreditGraphQl\Model\Credit\HistoryType">
+        <arguments>
+            <argument name="creditHistoryType" xsi:type="array">
+                <item name="allocation" xsi:type="array">
+                    <item name="value" xsi:type="string">1</item>
+                    <item name="label" xsi:type="string" translate="true">ALLOCATION</item>
+                </item>
+                <item name="update" xsi:type="array">
+                    <item name="value" xsi:type="string">2</item>
+                    <item name="label" xsi:type="string" translate="true">UPDATE</item>
+                </item>
+                <item name="purchase" xsi:type="array">
+                    <item name="value" xsi:type="string">3</item>
+                    <item name="label" xsi:type="string" translate="true">PURCHASE</item>
+                </item>
+                <item name="reimbursement" xsi:type="array">
+                    <item name="value" xsi:type="string">4</item>
+                    <item name="label" xsi:type="string" translate="true">REIMBURSEMENT</item>
+                </item>
+                <item name="refund" xsi:type="array">
+                    <item name="value" xsi:type="string">5</item>
+                    <item name="label" xsi:type="string" translate="true">REFUND</item>
+                </item>
+                <item name="revert" xsi:type="array">
+                    <item name="value" xsi:type="string">6</item>
+                    <item name="label" xsi:type="string" translate="true">REVERT</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyCreditGraphQl\Model\Credit\OperationUser">
+        <arguments>
+            <argument name="creditHistoryUserType" xsi:type="array">
+                <item name="admin" xsi:type="array">
+                    <item name="value" xsi:type="string">2</item>
+                    <item name="label" xsi:type="string" translate="true">ADMIN</item>
+                </item>
+                <item name="customer" xsi:type="array">
+                    <item name="value" xsi:type="string">3</item>
+                    <item name="label" xsi:type="string" translate="true">CUSTOMER</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

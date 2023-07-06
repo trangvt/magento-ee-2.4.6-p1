@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminCompanySaveActionGroup">
+        <annotations>
+            <description>Saves a company in admin and verifies the success message. Must be on Create or Edit Company page.</description>
+        </annotations>
+        <arguments>
+            <argument name="saveMessage" defaultValue="You have saved company" type="string"/>
+        </arguments>
+        <scrollToTopOfPage stepKey="scrollToTopOfPage"/>
+        <waitForElementVisible selector="{{AdminCompanyEditSection.saveButton}}" time="30" stepKey="waitForSaveButton"/>
+        <click selector="{{AdminCompanyEditSection.saveButton}}" stepKey="clickSaveButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{AdminMessagesSection.success}}" stepKey="waitForMessageSuccessAppears"/>
+        <see selector="{{AdminMessagesSection.success}}" userInput="{{saveMessage}}" stepKey="assertSaveMessageSuccess"/>
+    </actionGroup>
+</actionGroups>

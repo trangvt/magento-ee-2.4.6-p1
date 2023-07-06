@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCompanyRolesSection">
+        <element name="roleNameInGrid" type="text" selector="//td[@data-th='Role']//*[text()='{{roleName}}']" parameterized="true" timeout="30"/>
+        <element name="roleEditLink" type="text" selector="//td[@data-th='Role']//*[text()='{{roleName}}']/ancestor::tr//a[@data-action='item-edit']" parameterized="true" timeout="30"/>
+        <element name="roleDuplicateLink" type="text" selector="//td[@data-th='Role']//*[text()='{{roleName}}']/ancestor::tr//a[@data-action='item-duplicate']" parameterized="true" timeout="30"/>
+        <element name="roleDeleteLink" type="text" selector="//td[@data-th='Role']//*[text()='{{roleName}}']/ancestor::tr//a[@data-action='item-delete']" parameterized="true" timeout="30"/>
+        <element name="popupDelete" type="button" selector=".modal-popup button.delete" timeout="30"/>
+    </section>
+</sections>

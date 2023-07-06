@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontPurchaseOrderRuleGridSection">
+        <element name="emptyText" type="text" selector="#empty-purchase-rule-listing-msg"/>
+        <element name="ruleName" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Rule Name']"/>
+        <element name="ruleType" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Rule Type']"/>
+        <element name="createdBy" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Created by']"/>
+        <element name="appliesTo" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Applies to']"/>
+        <element name="approver" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Approver']"/>
+        <element name="status" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Status']"/>
+        <element name="deleteAction" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Actions']//a[contains(@class, 'action-menu-item') and text()='Delete']"/>
+        <element name="editAction" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Actions']//a[contains(@class, 'action-menu-item') and text()='Edit']"/>
+        <element name="viewAction" type="text" parameterized="true" selector="//tr[{{index}}]/td[@data-th='Actions']//a[contains(@class, 'action-menu-item') and text()='View']"/>
+        <element name="actionsColumn" type="text" selector="//td[@data-th='Actions']"/>
+    </section>
+</sections>

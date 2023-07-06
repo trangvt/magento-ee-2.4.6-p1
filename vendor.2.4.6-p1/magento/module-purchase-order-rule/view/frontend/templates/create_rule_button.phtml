@@ -1,0 +1,19 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/**
+ * @var \Magento\PurchaseOrderRule\Block\Grid\CreateRuleButton $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->isCreateRuleAllowed()): ?>
+    <div class="actions-toolbar">
+        <a href="<?= $escaper->escapeUrl($block->getCreateRuleUrl()) ?>" class="action primary">
+            <span><?= $escaper->escapeHtml(__('Add New Rule')) ?></span>
+        </a>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+     <type name="Magento\QuoteGraphQl\Model\Cart\IsActive">
+        <plugin name="isCartActiveOrRelatedToPendingPaymentPurchaseOrder"
+                type="Magento\PurchaseOrderGraphQl\Plugin\Cart\IsActivePlugin"/>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\IsEnabled">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_view" xsi:type="string">Magento_Company::view</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\PurchaseOrder">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_purchase_orders" xsi:type="string">Magento_PurchaseOrder::view_purchase_orders</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\PurchaseOrder\AddComment">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_purchase_orders" xsi:type="string">Magento_PurchaseOrder::view_purchase_orders</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\GetPurchaseOrdersSearchCriteria">
+        <arguments>
+            <argument name="filters" xsi:type="array">
+                <item name="status" xsi:type="object">Magento\PurchaseOrderGraphQl\Model\Filters\Status</item>
+                <item name="created_date" xsi:type="object">Magento\PurchaseOrderGraphQl\Model\Filters\CreatedDate</item>
+                <item name="company_purchase_orders" xsi:type="object">Magento\PurchaseOrderGraphQl\Model\Filters\CompanyPurchaseOrders</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Filters\CompanyPurchaseOrders">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_purchase_orders_for_company" xsi:type="string">Magento_PurchaseOrder::view_purchase_orders_for_company</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\PurchaseOrders">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="view_purchase_orders" xsi:type="string">Magento_PurchaseOrder::view_purchase_orders</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\PlacePurchaseOrder">
+        <arguments>
+            <argument name="errorMessageFormatter" xsi:type="object">Magento\QuoteGraphQl\Helper\Error\PlaceOrderMessageFormatter</argument>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="place_order" xsi:type="string">Magento_Sales::place_order</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\PlaceOrder">
+        <arguments>
+            <argument name="errorMessageFormatter" xsi:type="object">Magento\QuoteGraphQl\Helper\Error\PlaceOrderMessageFormatter</argument>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="place_order" xsi:type="string">Magento_Sales::place_order</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\Resolver\PurchaseOrder\AvailableActions">
+        <arguments>
+            <argument name="actions" xsi:type="array">
+                <item name="approve" xsi:type="string">APPROVE</item>
+                <item name="reject" xsi:type="string">REJECT</item>
+                <item name="cancel" xsi:type="string">CANCEL</item>
+                <item name="placeorder" xsi:type="string">PLACE_ORDER</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\ValidateRequest">
+        <arguments>
+            <argument name="availableActions" xsi:type="array">
+                <item name="approve" xsi:type="string">approve</item>
+                <item name="reject" xsi:type="string">reject</item>
+                <item name="cancel" xsi:type="string">cancel</item>
+                <item name="placeorder" xsi:type="string">place_order</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\PurchaseOrderGraphQl\Model\GetLogMessage">
+        <arguments>
+            <argument name="messages" xsi:type="array">
+                <item name="submit" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Purchase Order #%increment_id was Submitted</item>
+                </item>
+                <item name="place_order_fail" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Failed to create Order from Purchase Order #%increment_id with Error - %error_message</item>
+                    <item name="translate_params" xsi:type="array">
+                        <item name="error_message" xsi:type="string">error_message</item>
+                    </item>
+                </item>
+                <item name="auto_approve" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Purchase Order #%increment_id was automatically approved</item>
+                </item>
+                <item name="place_order" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Successfully created Order #%order_increment_id from Purchase Order #%increment_id</item>
+                </item>
+                <item name="reject" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Purchase Order #%increment_id was Rejected</item>
+                </item>
+                <item name="approve" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Purchase Order #%increment_id was Approved</item>
+                </item>
+                <item name="cancel" xsi:type="array">
+                    <item name="message" xsi:type="string" translate="true">Purchase Order #%increment_id was Canceled</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

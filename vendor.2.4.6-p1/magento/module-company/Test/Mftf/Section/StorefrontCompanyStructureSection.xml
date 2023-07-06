@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCompanyStructureSection">
+        <element name="addUser" type="button" timeout="30" selector="#add-customer"/>
+        <element name="structureNode" type="text" timeout="30" parameterized="true" selector="//a[.='{{firstname}} {{lastname}}'][contains(@class,'jstree-anchor')]"/>
+        <element name="expandAll" type="button" timeout="30" selector="button[data-action='expand-tree']"/>
+        <element name="expandedStructureTreeItem" type="text" timeout="30" selector="#company-tree *[aria-expanded='true']"/>
+        <element name="notExpandedStructureTreeItem" type="text" timeout="30" selector="#company-tree *[aria-expanded='false']"/>
+    </section>
+</sections>

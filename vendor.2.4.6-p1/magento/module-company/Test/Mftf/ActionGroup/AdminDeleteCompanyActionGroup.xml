@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminDeleteCompanyActionGroup">
+        <arguments>
+            <argument name="companyName" type="string"/>
+        </arguments>
+        <amOnPage url="{{AdminCompaniesPage.url}}" stepKey="amOnAdmin"/>
+        <waitForPageLoad stepKey="waitCompaniesPageLoad"/>
+        <conditionalClick selector="{{AdminDataGridHeaderSection.clearFilters}}" dependentSelector="{{AdminDataGridHeaderSection.clearFilters}}" visible="true" stepKey="clickOnButtonToRemoveFiltersIfPresent"/>
+        <conditionalClick selector="{{AdminDataGridFilterSection.filterExpand}}" dependentSelector="{{AdminDataGridFilterSection.filterForm}}" visible="false" stepKey="openFiltersFormIfNecessary"/>
+        <waitForElementVisible selector="{{AdminDataGridFilterSection.inputFieldByNameAttr('company_name')}}" stepKey="waitForFormVisible"/>
+        <fillField userInput="{{companyName}}" selector="{{AdminDataGridFilterSection.inputFieldByNameAttr('company_name')}}" stepKey="fillFilterNameField"/>
+        <click selector="{{AdminDataGridFilterSection.apply}}" stepKey="applyFilters"/>
+        <waitForPageLoad stepKey="waitFilterIsApplied"/>
+        <click selector="{{AdminCompaniesSection.selectAll}}" stepKey="selectAll"/>
+        <click selector="{{AdminGridSelectRows.bulkActionDropdown}}" stepKey="clickActions"/>
+        <click selector="{{AdminCompaniesSection.delete}}" stepKey="clickDelete"/>
+        <waitForElementVisible selector="{{AdminConfirmationModalSection.ok}}" stepKey="waitForLoadConfirmation"/>
+        <click selector="{{AdminConfirmationModalSection.ok}}" stepKey="confirmDelete"/>
+        <waitForElementVisible selector="{{AdminMessagesSection.success}}" stepKey="waitForSuccessMessage"/>
+        <see selector="{{AdminMessagesSection.success}}" userInput="A total of 1 record(s) were deleted" stepKey="seeSuccess"/>
+        <conditionalClick selector="{{AdminDataGridHeaderSection.clearFilters}}" dependentSelector="{{AdminDataGridHeaderSection.clearFilters}}" visible="true" stepKey="clickOnButtonToRemoveFiltersIfPresent1"/>
+    </actionGroup>
+</actionGroups>

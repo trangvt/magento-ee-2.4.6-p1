@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCheckQuickOrderTableItemsTest">
+        <annotations>
+            <features value="Quick Order"/>
+            <stories value="Create Quick Order"/>
+            <title value="Checking quick order table items"/>
+            <description value="Quick order items table should contains only one row per each sku"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-40268"/>
+            <useCaseId value="MC-40403"/>
+            <group value="quickOrder"/>
+        </annotations>
+        <before>
+            <createData entity="B2BEnabledQuickOrderConfig" stepKey="enabledQuickOrderConfig"/>
+            <createData entity="SimpleProduct2" stepKey="createProduct"/>
+            <createData entity="SimpleProduct2" stepKey="createSecondProduct"/>
+        </before>
+        <after>
+            <createData entity="B2BDefaultConfig" stepKey="defaultB2BConfig"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+        </after>
+
+        <executeJS function="return '$createProduct.sku$'.toLowerCase();" stepKey="skuToLowerCase"/>
+        <actionGroup ref="StorefrontGoToQuickOrderPageActionGroup" stepKey="goQuickOrderPage"/>
+        <actionGroup ref="StorefrontQuickOrderAddProductActionGroup" stepKey="addProductToQuickOrder">
+            <argument name="productSku" value="$createProduct.sku$"/>
+            <argument name="productName" value="$createProduct.name$"/>
+            <argument name="quantity" value="1"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontQuickOrderAddItemsFromMultipleSKUsActionGroup" stepKey="addFromMultipleSkus">
+            <argument name="productSKUs" value="$createProduct.sku$,{$skuToLowerCase},$createSecondProduct.sku$"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{StorefrontQuickOrderSection.allRows}}" userInput="3" stepKey="seeRows"/>
+        <actionGroup ref="AssertStorefrontQuickOrderLineItemActionGroup" stepKey="assertProductQty">
+            <argument name="productName" value="$createProduct.name$"/>
+            <argument name="quantity" value="3"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <actionGroup ref="AssertStorefrontQuickOrderLineItemActionGroup" stepKey="assertSecondProductQty">
+            <argument name="productName" value="$createSecondProduct.name$"/>
+            <argument name="quantity" value="1"/>
+            <argument name="index" value="2"/>
+        </actionGroup>
+    </test>
+</tests>

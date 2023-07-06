@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<logging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Logging:etc/logging.xsd">
+    <groups>
+        <group name="company">
+            <label translate="true">Companies</label>
+            <expected_models>
+                <expected_model class="Magento\Company\Model\Company"/>
+            </expected_models>
+            <events>
+                <event controller_action="company_index_index" action_alias="view">
+                    <skip_on_back>
+                        <controller_action name="mui_index_render_company_listing"/>
+                    </skip_on_back>
+                </event>
+                <event controller_action="company_index_edit" action_alias="edit"/>
+                <event controller_action="company_index_save" action_alias="save">
+                    <skip_on_back>
+                        <controller_action name="company_index_edit" />
+                    </skip_on_back>
+                </event>
+                <event controller_action="company_index_delete" action_alias="delete"/>
+                <event controller_action="company_index_massDelete" action_alias="massDelete"/>
+                <event controller_action="company_index_massBlock" action_alias="massUpdate"/>
+                <event controller_action="company_index_inlineEdit" action_alias="save"/>
+                <event controller_action="company_index_massEnable" action_alias="massEnable"/>
+                <event controller_action="company_customer_massStatus" action_alias="massStatusUpdate"/>
+                <event controller_action="mui_index_render_company_listing" action_alias="listing"/>
+                <event controller_action="mui_export_gridToCsv_company_listing" action_alias="exportReport" />
+                <event controller_action="mui_export_gridToXml_company_listing" action_alias="exportXml" />
+                <event controller_action="mui_bookmark_save_company_listing" action_alias="applyFilter" />
+            </events>
+        </group>
+    </groups>
+</logging>

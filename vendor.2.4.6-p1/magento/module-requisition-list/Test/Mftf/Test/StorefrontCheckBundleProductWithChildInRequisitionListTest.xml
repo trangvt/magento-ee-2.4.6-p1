@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCheckBundleProductWithChildInRequisitionListTest">
+        <annotations>
+            <features value="RequisitionList"/>
+            <stories value="Create Requisition List"/>
+            <title value="HTML rendering correctly on children of bundled products in Requisition Lists"/>
+            <description value="HTML rendering correctly on children of bundled products in Requisition Lists"/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="B2B-1068"/>
+            <useCaseId value="MC-36331"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <!-- Enable b2b requisition list configurations -->
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <!-- Create customer -->
+            <createData entity="Simple_US_Customer" stepKey="createSimpleUSCustomer"/>
+            <!-- Create category and simple product -->
+            <createData entity="SimpleSubCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createSimpleProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <!-- Create bundle product -->
+            <createData entity="ApiBundleProductPriceViewRange" stepKey="createBundleProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="DropDownBundleOption" stepKey="bundleOption">
+                <requiredEntity createDataKey="createBundleProduct"/>
+            </createData>
+            <createData entity="ApiBundleLink" stepKey="createBundleLink">
+                <requiredEntity createDataKey="createBundleProduct"/>
+                <requiredEntity createDataKey="bundleOption"/>
+                <requiredEntity createDataKey="createSimpleProduct"/>
+                <field key="qty">3</field>
+            </createData>
+            <!-- Run full reindex -->
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Disable b2b requisition list configurations -->
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <!-- Delete created data -->
+            <deleteData createDataKey="createBundleProduct" stepKey="deleteBundleProduct"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <!-- Logout customer -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogoutStorefront"/>
+            <deleteData createDataKey="createSimpleUSCustomer" stepKey="deleteSimpleUSCustomer"/>
+        </after>
+
+        <!-- Log in to Storefront as Customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$createSimpleUSCustomer$"/>
+        </actionGroup>
+        <!-- Open category page -->
+        <actionGroup ref="StorefrontNavigateToCategoryUrlActionGroup" stepKey="goToCategoryPage">
+            <argument name="categoryUrl" value="$createCategory.custom_attributes[url_key]$"/>
+        </actionGroup>
+        <!-- Add product to requisition list -->
+        <actionGroup ref="StorefrontCreateRequisitionListFromCategoryPageActionGroup" stepKey="createRequisitionList">
+            <argument name="productName" value="$createBundleProduct.name$"/>
+        </actionGroup>
+        <!-- Go to Requisition List Page -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="openStoreFrontRequisitionListIndexPage"/>
+        <!-- View Requisition List Item -->
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup"  stepKey="goToRequisitionListViewPage">
+            <argument name="requisitionListName" value="{{RequisitionListProduct1.name}}"/>
+        </actionGroup>
+        <seeElement selector="{{StorefrontRequisitionListViewSection.productSKU($createBundleProduct.sku$)}}" stepKey="seeProductSKU"/>
+        <!-- Checks that price of the children of the bundle product is shown correctly -->
+        <see selector="{{StorefrontRequisitionListViewSection.productOptionValue($createBundleProduct.sku$, $bundleOption.title$)}}" userInput="$createSimpleProduct.price$" stepKey="seeProductOptionValue"/>
+    </test>
+</tests>

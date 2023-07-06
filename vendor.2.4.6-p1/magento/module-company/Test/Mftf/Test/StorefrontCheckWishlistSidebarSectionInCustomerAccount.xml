@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCheckWishlistSidebarSectionInCustomerAccount">
+        <annotations>
+            <stories value="Wishlist"/>
+            <features value="Company"/>
+            <title value="Verify Wishlist block on Storefront for simple customers and company related customers"/>
+            <description value="Verify that Wishlist block is visible in sidebar on Storefront for company admin, company customer and simple customer."/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="MC-43145"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <!-- Create Company, Company Admin, Company Customer and Simple Customer -->
+            <createData entity="CompanyAdminUser" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <createData entity="Simple_US_Customer" stepKey="createSimpleCustomer"/>
+            <createData entity="Simple_US_Customer" stepKey="createCompanyCustomer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCompanyCustomerEditPage">
+                <argument name="customerId" value="$$createCompanyCustomer.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignCompanyCustomerToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Revert settings and created entities -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <deleteData createDataKey="createSimpleCustomer" stepKey="deleteSimpleCustomer"/>
+            <deleteData createDataKey="createCompanyCustomer" stepKey="deleteCompanyCustomer"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+        </after>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="StorefrontLoginAsCompanyAdmin">
+            <argument name="Customer" value="$$createCompanyAdmin$$" />
+        </actionGroup>
+        <see userInput="My Wish List" stepKey="seeWishListBlockAsCompanyAdmin"/>
+        <see userInput="You have no items in your wish list." stepKey="seeWishListEmptyAsCompanyAdmin"/>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="LogoutCompanyAdmin"/>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="StorefrontLoginAsCompanyCustomer">
+            <argument name="Customer" value="$$createCompanyCustomer$$" />
+        </actionGroup>
+        <see userInput="My Wish List" stepKey="seeWishListBlockAsCompanyCustomer"/>
+        <see userInput="You have no items in your wish list." stepKey="seeWishListEmptyAsCompanyCustomer"/>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="LogoutCompanyCustomer"/>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="StorefrontLoginAsSimpleCustomer">
+            <argument name="Customer" value="$$createSimpleCustomer$$" />
+        </actionGroup>
+        <see userInput="My Wish List" stepKey="seeWishListBlockAsSimpleCustomer"/>
+        <see userInput="You have no items in your wish list." stepKey="seeWishListEmptyAsSimpleCustomer"/>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="LogoutSimpleCustomer"/>
+    </test>
+</tests>

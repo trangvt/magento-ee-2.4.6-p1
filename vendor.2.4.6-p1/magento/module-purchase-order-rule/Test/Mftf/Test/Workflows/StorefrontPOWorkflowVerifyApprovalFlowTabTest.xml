@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPOWorkflowVerifyApprovalFlowTabTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="Workflow"/>
+            <title value="Purchase Order Workflow With Multiple Matching Rules To Verify Approval Flow Tab"/>
+            <description value="Verify the status changes on the Approval Flow tab for created purchase orders that match multiple rules, with multiple approvers"/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-33445"/>
+            <useCaseId value="B2B-396"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createPurchaseOrderCustomer"/>
+            <createData entity="CompanyApprover" stepKey="createApprover"/>
+            <createData entity="CompanySecondApprover" stepKey="createSecondApprover"/>
+            <createData entity="CompanyApproverOther" stepKey="createThirdApprover"/>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="SimpleProductForPurchaseOrder_Price_1000_01" stepKey="product1">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <!-- Enable Company Order Approvals -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+                <argument name="companyId" value="$createCompany.id$"/>
+                <argument name="companyName" value="$createCompany.company_name$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnablePurchaseOrderForCompanyActionGroup" stepKey="enablePurchaseOrderForCompany"/>
+            <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+            <!-- Assign Purchaser to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openPurchaserCustomerEditPage">
+                <argument name="customerId" value="$$createPurchaseOrderCustomer.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignPurchaserToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Assign Approver to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openApproverCustomerEditPage">
+                <argument name="customerId" value="$$createApprover.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignApproverToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Assign Approver 2 to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openApprover2CustomerEditPage">
+                <argument name="customerId" value="$$createSecondApprover.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignApprover2ToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <!-- Assign Approver 3 to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openApprover3CustomerEditPage">
+                <argument name="customerId" value="$$createThirdApprover.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignApprover3ToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutAdmin"/>
+            <!-- Enable View Purchase Orders Permission for Default User Role -->
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+                <argument name="Customer" value="$$createCompanyAdmin$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage"/>
+            <actionGroup ref="StorefrontClickEditForRoleInRolesGridActionGroup" stepKey="clickEditForDefaultUserInRolesGrid">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontToggleCompanyRolePermissionActionGroup" stepKey="enableViewPurchaseOrdersPermission">
+                <argument name="permissionId" value="Magento_PurchaseOrder::view_purchase_orders"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveDefaultUserRole">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <!-- Create Approver Role from Default User Role -->
+            <actionGroup ref="StorefrontClickDuplicateForRoleInRolesGridActionGroup" stepKey="clickDuplicateForDefaultUserRole">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditRoleInformationActionGroup" stepKey="editApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <!-- Create Other Approver Role from Default User Role -->
+            <actionGroup ref="StorefrontClickDuplicateForRoleInRolesGridActionGroup" stepKey="clickDuplicateForDefaultUserRole2">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditRoleInformationActionGroup" stepKey="editOtherApproverRole">
+                <argument name="roleName" value="Other Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveOtherApproverRole">
+                <argument name="roleName" value="Other Approver"/>
+            </actionGroup>
+            <!-- Assign Approver Customer to Approver Role -->
+            <actionGroup ref="StorefrontGoToCompanyUsersPageActionGroup" stepKey="goToCompanyUsersPage"/>
+            <actionGroup ref="StorefrontClickEditForCompanyUserInUsersGridActionGroup" stepKey="clickEditForApprover">
+                <argument name="companyUser" value="$$createApprover$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditCompanyUserActionGroup" stepKey="assignApproverToRole">
+                <argument name="customerData" value="$$createApprover$$"/>
+                <argument name="companyUserData" value="CompanyApprover"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyUserActionGroup" stepKey="saveApproverUser"/>
+            <!-- Assign Approver 2 Customer to Approver Role -->
+            <actionGroup ref="StorefrontGoToCompanyUsersPageActionGroup" stepKey="goToCompanyUsersPage2"/>
+            <actionGroup ref="StorefrontClickEditForCompanyUserInUsersGridActionGroup" stepKey="clickEditForApprover2">
+                <argument name="companyUser" value="$$createSecondApprover$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditCompanyUserActionGroup" stepKey="assignApproverToRole2">
+                <argument name="customerData" value="$$createSecondApprover$$"/>
+                <argument name="companyUserData" value="CompanyApprover"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyUserActionGroup" stepKey="saveApproverUser2"/>
+            <!-- Assign Approver 3 Customer to Other Approver Role -->
+            <actionGroup ref="StorefrontGoToCompanyUsersPageActionGroup" stepKey="goToCompanyUsersPage3"/>
+            <actionGroup ref="StorefrontClickEditForCompanyUserInUsersGridActionGroup" stepKey="clickEditForApprover3">
+                <argument name="companyUser" value="$$createThirdApprover$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditCompanyUserActionGroup" stepKey="assignApproverToRole3">
+                <argument name="customerData" value="$$createThirdApprover$$"/>
+                <argument name="companyUserData" value="CompanyApproverOther"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyUserActionGroup" stepKey="saveApproverUser3"/>
+            <!-- Setup Company Structure -->
+            <actionGroup ref="StorefrontNavigateToCompanyStructurePageActionGroup" stepKey="navigateToCompanyStructurePage"/>
+            <actionGroup ref="StorefrontCompanyStructureAssignSubordinateActionGroup" stepKey="assignSubordinate">
+                <argument name="supervisorUser" value="$$createApprover$$"/>
+                <argument name="subordinateUser" value="$$createSecondApprover$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontCompanyStructureExpandAllActionGroup" stepKey="expandAllStructure"/>
+            <actionGroup ref="StorefrontCompanyStructureAssignSubordinateActionGroup" stepKey="assignSubordinate2">
+                <argument name="supervisorUser" value="$$createSecondApprover$$"/>
+                <argument name="subordinateUser" value="$$createThirdApprover$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontCompanyStructureExpandAllActionGroup" stepKey="expandAllStructure2"/>
+            <actionGroup ref="StorefrontCompanyStructureAssignSubordinateActionGroup" stepKey="assignSubordinate3">
+                <argument name="supervisorUser" value="$$createThirdApprover$$"/>
+                <argument name="subordinateUser" value="$$createPurchaseOrderCustomer$$"/>
+            </actionGroup>
+            <!-- Create Purchase Order Rule -->
+            <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToApprovalRules"/>
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm">
+                <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition">
+                <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan1000"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers">
+                <argument name="approver" value="PurchaseOrderRuleApprover_MultipleApprovers"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule"/>
+            <!-- Create 2nd Purchase Order Rule -->
+            <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRule2"/>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm2">
+                <argument name="rule" value="PurchaseOrderRule_ApproverAndOtherApprover"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition2">
+                <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan500"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers2">
+                <argument name="approver" value="PurchaseOrderRuleApprover_ApproverAndOtherApprover"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule2"/>
+            <!-- Logout as Company Admin -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin"/>
+        </before>
+        <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogout"/>
+            <deleteData createDataKey="createPurchaseOrderCustomer" stepKey="deletePurchaseOrderCustomer"/>
+            <deleteData createDataKey="createApprover" stepKey="deleteApprover"/>
+            <deleteData createDataKey="createSecondApprover" stepKey="deleteSecondApprover"/>
+            <deleteData createDataKey="createThirdApprover" stepKey="deleteThurdApprover"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <deleteData createDataKey="product1" stepKey="deleteProduct"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutAdmin"/>
+            <comment userInput="BIC workaround" stepKey="logoutStorefront"/>
+        </after>
+        <!-- Create Purchase Order as Purchaser Customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontPurchaserLogin">
+            <argument name="Customer" value="$$createPurchaseOrderCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct1Page">
+            <argument name="product" value="$$product1$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProduct1ToCart"/>
+        <!-- Complete Checkout -->
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="selectCheckMoneyOrder"/>
+        <generateDate date="now" format="F j, Y g:i:s A" stepKey="createdTime"/>
+        <actionGroup ref="StorefrontCheckoutClickPlacePurchaseOrderActionGroup" stepKey="clickPlacePurchaseOrder"/>
+        <actionGroup ref="StorefrontValidateSuccessfulPurchaseOrderSubmittalActionGroup" stepKey="validateSuccessfulPurchaseOrder"/>
+        <grabTextFrom selector="{{StorefrontPurchaseOrderSuccessSection.purchaseOrderNumber}}" stepKey="purchaseOrderId"/>
+        <actionGroup ref="StorefrontClickPurchaseOrderLinkFromSuccessfulPurchaseOrderPageActionGroup" stepKey="clickPurchaseOrderLink"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderPending">
+            <argument name="status" value="{{PurchaseOrderStatuses.pending}}"/>
+        </actionGroup>
+        <!-- Validate Approval Flow Tab Is Not Present -->
+        <actionGroup ref="StorefrontValidateNoApprovalFlowTabActionGroup" stepKey="verifyApprovalFlowTabNotShown"/>
+        <!-- Process Queue and Verify Purchase Order is Approval Required -->
+        <actionGroup ref="StorefrontStartPOQueueConsumerAndReloadPageActionGroup" stepKey="startPOQueueConsumerAndReloadPage"/>
+        <generateDate date="now" format="F j, Y \\a\\t g:" stepKey="autoApproveTime"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderApprovalRequired">
+            <argument name="status" value="{{PurchaseOrderStatuses.approvalRequired}}"/>
+        </actionGroup>
+        <!-- Verify First Rule on Approval Flow -->
+        <actionGroup ref="StorefrontClickApprovalFlowTabActionGroup" stepKey="clickApprovalFlowTab"/>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRulePresentActionGroup" stepKey="seeFirstRuleInApprovalFlowTab">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateDefaultUserApprovedState">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="approverIndex" value="1"/>
+            <argument name="status" value="approved"/>
+            <argument name="message" value="{{Simple_US_Customer.fullname}} approved this purchase order on {$autoApproveTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateApproverPendingState">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="approverIndex" value="2"/>
+            <argument name="status" value="pending"/>
+            <argument name="message" value="Pending Approval from Approver"/>
+        </actionGroup>
+        <!-- Verify Second Rule -->
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRulePresentActionGroup" stepKey="seeSecondRuleInApprovalFlowTab">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="rule" value="PurchaseOrderRule_ApproverAndOtherApprover"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateApproverPendingState2">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="approverIndex" value="1"/>
+            <argument name="status" value="pending"/>
+            <argument name="message" value="Pending Approval from Approver"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateOtherApproverPendingState">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="approverIndex" value="2"/>
+            <argument name="status" value="pending"/>
+            <argument name="message" value="Pending Approval from Other Approver"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogoutPurchaser"/>
+        <!-- Login as Approver Customer and Partially Approve PO -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontApprover2Login">
+            <argument name="Customer" value="$$createSecondApprover$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="navigateToApprovalPurchaseOrdersPage"/>
+        <actionGroup ref="StorefrontNavigateToViewPurchaseOrderPageActionGroup" stepKey="navigateToViewPurchaseOrderPage">
+            <argument name="tabName" value="approval"/>
+            <argument name="purchaseOrderNumber" value="$purchaseOrderId"/>
+        </actionGroup>
+        <generateDate date="now" format="F j, Y \\a\\t g:" stepKey="approveTime"/>
+        <generateDate date="now" format="F j, Y g:i:s A" stepKey="fullApproveTime"/>
+        <actionGroup ref="StorefrontPartialApprovePurchaseOrderActionGroup" stepKey="approvePurchaseOrder">
+            <argument name="approver" value="$$createSecondApprover$$"/>
+        </actionGroup>
+        <!-- Verify First Rule After Partial Approval -->
+        <actionGroup ref="StorefrontClickApprovalFlowTabActionGroup" stepKey="clickApprovalFlowTab2"/>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRulePresentActionGroup" stepKey="seeFirstRuleInApprovalFlowTab2">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateDefaultUserApprovedState2">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="approverIndex" value="1"/>
+            <argument name="status" value="approved"/>
+            <argument name="message" value="{{Simple_US_Customer.fullname}} approved this purchase order on {$autoApproveTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateApprovedState">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="approverIndex" value="2"/>
+            <argument name="status" value="approved"/>
+            <argument name="message" value="{{CompanySecondApprover.fullname}} approved this purchase order on {$approveTime}"/>
+        </actionGroup>
+        <!-- Verify Second Rule After Partial Approval -->
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRulePresentActionGroup" stepKey="seeSecondRuleInApprovalFlowTab2">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="rule" value="PurchaseOrderRule_ApproverAndOtherApprover"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateApprovedState1">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="approverIndex" value="1"/>
+            <argument name="status" value="approved"/>
+            <argument name="message" value="{{CompanySecondApprover.fullname}} approved this purchase order on {$approveTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateOtherApproverPendingState2">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="approverIndex" value="2"/>
+            <argument name="status" value="pending"/>
+            <argument name="message" value="Pending Approval from Other Approver"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToCompanyPurchaseOrdersPageActionGroup" stepKey="navigateToCompanyPurchaseOrdersPage"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderCreatedDateAndUpdatedDateInGridActionGroup" stepKey="validateCreatedAndUpdatedDates">
+            <argument name="purchaseOrderNumber" value="{$purchaseOrderId}"/>
+            <argument name="expectedCreatedTime" value="{$createdTime}"/>
+            <argument name="expectedUpdatedTime" value="{$fullApproveTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogoutApprover2"/>
+        <!-- Login as Other Approver Customer and Reject PO -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="storefrontApprover3Login">
+            <argument name="Customer" value="$$createThirdApprover$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalPurchaseOrdersPageActionGroup" stepKey="navigateToApprovalPurchaseOrdersPage2"/>
+        <actionGroup ref="StorefrontNavigateToViewPurchaseOrderPageActionGroup" stepKey="navigateToViewPurchaseOrderPage2">
+            <argument name="tabName" value="approval"/>
+            <argument name="purchaseOrderNumber" value="$purchaseOrderId"/>
+        </actionGroup>
+        <generateDate date="now" format="F j, Y \\a\\t g:" stepKey="rejectTime"/>
+        <generateDate date="now" format="F j, Y g:i:s A" stepKey="fullRejectTime"/>
+        <actionGroup ref="StorefrontRejectPurchaseOrderActionGroup" stepKey="rejectPurchaseOrder"/>
+        <!-- Verify Approval Flow is Correct After Reject -->
+        <actionGroup ref="StorefrontClickApprovalFlowTabActionGroup" stepKey="clickApprovalFlowTab3"/>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRulePresentActionGroup" stepKey="seeFirstRuleInApprovalFlowTab3">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+        </actionGroup>
+        <!-- Verify First Rule After Reject -->
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateDefaultUserApprovedState3">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="approverIndex" value="1"/>
+            <argument name="status" value="approved"/>
+            <argument name="message" value="{{Simple_US_Customer.fullname}} approved this purchase order on {$autoApproveTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateApprovedState2">
+            <argument name="ruleIndex" value="1"/>
+            <argument name="approverIndex" value="2"/>
+            <argument name="status" value="approved"/>
+            <argument name="message" value="{{CompanySecondApprover.fullname}} approved this purchase order on {$approveTime}"/>
+        </actionGroup>
+        <!-- Verify Second Rule After Reject -->
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRulePresentActionGroup" stepKey="seeSecondRuleInApprovalFlowTab3">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="rule" value="PurchaseOrderRule_ApproverAndOtherApprover"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateApprovedState3">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="approverIndex" value="1"/>
+            <argument name="status" value="approved"/>
+            <argument name="message" value="{{CompanySecondApprover.fullname}} approved this purchase order on {$approveTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup" stepKey="validateRejectedState2">
+            <argument name="ruleIndex" value="2"/>
+            <argument name="approverIndex" value="2"/>
+            <argument name="status" value="rejected"/>
+            <argument name="message" value="{{CompanyApproverOther.fullname}} rejected this purchase order on {$rejectTime}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToCompanyPurchaseOrdersPageActionGroup" stepKey="navigateToCompanyPurchaseOrdersPage2"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderCreatedDateAndUpdatedDateInGridActionGroup" stepKey="validateCreatedAndUpdatedDates2">
+            <argument name="purchaseOrderNumber" value="{$purchaseOrderId}"/>
+            <argument name="expectedCreatedTime" value="{$createdTime}"/>
+            <argument name="expectedUpdatedTime" value="{$fullRejectTime}"/>
+        </actionGroup>
+    </test>
+</tests>

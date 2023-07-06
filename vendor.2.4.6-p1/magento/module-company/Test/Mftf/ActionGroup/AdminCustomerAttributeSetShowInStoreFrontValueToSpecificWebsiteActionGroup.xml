@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminCustomerAttributeSetShowInStoreFrontValueToSpecificWebsiteActionGroup" extends="FilterCustomerAttributesByAttributeCodeActionGroup">
+        <annotations>
+            <description>Open customer attribute and set the 'show in store front' attribute value to the specific website</description>
+        </annotations>
+        <arguments>
+            <argument name="chooseWebsiteStoreView" type="string"/>
+        </arguments>
+        <click selector="{{AdminCustomerAttributeSection.firstAttribute}}" after="waitForSearching" stepKey="clickFirstRow"/>
+        <waitForPageLoad stepKey="waitForAttributeEditPageLoad"/>
+        <click selector="{{AttributeEditSection.storeView}}" stepKey="AdminClickStoreView"/>
+        <click selector="{{AttributeEditSection.mainWebsiteStoreView(chooseWebsiteStoreView)}}" stepKey="adminChangeStoreView"/>
+        <waitForElementVisible selector="{{CustomerAccountSection.confirm}}" stepKey="waitForConfirm"/>
+        <click selector="{{CustomerAccountSection.confirm}}" stepKey="clickToConfirm"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{AdminNewCompanySection.isVisibleDefault}}" stepKey="waitForIsVisibleDefault"/>
+        <seeCheckboxIsChecked selector="{{AdminNewCompanySection.isVisibleDefault}}" stepKey="seeIsVisibleChecked"/>
+        <click selector="{{AdminNewCompanySection.isVisibleDefault}}" stepKey="uncheckCheckbox"/>
+        <selectOption selector="{{CustomerAccountSection.showInSF}}" userInput="No" stepKey="selectAttributeVisibleInStorefront"/>
+        <click selector="{{AttributePropertiesSection.Save}}" stepKey="saveAttribute"/>
+        <waitForPageLoad stepKey="WaitForAttributeSaved"/>
+    </actionGroup>
+</actionGroups>

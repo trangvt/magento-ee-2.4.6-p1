@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontCompanyStructureExpandAllActionGroup">
+        <annotations>
+            <description>Expand all items within the company structure to enable modification on any level.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontCompanyStructureSection.expandAll}}" stepKey="waitForExpandAll"/>
+        <click selector="{{StorefrontCompanyStructureSection.expandAll}}" stepKey="clickExpandAll"/>
+        <waitForPageLoad stepKey="waitForAllStructureExpanded"/>
+        <waitForElement selector="{{StorefrontCompanyStructureSection.expandedStructureTreeItem}}" stepKey="waitForTreeItemExpanded"/>
+        <dontSeeElementInDOM selector="{{StorefrontCompanyStructureSection.notExpandedStructureTreeItem}}" stepKey="verifyAllTreeItemsAreExpanded"/>
+    </actionGroup>
+</actionGroups>

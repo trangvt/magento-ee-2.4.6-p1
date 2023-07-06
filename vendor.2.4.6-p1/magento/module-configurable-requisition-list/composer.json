@@ -1,0 +1,30 @@
+{
+    "name": "magento/module-configurable-requisition-list",
+    "description": "N/A",
+    "type": "magento2-module",
+    "license": [
+        "proprietary"
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "version": "100.3.5-p1",
+    "require": {
+        "magento/framework": "103.0.6-p1",
+        "php": "~8.1.0||~8.2.0"
+    },
+    "suggest": {
+        "magento/module-requisition-list": "100.3.5-p1",
+        "magento/module-catalog": "104.0.6-p1",
+        "magento/module-configurable-product": "100.4.6"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Magento\\ConfigurableRequisitionList\\": ""
+        }
+    }
+}
+

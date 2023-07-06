@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontQuickOrderAddInvalidProductActionGroup" extends="StorefrontQuickOrderAddProductActionGroup">
+        <annotations>
+            <description>Adds an invalid product SKU or name to the Quick Order line item form on the storefront and
+                verifies the error messages</description>
+        </annotations>
+        <arguments>
+            <argument name="lineItemErrorMessage" defaultValue="The SKU was not found in the catalog." type="string"/>
+            <argument name="generalErrorMessage" defaultValue="1 product(s) require(s) your attention." type="string"/>
+        </arguments>
+        <remove keyForRemoval="waitForProductName"/>
+        <waitForText selector="{{StorefrontQuickOrderSection.rowByIndexErrorMessage(index)}}" userInput="{{lineItemErrorMessage}}" stepKey="waitForRowErrorMessage"/>
+        <waitForText selector="{{StorefrontQuickOrderSection.generalErrorMessage}}" userInput="{{generalErrorMessage}}" stepKey="waitForGeneralErrorMessage"/>
+    </actionGroup>
+</actionGroups>

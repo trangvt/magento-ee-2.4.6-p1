@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCreatePurchaseOrderRuleWithLessThanOrEqualToConditionTest" extends="StorefrontPurchaseOrderRuleCreateTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="Condition Operators"/>
+            <title value="Create Purchase Order Rule With Less Than Or Equal To Condition"/>
+            <description value="This test is intended to ensure that Purchase Order Rule with less than or equal to condition could be created using form on storefront."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-33552"/>
+            <useCaseId value="B2B-518"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition">
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalLessThanOrEqualTo500"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleConditionEditFormActionGroup" stepKey="validateRuleCondition">
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalLessThanOrEqualTo500"/>
+        </actionGroup>
+    </test>
+</tests>

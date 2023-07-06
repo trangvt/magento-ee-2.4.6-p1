@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidateNotUniquePurchaseOrderRuleNameActionGroup">
+        <annotations>
+            <description>Expects to see error for not unique rule name field value. Must be on the Create or Edit Purchase Order Rule page and have not unique rule name value in field.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.description}}" stepKey="waitRuleDescriptionField"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.description}}" stepKey="clickRuleDescription"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('rule_name')}}" stepKey="waitRequiredErrorMessageOnName"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('rule_name')}}" userInput="This rule name already exists. Enter a unique rule name." stepKey="seeErrorMessageOnName"/>
+    </actionGroup>
+</actionGroups>

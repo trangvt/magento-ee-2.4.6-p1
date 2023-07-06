@@ -1,0 +1,249 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var \Magento\PurchaseOrderRule\Block\Form $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$rule = $block->getPurchaseOrderRuleData();
+
+$roles = [];
+foreach ($block->getCompanyRoles() as $role) {
+    $roles[] = [
+        'value' => $escaper->escapeHtmlAttr($role->getRoleId()),
+        'label' => /* @noEscape */ $role->getRoleName(),
+    ];
+}
+$selectedRoles = [];
+foreach ($block->getCompanyRoles() as $role) {
+    $selectedRoles[] = in_array($role->getRoleId(), $rule['applies_to']) ? $role->getRoleId() : 0;
+}
+$selectedRoles = array_values(array_filter($selectedRoles));
+
+// Approval Roles
+
+$approvalRoles         = [];
+$selectedApprovalRoles = [];
+foreach ($block->getCompanyApproverRoles() as $approvalRole) {
+    // Get Approval Roles
+    // label is escaped during rendering
+    $approvalRoles[] = [
+        'value' => $escaper->escapeHtmlAttr($approvalRole->getRoleId()),
+        'label' => $approvalRole->getRoleName()
+    ];
+
+    // selected approval roles
+    if (in_array($approvalRole->getRoleId(), $rule['approvers'])) {
+        $selectedApprovalRoles[] = $escaper->escapeHtmlAttr($approvalRole->getRoleId());
+    }
+}
+$selectedApprovalRoles = array_values($selectedApprovalRoles);
+
+$orderTotalSampleMsg = __('Any order over $1000 requires approval from the Manager and Sales Leader.');
+$shippingCostSampleMsg = __('If shipping cost is more than $500, approval from your manager is required.');
+$skuNumberSampleMsg = __('Any order with more than 20 distinct SKUs will require Admin approval.');
+?>
+<form class="form form-create-purchase-order-rule"
+      action="<?= $escaper->escapeUrl($block->getUrl('purchaseorderrule/create/save')) ?>"
+      method="post"
+      id="form-validate"
+      data-mage-init='{"validation":{}}'">
+<?php if ($block->isEdit()): ?>
+    <input type="hidden" name="rule_id" value="<?= $escaper->escapeHtmlAttr($rule['rule_id']) ?>">
+<?php endif; ?>
+<fieldset class="fieldset"
+          data-hasrequired="<?= $escaper->escapeHtmlAttr(__('* Required Fields')) ?>">
+    <div class="field choice required">
+        <div class="storefront__actions-switch" data-role="switcher">
+            <input type="checkbox" class="storefront__actions-switch-checkbox" id="rule_active" name="is_active"
+                   value="1"<?= $rule['is_active'] ? ' checked="checked"' : ''; ?>>
+            <label class="storefront__actions-switch-label" for="rule_active">
+                    <span class="storefront__actions-switch-text"
+                          data-text-on="<?= $escaper->escapeHtmlAttr(__('Enabled')); ?>"
+                          data-text-off="<?= $escaper->escapeHtmlAttr(__('Disabled')); ?>"></span>
+            </label>
+        </div>
+    </div>
+    <div class="field required">
+        <label for="rule_name" class="label">
+            <span><?= $escaper->escapeHtml(__('Rule name')) ?></span>
+        </label>
+        <div class="control">
+            <?php //@codingStandardsIgnoreStart ?>
+            <input type="text"
+                   name="name"
+                   id="rule_name"
+                   value="<?= $escaper->escapeHtmlAttr($rule['name']) ?>"
+                   title="<?= $escaper->escapeHtmlAttr(__('Rule name')) ?>"
+                   data-mage-init='{"Magento_PurchaseOrderRule/js/rule/form/unique-name": {"validationURL": "<?= $escaper->escapeUrl($block->getUrl('purchaseorderrule/create/validate')) ?>", "ruleIdSelector": "[name=rule_id]"}}'
+                   class="input-text required-entry validate-length maximum-length-255">
+            <?php //@codingStandardsIgnoreEnd ?>
+        </div>
+    </div>
+    <div class="field textarea">
+        <label for="rule_description" class="label">
+            <span><?= $escaper->escapeHtml(__('Description')) ?></span>
+        </label>
+        <div class="control">
+                <textarea name="description"
+                          id="rule_description"
+                          cols="5"
+                          rows="5"
+                          title="<?= $escaper->escapeHtmlAttr(__('Description')) ?>"
+                          class="validate-length maximum-length-255"
+                ><?= $escaper->escapeHtml($rule['description']) ?></textarea>
+        </div>
+    </div>
+    <div class="field required radio applies-to"
+         data-mage-init='{"Magento_PurchaseOrderRule/js/rule/form/applies-to": {}}'>
+        <label for="rule_applies_to" class="label">
+            <span><?= $escaper->escapeHtml(__('Applies to')) ?></span>
+        </label>
+        <div class="control radio-wrapper">
+            <div class="control">
+                <input type="radio" name="applies_to_all" id="applies_to_all"
+                       value="1"<?= $rule['applies_to_all'] === '1' ? ' checked="checked"' : '' ?>/>
+                <label for="applies_to_all"><?= $escaper->escapeHtml(__('All roles')); ?></label>
+            </div>
+            <div class="control">
+                <input type="radio" name="applies_to_all" id="applies_to_specific"
+                       value="0"<?= $rule['applies_to_all'] === '0' ? ' checked="checked"' : '' ?>/>
+                <label for="applies_to_specific"><?= $escaper->escapeHtml(__('Specific roles')); ?></label>
+            </div>
+            <div class="control applies-to-select<?= $rule['applies_to_all'] === '0' ? ' show' : '' ?>">
+                <div class="control required-entry" data-bind="scope: 'applies_to'">
+                    <!-- ko template: elementTmpl --><!-- /ko -->
+                </div>
+                <script type="text/x-magento-init">
+                    {
+                        "*": {
+                            "Magento_Ui/js/core/app": {
+                                "components": {
+                                    "applies_to": {
+                                        "component": "Magento_B2b/js/form/element/ui-group-front",
+                                        "dataScope": "applies_to",
+                                        "multiple": true,
+                                        "validation": {"required-entry": true},
+                                        "showCheckbox": true,
+                                        "resultLabel": "<?= $escaper->escapeHtml(__('Select roles')); ?>",
+                                        "selectedValues": <?= /* @noEscape */ json_encode($selectedRoles); ?>,
+                                        "options": <?= /* @noEscape */ json_encode($roles); ?>
+                                    }
+                                }
+                            }
+                        }
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="field required rule-type">
+        <label for="condition_attribute" class="label">
+            <span><?= $escaper->escapeHtml(__('Rule type')) ?></span>
+        </label>
+        <div class="field-tooltip toggle">
+                <span class="field-tooltip-action action-help"
+                      tabindex="0"
+                      data-role="tooltip"
+                      data-toggle="dropdown"
+                      data-mage-init='{"dropdown":{"activeClass": "_active"}}'></span>
+                <div class="field-tooltip-content" data-target="dropdown">
+                    <span class="field-tooltip-content-title">
+                        <?= $escaper->escapeHtml(__('Here are some sample rules: ')) ?>
+                    </span>
+                    <ul>
+                        <li>
+                            <strong><?= $escaper->escapeHtml(__('Order Total: ')) ?></strong>
+                            <span>
+                                <?= $escaper->escapeHtml($orderTotalSampleMsg) ?>
+                            </span>
+                        </li>
+                        <li>
+                            <strong><?= $escaper->escapeHtml(__('Shipping Cost: ')) ?></strong>
+                            <span>
+                                <?= $escaper->escapeHtml($shippingCostSampleMsg) ?>
+                            </span>
+                        </li>
+                        <li>
+                            <strong><?= $escaper->escapeHtml(__('Number of SKUs: ')) ?></strong>
+                            <span>
+                                <?= $escaper->escapeHtml($skuNumberSampleMsg) ?>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="control">
+                <select name="conditions[0][attribute]"
+                        data-mage-init='{"Magento_PurchaseOrderRule/js/rule/form/conditions-select": {}}'
+                        id="condition_attribute"
+                        class="select required-entry"
+                        title="<?= $escaper->escapeHtml(__('Rule type')) ?>"
+                        aria-required="true">
+                    <option value=""><?= $escaper->escapeHtml(__('Please select')) ?></option>
+                    <?php foreach ($block->getRuleConditions() as $condition): ?>
+                        <?php
+                        $attributes = ' value="' . $escaper->escapeHtmlAttr($condition['value']) . '"';
+                        $attributes .= $condition['value'] === $rule['conditions'][0]['attribute'] ? ' selected' : '';
+                        ?>
+                        <option<?= /* @noEscape */
+                        $attributes; ?>><?=
+                        $escaper->escapeHtml(__($condition['label'])) ?></option>
+                <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+</fieldset>
+<?= $block->getChildHtml(); ?>
+<fieldset class="fieldset rule-approvers <?= ($rule['conditions'][0]['attribute'] === '') ? '_hide' : '' ?>"
+          data-hasrequired="<?= $escaper->escapeHtmlAttr(__('* Required Fields')) ?>">
+    <div class="field required">
+        <label for="condition_approvers" class="label">
+            <span><?= $escaper->escapeHtml(__('Requires approval from')) ?></span>
+        </label>
+        <div class="control" id="condition_approvers" data-bind="scope: 'approvers'">
+            <!-- ko template: getTemplate() --><!-- /ko -->
+        </div>
+        <script type="text/x-magento-init">
+                {
+                    "*": {
+                        "Magento_Ui/js/core/app": {
+                            "components": {
+                                "approvers": {
+                                    "component": "Magento_B2b/js/form/element/ui-group-front",
+                                    "template": "Magento_B2b/form/element/ui-group",
+                                    "dataScope": "approvers",
+                                    "multiple": true,
+                                    "validation": {"required-entry": true},
+                                    "showCheckbox": true,
+                                    "resultLabel": "<?= $escaper->escapeHtml(__('Select roles')); ?>",
+                                    "selectedValues": <?= /* @noEscape */ json_encode($selectedApprovalRoles); ?>,
+                                    "options": <?= /* @noEscape */ json_encode($approvalRoles); ?>
+                                }
+                            }
+                        }
+                    }
+                }
+            </script>
+    </div>
+</fieldset>
+
+<div class="actions-toolbar">
+    <div class="primary">
+        <button type="submit"<?= !$block->isSaveAllowed() ? ' disabled="disabled"' : '' ?>
+                class="action submit primary"
+                title="<?= $escaper->escapeHtmlAttr(__('Save')) ?>">
+            <span><?= $escaper->escapeHtml(__('Save')) ?></span>
+        </button>
+    </div>
+    <div class="secondary">
+        <a class="action back"
+           href="<?= $escaper->escapeUrl($block->getUrl('purchaseorderrule')) ?>">
+            <span><?= $escaper->escapeHtml(__('Back')) ?></span>
+        </a>
+    </div>
+</div>
+</form>

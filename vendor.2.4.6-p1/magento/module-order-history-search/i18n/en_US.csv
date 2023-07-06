@@ -1,0 +1,28 @@
+"Order status","Order status"
+All,All
+"Your search did not return any results.","Your search did not return any results."
+"Product name/sku","Product name/sku"
+"Product Name/SKU","Product Name/SKU"
+"Search by SKU or Product Name","Search by SKU or Product Name"
+Filter,Filter
+Close,Close
+"Order Number","Order Number"
+"Enter full or partial number...","Enter full or partial number..."
+"Order Status","Order Status"
+"Invoice Number","Invoice Number"
+"Invoice number","Invoice number"
+"Order Date","Order Date"
+From,From
+To,To
+"Order Total","Order Total"
+Min,Min
+"Order total minimum","Order total minimum"
+Max,Max
+"Order total maximum","Order total maximum"
+"Clear All","Clear All"
+Apply,Apply
+"Created By","Created By"
+"The 'Min' value must be lower than the 'Max' value.","The 'Min' value must be lower than the 'Max' value."
+"Please enter a valid number in this field. Enter only digits (0-9).","Please enter a valid number in this field. Enter only digits (0-9)."
+"Enter a valid date.","Enter a valid date."
+"The 'From' date must precede the 'To' date.","The 'From' date must precede the 'To' date."

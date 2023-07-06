@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCheckCustomPricesInSharedCatalogMultipleWebsiteTest">
+        <annotations>
+            <features value="SharedCatalog"/>
+            <stories value="Shared Catalog Custom Prices"/>
+            <title value="Set Custom Prices in Shared Catalog for multiple websites"/>
+            <description value="Set Custom Prices in Shared Catalog for multiple websites"/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="B2B-1065"/>
+            <group value="b2b"/>
+            <group value="sharedCatalog"/>
+        </annotations>
+        <before>
+            <!--Create Company-->
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+
+            <!-- Set in Stores > Configuration > Catalog > Catalog > Price - Catalog Price Scope = "Website" -->
+            <magentoCLI command="config:set {{WebsiteCatalogPriceScopeConfigData.path}} {{WebsiteCatalogPriceScopeConfigData.value}}" stepKey="setPriceScopeWebsite"/>
+
+            <!-- Enable Company and Shared Catalog -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+
+            <!-- Set account sharing to global -->
+            <createData entity="CustomerAccountSharingGlobal" stepKey="setConfigCustomerAccountToGlobal"/>
+
+            <!-- Create second website -->
+            <createData entity="secondCustomWebsite" stepKey="createCustomWebsite"/>
+
+            <!-- Create new shared catalog -->
+            <createData entity="FirstSharedCatalog" stepKey="createSharedCatalog"/>
+            <createData entity="AssignCompanyToSharedCatalog" stepKey="assignCompany">
+                <requiredEntity createDataKey="createSharedCatalog"/>
+                <requiredEntity createDataKey="createCompany"/>
+            </createData>
+
+            <!-- Create 5 simple products -->
+            <createData entity="ApiSimplePrice100Qty100v2" stepKey="createFirstProduct"/>
+            <createData entity="ApiSimplePrice100Qty100v2" stepKey="createSecondProduct"/>
+            <createData entity="ApiSimplePrice100Qty100v2" stepKey="createThirdProduct"/>
+            <createData entity="ApiSimplePrice100Qty100v2" stepKey="createFourthProduct"/>
+            <createData entity="ApiSimplePrice100Qty100v2" stepKey="createFifthProduct"/>
+
+            <magentoCLI command="config:set {{StorefrontEnableAddStoreCodeToUrls.path}} {{StorefrontEnableAddStoreCodeToUrls.value}}" stepKey="setAddStoreCodeToUrlsToYes"/>
+
+            <!-- Login to admin panel -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+
+            <!-- Assign store and store view to custom website -->
+            <actionGroup ref="AdminStoreGroupCreateActionGroup" stepKey="createNewStore">
+                <argument name="Website" value="secondCustomWebsite"/>
+                <argument name="storeGroup" value="customStoreGroup"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createCustomStoreView">
+                <argument name="StoreGroup" value="customStoreGroup"/>
+                <argument name="customStore" value="customStoreEN"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+
+            <!-- Open SimpleProduct1 and assigned to custom website -->
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToFirstProductEditPage">
+                <argument name="productId" value="$createFirstProduct.id$"/>
+            </actionGroup>
+            <actionGroup ref="ProductSetWebsiteActionGroup" stepKey="setWebsiteForFirstProduct">
+                <argument name="website" value="$createCustomWebsite.website[name]$"/>
+            </actionGroup>
+
+            <!-- Open SimpleProduct2 and assigned to custom website -->
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToSecondProductEditPage">
+                <argument name="productId" value="$createSecondProduct.id$"/>
+            </actionGroup>
+            <actionGroup ref="ProductSetWebsiteActionGroup" stepKey="setWebsiteForSecondProduct">
+                <argument name="website" value="$createCustomWebsite.website[name]$"/>
+            </actionGroup>
+
+            <!-- Open SimpleProduct3 and assigned to custom website -->
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToThirdProductEditPage">
+                <argument name="productId" value="$createThirdProduct.id$"/>
+            </actionGroup>
+            <actionGroup ref="ProductSetWebsiteActionGroup" stepKey="setWebsiteForThirdProduct">
+                <argument name="website" value="$createCustomWebsite.website[name]$"/>
+            </actionGroup>
+
+            <!-- Open SimpleProduct4 and assigned to custom website -->
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToFourthProductEditPage">
+                <argument name="productId" value="$createFourthProduct.id$"/>
+            </actionGroup>
+            <actionGroup ref="ProductSetWebsiteActionGroup" stepKey="setWebsiteForFourthProduct">
+                <argument name="website" value="$createCustomWebsite.website[name]$"/>
+            </actionGroup>
+
+            <!-- Open SimpleProduct5 and assigned to custom website -->
+            <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="goToFifthProductEditPage">
+                <argument name="productId" value="$createFifthProduct.id$"/>
+            </actionGroup>
+            <actionGroup ref="ProductSetWebsiteActionGroup" stepKey="setWebsiteForFifthProduct">
+                <argument name="website" value="$createCustomWebsite.website[name]$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <!-- Delete Products -->
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createThirdProduct" stepKey="deleteThirdProduct"/>
+            <deleteData createDataKey="createFourthProduct" stepKey="deleteFourthProduct"/>
+            <deleteData createDataKey="createFifthProduct" stepKey="deleteFifthProduct"/>
+            <deleteData createDataKey="createSharedCatalog" stepKey="deleteSharedCatalog"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+
+            <!-- Restore config to default values -->
+            <createData entity="CustomerAccountSharingDefault" stepKey="setConfigCustomerAccountDefault"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+            <magentoCLI command="config:set {{StorefrontDisableAddStoreCodeToUrls.path}} {{StorefrontDisableAddStoreCodeToUrls.value}}" stepKey="disableAddStoreCodeToUrls"/>
+            <magentoCLI command="config:set {{GlobalCatalogPriceScopeConfigData.path}} {{GlobalCatalogPriceScopeConfigData.value}}" stepKey="setPriceScopeGlobal"/>
+
+            <!-- Delete Custom website -->
+            <actionGroup ref="DeleteCustomWebsiteActionGroup" stepKey="deleteWebsite">
+                <argument name="websiteName" value="$createCustomWebsite.website[name]$"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+
+            <!-- Logout -->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdminPanel"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutOnStorefront"/>
+        </after>
+
+        <!-- Open Shared catalog index page -->
+        <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="goToAdminSharedCatalogIndexPage"/>
+
+        <!-- Set pricing and structure for Shared Catalog -->
+        <actionGroup ref="AdminFilterSharedCatalogByNameActionGroup" stepKey="filterSharedCatalog">
+            <argument name="sharedCatalogName" value="{{FirstSharedCatalog.name}}"/>
+        </actionGroup>
+        <click selector="{{AdminSharedCatalogsSection.select}}" stepKey="clickSelectButton"/>
+        <click selector="{{AdminSharedCatalogsSection.setPricingAndStructure}}" stepKey="clickOnSetPricingAndStructureItem"/>
+        <click selector="{{AdminSharedCatalogCatalogStructureSection.configureButton}}" stepKey="clickOnConfigureButton"/>
+
+        <!--Assign created products to Shared Catalog-->
+        <actionGroup ref="AdminSharedCatalogFilterProductsOnGridActionGroup" stepKey="filterProductsOnGrid">
+            <argument name="productName" value="{{ApiSimplePrice100Qty100v2.name}}"/>
+        </actionGroup>
+        <click selector="{{AdminSharedCatalogsSection.multiCheckForProductsAndCatalog}}" stepKey="clickMultiCheck"/>
+        <click selector="{{AdminSharedCatalogsSection.selectAllForProductsAndCatalog}}" stepKey="clickSelectAll"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetProductFilter"/>
+        <actionGroup ref="AdminClickNextInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="clickNextButton"/>
+
+        <!-- Fill custom prices for products per websites -->
+        <actionGroup ref="AdminFillCustomPriceForProductInProductsGridInSharedCatalogActionGroup" stepKey="fillCustomPriceForFirstProduct">
+            <argument name="productName" value="$createFirstProduct.name$"/>
+            <argument name="priceType" value="Fixed"/>
+            <argument name="value" value="{{SimpleProductUpdatePrice80.price}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminFillCustomPriceForProductInProductsGridInSharedCatalogActionGroup" stepKey="fillCustomPriceForSecondProduct">
+            <argument name="productName" value="$createSecondProduct.name$"/>
+            <argument name="priceType" value="Discount"/>
+            <argument name="value" value="5"/>
+        </actionGroup>
+        <actionGroup ref="AdminChangeWebsiteScopeForProductsInSharedCatalogGridActionGroup" stepKey="changeWebsiteScope">
+            <argument name="websiteName" value="$createCustomWebsite.website[name]$"/>
+        </actionGroup>
+
+        <!-- Check new prices in grid -->
+        <see selector="{{AdminSharedCatalogCatalogStructureProductGridSection.newPriceByName('$createFirstProduct.name$')}}" userInput="{{SimpleProductUpdatePrice80.price}}" stepKey="checkFirstProductNewPrice" />
+        <see selector="{{AdminSharedCatalogCatalogStructureProductGridSection.newPriceByName('$createSecondProduct.name$')}}" userInput="{{SimpleProductUpdatePrice95.price}}" stepKey="checkSecondProductNewPrice"/>
+
+        <!-- Apply adjust fixed price for products via mass action -->
+        <actionGroup ref="AdminCheckProductCheckboxInProductsInSharedCatalogGridActionGroup" stepKey="checkThirdProduct">
+            <argument name="productName" value="$createThirdProduct.name$"/>
+        </actionGroup>
+        <actionGroup ref="AdminCheckProductCheckboxInProductsInSharedCatalogGridActionGroup" stepKey="checkFourthProduct">
+            <argument name="productName" value="$createFourthProduct.name$"/>
+        </actionGroup>
+        <actionGroup ref="AdminSelectMassActionInProductsGridInSharedCatalogActionGroup" stepKey="selectMassAction"/>
+
+        <actionGroup ref="AdminApplyAdjustFixedPriceForProductsInSharedCatalogGridActionGroup" stepKey="fillAdjustFixedPrice">
+            <argument name="discountValue" value="10"/>
+        </actionGroup>
+
+        <!-- Check new prices in grid -->
+        <see selector="{{AdminSharedCatalogCatalogStructureProductGridSection.newPriceByName('$createThirdProduct.name$')}}" userInput="{{SimpleProductUpdatePrice90.price}}" stepKey="checkThirdProductNewPrice" />
+        <see selector="{{AdminSharedCatalogCatalogStructureProductGridSection.newPriceByName('$createFourthProduct.name$')}}" userInput="{{SimpleProductUpdatePrice90.price}}" stepKey="checkFourthProductNewPrice"/>
+
+        <!-- Generate catalog -->
+        <actionGroup ref="AdminClickGenerateCatalogInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="clickSaveSharedCatalog"/>
+        <actionGroup ref="ClickSaveButtonActionGroup" stepKey="saveSharedCatalog">
+            <argument name="message" value="The selected items are being processed. You can continue to work in the meantime."/>
+        </actionGroup>
+
+        <!-- Start message queues -->
+        <actionGroup ref="CliConsumerStartActionGroup" stepKey="startMessageQueueConsumer">
+            <argument name="consumerName" value="{{AdminSharedCatalogProductPriceUpdatedConsumerData.consumerName}}"/>
+            <argument name="maxMessages" value="{{AdminSharedCatalogProductPriceUpdatedConsumerData.messageLimit}}"/>
+        </actionGroup>
+
+        <!-- Run cron -->
+        <magentoCron stepKey="runIndexCronJobs" groups="index"/>
+
+        <!--Sign in by created Company admin to Storefront-->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCustomerOnStorefront">
+            <argument name="Customer" value="$createCompanyAdmin$"/>
+        </actionGroup>
+
+        <!-- Assert first product price -->
+        <actionGroup ref="StorefrontOpenProductPageUsingStoreCodeInUrlActionGroup" stepKey="goToFirstProductPage">
+            <argument name="product" value="$createFirstProduct$"/>
+            <argument name="storeView" value="customStoreEN"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductPriceOnProductPageActionGroup" stepKey="assertFirstProductPrice">
+            <argument name="productPrice" value="{{SimpleProductUpdatePrice80.price}}"/>
+        </actionGroup>
+
+        <!-- Assert second product price -->
+        <actionGroup ref="StorefrontOpenProductPageUsingStoreCodeInUrlActionGroup" stepKey="goToSecondProductPage">
+            <argument name="product" value="$createSecondProduct$"/>
+            <argument name="storeView" value="customStoreEN"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductPriceOnProductPageActionGroup" stepKey="assertSecondProductPrice">
+            <argument name="productPrice" value="{{SimpleProductUpdatePrice95.price}}"/>
+        </actionGroup>
+
+        <!-- Assert third product price -->
+        <actionGroup ref="StorefrontOpenProductPageUsingStoreCodeInUrlActionGroup" stepKey="goToThirdProductPage">
+            <argument name="product" value="$createThirdProduct$"/>
+            <argument name="storeView" value="customStoreEN"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductPriceOnProductPageActionGroup" stepKey="assertThirdProductPrice">
+            <argument name="productPrice" value="{{SimpleProductUpdatePrice90.price}}"/>
+        </actionGroup>
+
+        <!-- Assert fourth product price -->
+        <actionGroup ref="StorefrontOpenProductPageUsingStoreCodeInUrlActionGroup" stepKey="goToFourthProductPage">
+            <argument name="product" value="$createFourthProduct$"/>
+            <argument name="storeView" value="customStoreEN"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductPriceOnProductPageActionGroup" stepKey="assertFourthProductPrice">
+            <argument name="productPrice" value="{{SimpleProductUpdatePrice90.price}}"/>
+        </actionGroup>
+
+        <!-- Assert fifth product price -->
+        <actionGroup ref="StorefrontOpenProductPageUsingStoreCodeInUrlActionGroup" stepKey="goToFifthProductPage">
+            <argument name="product" value="$createFifthProduct$"/>
+            <argument name="storeView" value="customStoreEN"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductPriceOnProductPageActionGroup" stepKey="assertFifthProductPrice">
+            <argument name="productPrice" value="{{ApiSimplePrice100Qty100v2.price}}"/>
+        </actionGroup>
+    </test>
+</tests>

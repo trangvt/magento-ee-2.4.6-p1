@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<logging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Logging:etc/logging.xsd">
+    <groups>
+        <group name="magento_companycredit">
+            <label translate="true">Company Credit</label>
+            <expected_models>
+                <expected_model class="Magento\CompanyCredit\Model\CreditLimit" />
+            </expected_models>
+            <events>
+                <event controller_action="credit_index_edit"
+                       action_alias="view"
+                       post_dispatch="Magento\CompanyCredit\Model\Logging::postDispatchReimburseBalance" />
+                <event controller_action="credit_index_massConvert"
+                       action_alias="massUpdate"
+                       post_dispatch="Magento\CompanyCredit\Model\Logging::postDispatchMassConvert" />
+                <event controller_action="credit_index_reimburse"
+                       action_alias="save"
+                       post_dispatch="Magento\CompanyCredit\Model\Logging::postDispatchReimburseBalance" />
+            </events>
+        </group>
+    </groups>
+</logging>

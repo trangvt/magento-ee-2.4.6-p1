@@ -1,0 +1,106 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var \Magento\PurchaseOrderRule\Block\Form $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$rule = $block->getPurchaseOrderRuleData();
+?>
+<div class="form-create-purchase-order-rule form-view-purchase-order-rule">
+    <fieldset class="fieldset">
+        <div class="field choice">
+            <div class="storefront__actions-switch _disabled" data-role="switcher">
+                <input type="checkbox" class="storefront__actions-switch-checkbox" id="rule_active" name="is_active"
+                       value="1"<?= $rule['is_active'] ? ' checked="checked"' : ''; ?> disabled>
+                <label class="storefront__actions-switch-label" for="rule_active">
+                    <span class="storefront__actions-switch-text"
+                          data-text-on="<?= $escaper->escapeHtmlAttr(__('Enabled')); ?>"
+                          data-text-off="<?= $escaper->escapeHtmlAttr(__('Disabled')); ?>"></span>
+                </label>
+            </div>
+        </div>
+        <div class="field">
+            <label for="rule_name" class="label">
+                <span><?= $escaper->escapeHtml(__('Rule name')) ?></span>
+            </label>
+            <div class="control">
+                <?= $escaper->escapeHtmlAttr($rule['name']) ?>
+            </div>
+        </div>
+        <div class="field textarea">
+            <label for="rule_description" class="label">
+                <span><?= $escaper->escapeHtml(__('Description')) ?></span>
+            </label>
+            <div class="control">
+               <?= $escaper->escapeHtml($rule['description']) ?>
+            </div>
+        </div>
+        <div class="field radio applies-to">
+            <label for="rule_applies_to" class="label">
+                <span><?= $escaper->escapeHtml(__('Applies to')) ?></span>
+            </label>
+            <div class="control radio-wrapper">
+                <div class="control">
+                    <input type="radio" name="applies_to_all" id="applies_to_all"
+                           value="1"<?= $rule['applies_to_all'] === '1' ? ' checked="checked"' : '' ?> disabled/>
+                    <label for="applies_to_all"><?= $escaper->escapeHtml(__('All roles')); ?></label>
+                </div>
+                <div class="control">
+                    <input type="radio" name="applies_to_all" id="applies_to_specific"
+                           value="0"<?= $rule['applies_to_all'] === '0' ? ' checked="checked"' : '' ?> disabled/>
+                    <label for="applies_to_specific"><?= $escaper->escapeHtml(__('Specific roles')); ?></label>
+                </div>
+                <div class="control applies-to-select<?= $rule['applies_to_all'] === '0' ? ' show' : '' ?>">
+                    <ul>
+                        <?php foreach ($block->getCompanyRoles() as $role): ?>
+                            <?php if (in_array($role->getRoleId(), $rule['applies_to'])): ?>
+                                <li><?= $escaper->escapeHtml($role->getRoleName()) ?></li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="field">
+            <label for="condition_attribute" class="label">
+                <span><?= $escaper->escapeHtml(__('Rule type')) ?></span>
+            </label>
+            <div class="control">
+                <?php foreach ($block->getRuleConditions() as $condition): ?>
+                    <?php if ($condition['value'] === $rule['conditions'][0]['attribute']): ?>
+                        <?= $escaper->escapeHtml(__($condition['label'])) ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </fieldset>
+    <?= $block->getChildHtml();?>
+    <fieldset class="fieldset rule-approvers <?= ($rule['conditions'][0]['attribute'] === '') ? '_hide' : ''?>"
+              data-hasrequired="<?= $escaper->escapeHtmlAttr(__('* Required Fields')) ?>">
+        <div class="field">
+            <label for="condition_approvers" class="label">
+                <span><?= $escaper->escapeHtml(__('Requires approval from')) ?></span></label>
+            <div class="control">
+                <ul>
+                    <?php foreach ($block->getCompanyApproverRoles() as $role): ?>
+                        <?php if (in_array($role->getRoleId(), $rule['approvers'])): ?>
+                            <li><?= $escaper->escapeHtml($role->getRoleName()) ?></li>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    </fieldset>
+    <div class="actions-toolbar">
+        <div class="secondary">
+            <a class="action back"
+               href="<?= $escaper->escapeUrl($block->getUrl('purchaseorderrule')) ?>">
+                <span><?= $escaper->escapeHtml(__('Back')) ?></span>
+            </a>
+        </div>
+    </div>
+</div>

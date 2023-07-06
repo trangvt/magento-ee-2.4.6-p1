@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontVerifyCompanyCreditHistoryGridDataActionGroup">
+        <annotations>
+            <description>Verify credit history grid data on the Company Credit page on the Storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="index" defaultValue="1" type="string"/>
+            <argument name="purchasedAmount" type="string"/>
+            <argument name="outstandingBalance" type="string"/>
+            <argument name="availableCredit" type="string"/>
+            <argument name="creditLimit" type="string"/>
+            <argument name="operation" defaultValue="Purchased" type="string"/>
+            <argument name="customReferenceNumber" defaultValue="{{CustomReferenceNumber.number}}" type="string"/>
+            <argument name="updatedBy" defaultValue="Admin User" type="string"/>
+        </arguments>
+        <waitForText selector="{{AdminDataGridTableSection.gridCell(index, 'Operation')}}" userInput="{{operation}}" stepKey="assertPurchasedOperation"/>
+        <grabTextFrom selector="{{AdminDataGridTableSection.gridCell(index, 'Amount')}}" stepKey="grabPurchasedAmount"/>
+        <assertEquals stepKey="assertPurchasedAmount">
+            <actualResult type="variable">grabPurchasedAmount</actualResult>
+            <expectedResult type="string">{{purchasedAmount}}</expectedResult>
+        </assertEquals>
+        <waitForText selector="{{AdminDataGridTableSection.gridCell(index, 'Outstanding Balance')}}" userInput="{{outstandingBalance}}" stepKey="waitForOutstandingBalance"/>
+        <grabTextFrom selector="{{AdminDataGridTableSection.gridCell(index, 'Outstanding Balance')}}" stepKey="grabOutstandingBalance"/>
+        <assertEquals stepKey="assertOutstandingBalance">
+            <actualResult type="variable">grabOutstandingBalance</actualResult>
+            <expectedResult type="string">{{outstandingBalance}}</expectedResult>
+        </assertEquals>
+        <waitForText selector="{{AdminDataGridTableSection.gridCell(index, 'Available Credit')}}" userInput="{{availableCredit}}" stepKey="waitForAvailableCredit"/>
+        <grabTextFrom selector="{{AdminDataGridTableSection.gridCell(index, 'Available Credit')}}" stepKey="grabAvailableCredit"/>
+        <assertEquals stepKey="assertAvailableCredit">
+            <actualResult type="variable">grabAvailableCredit</actualResult>
+            <expectedResult type="string">{{availableCredit}}</expectedResult>
+        </assertEquals>
+        <waitForText selector="{{AdminDataGridTableSection.gridCell(index, 'Credit Limit')}}" userInput="{{creditLimit}}" stepKey="waitFortCreditLimit"/>
+        <grabTextFrom selector="{{AdminDataGridTableSection.gridCell(index, 'Credit Limit')}}" stepKey="grabCreditLimit"/>
+        <assertEquals stepKey="assertCreditLimit">
+            <actualResult type="variable">grabCreditLimit</actualResult>
+            <expectedResult type="string">{{creditLimit}}</expectedResult>
+        </assertEquals>
+        <grabTextFrom selector="{{AdminDataGridTableSection.gridCell(index, 'Custom Reference Number')}}" stepKey="grabCustomReferenceNumber"/>
+        <assertEquals stepKey="assertCustomReferenceNo">
+            <actualResult type="variable">grabCustomReferenceNumber</actualResult>
+            <expectedResult type="string">{{customReferenceNumber}}</expectedResult>
+        </assertEquals>
+        <waitForText selector="{{AdminDataGridTableSection.gridCell(index, 'Updated By')}}" userInput="{{updatedBy}}" stepKey="assertUpdatedBy"/>
+    </actionGroup>
+</actionGroups>

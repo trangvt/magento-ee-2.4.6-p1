@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontCompanyStructureAssignSubordinateActionGroup">
+        <annotations>
+            <description>Assigns subordinateUser as a subordinate of supervisorUser. Must be on the Company Structure page on the storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="supervisorUser" defaultValue="CompanySupervisorUser"/>
+            <argument name="subordinateUser" defaultValue="CompanyRegularPurchaser"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCompanyStructureSection.structureNode(subordinateUser.firstname, subordinateUser.lastname)}}" stepKey="waitForSubordinateUser"/>
+        <dragAndDrop selector1="{{StorefrontCompanyStructureSection.structureNode(subordinateUser.firstname, subordinateUser.lastname)}}" selector2="{{StorefrontCompanyStructureSection.structureNode(supervisorUser.firstname, supervisorUser.lastname)}}" stepKey="moveSubordinateToSupervisor"/>
+        <waitForPageLoad stepKey="waitForPermissionsPage"/>
+    </actionGroup>
+</actionGroups>

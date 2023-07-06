@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontRequisitionListViewSection">
+        <element name="itemCheckbox" type="checkbox" selector="//td[contains(., '{{productName}}')]/parent::tr/td/input[@type='checkbox']" parameterized="true"/>
+        <element name="addToCartButton" type="button" selector="button[title='Add to Cart']" timeout="30"/>
+        <element name="productSKU" type="text" selector="//div[@class='product-item-sku']/span[contains(text(), '{{productSku}}')]" parameterized="true"/>
+        <element name="productQTY" type="input" selector="(//input[@data-role='requisition-item-qty'])[{{index}}]" parameterized="true"/>
+        <element name="updateList" type="button" selector="button[title='Update List']"/>
+        <element name="productName" type="text" selector="(//span[@class='product-item-name']//a[contains(text(), '{{productName}}')])[{{index}}]" parameterized="true" timeout="30" deprecated="Will not target elements as intended when index > 1; use productNameByIndex instead"/>
+        <element name="productNameByIndex" type="text" selector="(//td//span[@class='product-item-name']//a)[{{index}}][contains(text(), '{{productName}}')]" parameterized="true" timeout="30"/>
+        <element name="productCheckBox" type="text" selector="//td[contains(., '{{productName}}')]/parent::tr//input[@type='checkbox']" parameterized="true" timeout="30"/>
+        <element name="productPrice" type="text" selector="//td[contains(., '{{productName}}')]/parent::tr//td[contains(@class,'price')]" parameterized="true" timeout="30"/>
+        <element name="productSubtotal" type="text" selector="//td[contains(., '{{productName}}')]/parent::tr//td[contains(@class,'subtotal')]//span[@class='price']" parameterized="true" timeout="30"/>
+        <element name="selectAllItems" type="checkbox" selector="//input[@id='requisition-select-all']"/>
+        <element name="firstSelectBox" type="checkbox" selector="//table//tr[position()=1]//input[@class='input-checkbox']"/>
+        <element name="secondSelectBox" type="checkbox" selector="//table//tr[position()=2]//input[@class='input-checkbox']"/>
+        <element name="thirdSelectBox" type="checkbox" selector="//table//tr[position()=3]//input[@class='input-checkbox']"/>
+        <element name="productDetails" type="text" selector="//td[contains(., '{{productName}}')]/parent::tr/td/div[contains(., '{{attributeName}}')]" parameterized="true"/>
+        <element name="removeItemButton" type="button" selector="//td[contains(., '{{productName}}')]/parent::tr/td[contains(@class,'subtotal')]//button[@data-action='remove-item']" parameterized="true"/>
+        <element name="editItemButton" type="button" selector="//td[contains(., '{{productName}}')]/parent::tr/td[contains(@class,'subtotal')]//button[@data-action='edit-item']" parameterized="true"/>
+        <element name="productFile" type="text" selector=".product-item-details .item-options a"/>
+        <element name="title" type="text" selector=".requisition-list-title h1"/>
+        <element name="deleteRequisitionListButton" type="button" selector="button[title='Delete Requisition List']"/>
+        <element name="pageTitleWrapper" type="text" selector="[data-ui-id='page-title-wrapper']"/>
+        <element name="productOptionValue" type="text" selector="//div[@class='product-item-sku']/span[contains(text(), '{{productSku}}')]/ancestor::div[@class='product-item-description']//dt[contains(.,'{{optionTitle}}')]/following-sibling::dd" parameterized="true"/>
+    </section>
+</sections>

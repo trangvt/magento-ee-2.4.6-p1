@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StoreFrontVerifyCustomerCustomAttributesAtCreateAccountPageTest">
+        <annotations>
+            <features value="Customer"/>
+            <stories value="Custom attributes"/>
+            <title value="Unable to create company user with custom customer attribute"/>
+            <description value="Verify Create Company User Page Loads With Customer Custom Attribute"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-40427"/>
+            <useCaseId value="MC-40358"/>
+            <group value="company"/>
+            <group value="CustomerCustomAttributes"/>
+        </annotations>
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <!--Login as admin-->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
+        </before>
+        <after>
+            <!-- Revert Configurations, Delete Data, & Clear Filters -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <!--Logout from admin-->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logOut"/>
+        </after>
+
+        <!--Go to Stores > Attributes > Customer-->
+        <amOnPage url="{{CustomerAttributesPage.url}}" stepKey="navigateToCustomerAttributes"/>
+        <waitForPageLoad stepKey="waitForAttributePageLoad"/>
+
+        <!--Create customer attribute-->
+        <actionGroup ref="AdminCreateCustomerAttribute" stepKey="createYesNoAttribute">
+            <argument name="defaultLabel" value="{{AttributeYesNo.frontend_label}}"/>
+            <argument name="attributeCode" value="{{AttributeYesNo.attribute_code}}"/>
+            <argument name="inputType" value="{{AttributeYesNo.frontend_input}}"/>
+            <argument name="sortOrder" value="{{AttributeYesNo.sort_order}}"/>
+            <argument name="formToUse" value="Customer Registration"/>
+            <argument name="message" value="You saved the customer attribute."/>
+        </actionGroup>
+
+        <!--Navigate to company create account page-->
+        <amOnPage url="{{StorefrontCompanyCreatePage.url}}" stepKey="goToCreateCompanyPage"/>
+        <waitForPageLoad stepKey="waitForCustomerCreateAccountPageLoaded"/>
+
+        <!--Verify create company account page successfully loaded without errors-->
+        <waitForElementVisible selector="[data-ui-id='page-title-wrapper']" stepKey="waitForCompanyPageTitleVisible"/>
+        <see selector="[data-ui-id='page-title-wrapper']" userInput="New Company" stepKey="verifyPageTitleLoaded"/>
+        <see selector="{{StorefrontCustomerCustomAttributeSection.customAttributeText(AttributeYesNo.attribute_code)}}" userInput="{{AttributeYesNo.attribute_code}}" stepKey="verifyCustomerCustomAttributeLoaded"/>
+
+        <!--Go to Stores > Attributes > Customer-->
+        <amOnPage url="{{CustomerAttributesPage.url}}" stepKey="navigateToCustomerAttributesPage"/>
+        <waitForPageLoad stepKey="waitForAttributePageLoad2"/>
+
+        <!--Filter customer custom attribute in grid-->
+        <actionGroup ref="FilterCustomerAttributesByAttributeCodeAndDefaultLabelActionGroup" stepKey="findCustomerCustomAttribute">
+            <argument name="defaultLabel" value="{{AttributeYesNo.frontend_label}}"/>
+            <argument name="attributeCode" value="{{AttributeYesNo.attribute_code}}"/>
+        </actionGroup>
+
+        <!--Delete created attribute-->
+        <actionGroup ref="DeleteCustomerAttribute" stepKey="deleteCustomerAttribute">
+            <argument name="defaultLabel" value="{{AttributeYesNo.frontend_label}}"/>
+        </actionGroup>
+    </test>
+</tests>

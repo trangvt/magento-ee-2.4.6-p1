@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCreateCustomerTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Create Customer"/>
+            <title value="Create Customer As Backend Admin"/>
+            <description value="Verify that a backend admin user can create a customer. Include customer group in B2B"/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-16339"/>
+            <group value="customer"/>
+            <group value="create"/>
+        </annotations>
+        <actionGroup ref="searchAndMultiSelectActionGroup" stepKey="searchAndSelectGroup" before="fillFirstName">
+            <argument name="dropDownSelector" value="AdminCustomerAccountInformationSection.group"/>
+            <argument name="options" value="[{{DefaultCustomerGroup.group_names[0]}}]"/>
+        </actionGroup>
+    </test>
+</tests>

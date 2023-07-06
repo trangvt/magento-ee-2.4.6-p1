@@ -1,0 +1,234 @@
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+//
+//  Variables
+//  _____________________________________________
+
+@icon-color: #7d7d7d;
+
+
+//
+//  Common
+//  _____________________________________________
+
+& when (@media-common = true) {
+    .my-orders-search-advanced {
+        .field .secondary,
+        .actions-toolbar,
+        .filters-collapse {
+            text-align: right !important;
+        }
+        .fieldset:first-of-type {
+            margin-bottom: 0;
+        }
+        .actions-toolbar {
+            div.primary {
+                a {
+                    text-decoration: none;
+                }
+                text-align: right !important;
+                width: 100%;
+            }
+            button.primary {
+                float: none !important;
+                margin-right: 0;
+                width: auto !important;
+            }
+            button {
+                margin-left: 10px !important;
+            }
+        }
+        .extra-order-search,
+        .filter-close {
+            display: none;
+        }
+
+        .mage-error {
+            clear: both;
+            display: inline-block;
+            padding-right: 10px;
+        }
+
+        .filter-summary {
+            margin: 5px 0 0;
+        }
+
+        .filter-summary ul {
+            border-top: 1px solid @color-gray_light;
+            display: inline-block;
+            margin: 0;
+            padding: 10px 0 0;
+            width: 100%;
+        }
+
+        .filter-summary li {
+            float: left;
+            list-style: none;
+            margin-bottom: 5px;
+            margin-right: 14px;
+        }
+
+        .filter-summary li span {
+            padding: 0 3px;
+        }
+
+        .filter-summary li .label {
+            font-weight: bold;
+        }
+
+        .action-remove {
+            font-weight: bold;
+            padding: 0 3px;
+        }
+
+        .action-remove:not(.action-clear-all) {
+            .lib-icon-font(
+                @icon-remove,
+                @_icon-font-size: 12px,
+                @_icon-font-line-height: 15px,
+                @_icon-font-text-hide: true,
+                @_icon-font-color: @color-blue1,
+                @_icon-font-color-hover: @color-blue3,
+                @_icon-font-color-active: @color-sky-blue1
+            );
+
+            &:before {
+                display: inline;
+                vertical-align: unset;
+            }
+        }
+
+        .action-clear-all {
+            font-weight: inherit;
+        }
+
+        & + .filter-divider hr {
+            margin-top: 0;
+        }
+    }
+    .search-sku {
+        input {
+            float: left;
+            padding-right: 24px;
+        }
+
+        button[type='submit'] {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            float: right;
+            margin-left: -22px;
+            padding: 0;
+            position: absolute;
+        }
+
+        button[type='submit']:after {
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            color: @icon-color;
+            content: @icon-search;
+            display: inline-block;
+            font-family: @icons__font-name;
+            font-size: 16px;
+            font-weight: normal;
+            line-height: 32px;
+            margin: 0;
+            overflow: hidden;
+            speak: none;
+            text-align: center;
+            vertical-align: top;
+        }
+    }
+    .field-date .control,
+    .field-order-total .control {
+        .sub-label {
+            float: left;
+            margin-top: 7px;
+            position: relative;
+            width: 25%;
+        }
+        input {
+            float: left;
+            position: relative;
+            width: 50%;
+        }
+    }
+    .field-date .control button.ui-datepicker-trigger {
+        margin: 4px 0 0 7px;
+    }
+}
+
+//
+//  Desktop 1024
+//  _____________________________________________
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__l) {
+    .field-date .control,
+    .field-order-total .control {
+        .sub-label {
+            width: 20%;
+        }
+        input {
+            width: 55%;
+        }
+    }
+}
+
+//
+//  Desktop 768
+//  _____________________________________________
+
+.media-width(@extremum, @break) when (@extremum = 'min') and (@break = @screen__m) {
+    .my-orders-search-advanced {
+        .field-50 {
+            float: left;
+            position: relative;
+            width: 48%;
+        }
+        .field-50:nth-child(odd) {
+            clear: both;
+            margin-right: 2%;
+        }
+        .field-50:nth-child(even) {
+            margin-left: 2%;
+        }
+    }
+}
+
+//
+//  Tablet
+//  _____________________________________________
+
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__m) {
+    .my-orders-search-advanced {
+        .search-sku {
+            margin: 0 !important;
+            width: 75% !important;
+        }
+        .fieldset:first-of-type {
+            margin-bottom: 20px;
+        }
+    }
+}
+
+//
+//  Mobile
+//  _____________________________________________
+
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__s) {
+    .my-orders-search-advanced {
+        .search-sku {
+            margin: 0 !important;
+            width: 75% !important;
+        }
+        .fieldset:first-of-type {
+            margin-bottom: 20px;
+        }
+    }
+    .filter-divider {
+        display: none;
+    }
+}

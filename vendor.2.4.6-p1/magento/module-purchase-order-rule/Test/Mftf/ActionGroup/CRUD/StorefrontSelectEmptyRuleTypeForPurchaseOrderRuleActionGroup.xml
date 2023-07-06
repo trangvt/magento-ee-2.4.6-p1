@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontSelectEmptyRuleTypeForPurchaseOrderRuleActionGroup">
+        <annotations>
+            <description>Selects the Please select option for the Rule Type on a purchase order rule form. Must be on the create or edit purchase order page.</description>
+        </annotations>
+        <arguments>
+            <argument name="index" type="string" defaultValue="0"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAttribute(index)}}" stepKey="waitRuleBasedOnField"/>
+        <selectOption selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAttribute(index)}}" userInput="{{PurchaseOrderRuleCondition_Empty.attributeText}}" stepKey="fillRuleBasedOn"/>
+        <waitForPageLoad stepKey="waitForFormLoad"/>
+    </actionGroup>
+</actionGroups>

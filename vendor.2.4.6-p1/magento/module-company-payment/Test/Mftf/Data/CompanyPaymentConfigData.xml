@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="EnableSpecificPaymentMethod">
+        <data key="path">btob/default_b2b_payment_methods/applicable_payment_methods</data>
+        <data key="scope_id">0</data>
+        <data key="label">Selected Payment Methods</data>
+        <data key="value">1</data>
+    </entity>
+    <entity name="DisableSpecificPaymentMethod">
+        <!-- Magento default value -->
+        <data key="path">btob/default_b2b_payment_methods/applicable_payment_methods</data>
+        <data key="scope_id">0</data>
+        <data key="label">All Enabled Payment Methods</data>
+        <data key="value">0</data>
+    </entity>
+    <entity name="SelectSpecificPaymentMethodPaymentOnAccount">
+        <data key="path">btob/default_b2b_payment_methods/available_payment_methods</data>
+        <data key="scope_id">0</data>
+        <data key="label">Payment on Account</data>
+        <data key="value">companycredit</data>
+    </entity>
+    <entity name="SelectDefaultPaymentMethod">
+        <data key="path">btob/default_b2b_payment_methods/available_payment_methods</data>
+        <data key="scope_id">0</data>
+        <data key="label">All Payment Methods</data>
+        <data key="value">banktransfer,cashondelivery,checkmo,payflow_advanced,payflow_link,payflowpro,free,paypal_billing_agreement,payflow_express_bml,paypal_express_bml,paypal_express,payflow_express,hosted_pro,companycredit,purchaseorder,payflowpro_cc_vault</data>
+    </entity>
+</entities>

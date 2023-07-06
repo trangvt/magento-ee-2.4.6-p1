@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRulePermissionsTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="Permissions"/>
+            <title value="Purchase Order Rules View and Edit Permissions"/>
+            <description value="Verify purchase order rules can be viewed or edited if a user has the view or edit purchase order rules permission, respectively."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-32598"/>
+            <useCaseId value="B2B-468"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="createCompanyCustomer"/>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <!-- Enable Company Order Approvals -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+                <argument name="companyId" value="$createCompany.id$"/>
+                <argument name="companyName" value="$createCompany.company_name$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnablePurchaseOrderForCompanyActionGroup" stepKey="enablePurchaseOrderForCompany"/>
+            <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+            <!-- Assign Second Customer to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCustomerEditPage">
+                <argument name="customerId" value="$$createCompanyCustomer.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignCustomerToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <deleteData createDataKey="createCompanyCustomer" stepKey="deleteCompanyCustomer"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteAdminCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <comment userInput="BIC workaround" stepKey="storefrontCustomerLogout"/>
+        </after>
+        <!-- Login as Admin and Enable Edit Purchase Orders Approval Rules Permission -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin1">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage"/>
+        <actionGroup ref="StorefrontClickEditForRoleInRolesGridActionGroup" stepKey="clickEditForRoleInRolesGrid">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontToggleCompanyRolePermissionActionGroup" stepKey="enableEditPurchaseOrderRulesPermission">
+            <argument name="permissionId" value="Magento_PurchaseOrderRule::manage_approval_rules" />
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveCompanyRole">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin1"/>
+        <!-- Check that customer can navigate to Approval rules page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyCustomer1">
+            <argument name="Customer" value="$$createCompanyCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToRuleListing1"/>
+        <!-- Check that customer can Create Purchase Order Rule -->
+        <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRole1"/>
+        <actionGroup ref="StorefrontEnablePurchaseOrderRuleActionGroup" stepKey="enableRule"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm1"/>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition1"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers1"/>
+        <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule1"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleCreated1">
+            <argument name="createdBy" value="{{Simple_US_Customer.firstname}} {{Simple_US_Customer.lastname}}"/>
+        </actionGroup>
+        <!-- Verify customer can edit the rule -->
+        <actionGroup ref="StorefrontGoToEditPurchaseOrderRuleActionGroup" stepKey="clickEditRule"/>
+        <actionGroup ref="StorefrontValidateSaveEnabledOnEditPurchaseOrderRulePageActionGroup" stepKey="verifySaveEnabled"/>
+        <actionGroup ref="StorefrontDisablePurchaseOrderRuleActionGroup" stepKey="disableRule"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillEditRuleForm">
+            <argument name="rule" value="PurchaseOrderRule_Edited"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveExistingPurchaseOrderRuleActionGroup" stepKey="saveEditRule"/>
+        <!-- Verify updated Rule in Grid -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleEdited">
+            <argument name="rule" value="PurchaseOrderRule_Edited"/>
+            <argument name="createdBy" value="{{Simple_US_Customer.firstname}} {{Simple_US_Customer.lastname}}"/>
+        </actionGroup>
+        <!-- Verify customer can delete the rule -->
+        <actionGroup ref="StorefrontDeletePurchaseOrderRuleActionGroup" stepKey="deleteOrderRule"/>
+        <actionGroup ref="StorefrontValidateEmptyPurchaseOrderRulesGridActionGroup" stepKey="verifyDeletedRule"/>
+        <!-- Create Purchase Order Rule For Future Validation -->
+        <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRole2"/>
+        <actionGroup ref="StorefrontEnablePurchaseOrderRuleActionGroup" stepKey="enableRule1"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm2"/>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition2"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers2"/>
+        <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule2"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleCreated2">
+            <argument name="createdBy" value="{{Simple_US_Customer.firstname}} {{Simple_US_Customer.lastname}}"/>
+        </actionGroup>
+        <!-- Login as Admin and Disable Edit Purchase Orders Approval Rules Permission -->
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyCustomer2"/>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin2">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage2"/>
+        <actionGroup ref="StorefrontClickEditForRoleInRolesGridActionGroup" stepKey="clickEditForRoleInRolesGrid2">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontUntoggleCompanyRolePermissionActionGroup" stepKey="disableEditPurchaseOrderRulesPermission">
+            <argument name="permissionId" value="Magento_PurchaseOrderRule::manage_approval_rules" />
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveCompanyRole2">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin2"/>
+        <!-- Navigate to Approval rules page and Verify that edit rules actions are missing -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyCustomer2">
+            <argument name="Customer" value="$$createCompanyCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToRuleListing2"/>
+        <actionGroup ref="StorefrontValidateRulePresentInListingWithoutEditActionsActionGroup" stepKey="verifyRuleCreated3">
+            <argument name="createdBy" value="{{Simple_US_Customer.firstname}} {{Simple_US_Customer.lastname}}"/>
+        </actionGroup>
+        <!-- Verify customer can not see create button -->
+        <actionGroup ref="StorefrontValidateCreatePurchaseOrderRuleButtonDoesNotExistActionGroup" stepKey="verifyAddNewRuleButton"/>
+        <!-- Verify customer can view the rule -->
+        <actionGroup ref="StorefrontGoToViewPurchaseOrderRuleActionGroup" stepKey="clickViewRule"/>
+        <actionGroup ref="StorefrontValidateEditDisabledOnViewPurchaseOrderRulePageActionGroup" stepKey="verifySaveDisabled"/>
+        <grabFromCurrentUrl regex="~rule_id/(\d+)/~" stepKey="ruleId"/>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyCustomer3"/>
+        <!-- Login as Admin and Disable View Purchase Orders Approval Rules Permission -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin3">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage3"/>
+        <actionGroup ref="StorefrontClickEditForRoleInRolesGridActionGroup" stepKey="clickEditForRoleInRolesGrid3">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontUntoggleCompanyRolePermissionActionGroup" stepKey="disableViewPurchaseOrderRulesPermission">
+            <argument name="permissionId" value="Magento_PurchaseOrderRule::view_approval_rules" />
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveCompanyRole3">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin3"/>
+        <!-- Verify that customer is associated with company but cannot see link to Approval rules page without permissions -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyCustomer3">
+            <argument name="Customer" value="$$createCompanyCustomer$$"/>
+        </actionGroup>
+        <waitForElementVisible selector="{{StorefrontCustomerSidebarSection.sidebarTab('Company Structure')}}" stepKey="verifyCompanyStructureLinkPresent"/>
+        <dontSeeElementInDOM selector="{{StorefrontCustomerSidebarSection.sidebarTab('Approval Rules')}}" stepKey="verifyRulesLinkIsMissing"/>
+        <!-- Verify access to Rules Listing, Add and Edit Rule pages is denied-->
+        <actionGroup ref="StorefrontValidateAccessDeniedActionGroup" stepKey="listingPageAccessDenied">
+            <argument name="url" value="{{StorefrontPurchaseOrderRulePage.url}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateAccessDeniedActionGroup" stepKey="addRulesPageAccessDenied">
+            <argument name="url" value="{{StorefrontPurchaseOrderRuleCreatePage.url}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateAccessDeniedActionGroup" stepKey="editRulesPageAccessDenied">
+            <argument name="url" value="{{StorefrontPurchaseOrderRuleEditPage.url({$ruleId})}}"/>
+        </actionGroup>
+    </test>
+</tests>

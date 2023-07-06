@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontViewOrdersPermissionsTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Permissions"/>
+            <title value="Validate View Orders Permission Functionality"/>
+            <description value="Verify orders are not accessible to customers if customer does not have the 'View orders' permission."/>
+            <severity value="BLOCKER"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Create Company Admin, 1 Customer & 1 Product -->
+            <createData entity="CompanyAdminUser" stepKey="createCompanyAdmin"/>
+            <createData entity="CompanyRegularPurchaser" stepKey="createOrderCreatorCustomer"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="SimpleProductForPurchaseOrder_Price_987_65" stepKey="SimpleProduct">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+
+            <!-- Assign Order Creator Customer to Company -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCustomerEditPagePurchaser">
+                <argument name="customerId" value="$$createOrderCreatorCustomer.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignPurchaserCustomerToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <deleteData createDataKey="createOrderCreatorCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteAdminCustomer"/>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <deleteData createDataKey="SimpleProduct" stepKey="deleteProduct"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+            <comment userInput="BIC workaround" stepKey="storefrontLogout"/>
+        </after>
+
+        <!-- Create Regular Order -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createOrderCreatorCustomer$$" />
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openProductPage">
+            <argument name="product" value="$SimpleProduct$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProductToCart"/>
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="navigateToCheckoutPage"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNextOnShippingStep"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickOnPlaceOrder"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderLink}}" stepKey="grabOrderNumber"/>
+        <actionGroup ref="StorefrontClickOrderLinkFromCheckoutSuccessPageActionGroup" stepKey="clickOrderLink"/>
+        <comment userInput="BIC workaround" stepKey="navigateToOrderPage"/>
+        <grabFromCurrentUrl regex="~/order_id/(\d+)/~" stepKey="grabOrderId"/>
+
+        <!-- Verify Order is Accessible to Order Creator Customer -->
+        <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="goToMyAccountPage"/>
+        <actionGroup ref="StorefrontVerifyMyOrdersAccessibleActionGroup" stepKey="verifyMyOrdersAccessible"/>
+        <actionGroup ref="StorefrontCustomerGoToSidebarMenu" stepKey="goToMyOrders">
+            <argument name="menu" value="My Orders"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontGoToCustomerOrderDetailsPageActionGroup" stepKey="verifyOrderPageAccessible">
+            <argument name="orderId" value="$grabOrderId"/>
+            <argument name="orderNumber" value="$grabOrderNumber"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCustomer"/>
+
+        <!-- Disable View Orders Permission For Order Creator Customer -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage"/>
+        <actionGroup ref="StorefrontClickEditForRoleInRolesGridActionGroup" stepKey="clickEditForRoleInRolesGrid">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontUntoggleCompanyRolePermissionActionGroup" stepKey="disableViewMyOrdersPermission">
+            <argument name="permissionId" value="Magento_Sales::view_orders"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveCompanyRole">
+            <argument name="roleName" value="Default User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin"/>
+
+        <!-- Login as Order Creator Customer and Verify Previously Created Order is Not Accessible -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin2">
+            <argument name="Customer" value="$$createOrderCreatorCustomer$$" />
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyMyOrdersNotAccessibleActionGroup" stepKey="verifyMyOrdersNotAccessible"/>
+        <actionGroup ref="StorefrontValidateAccessDeniedActionGroup" stepKey="myOrdersHistoryPageAccessDenied">
+            <argument name="url" value="{{StorefrontCustomerOrdersHistoryPage.url}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateAccessDeniedActionGroup" stepKey="orderPageAccessDenied">
+            <argument name="url" value="{{StorefrontCustomerOrderViewPage.url({$grabOrderId})}}"/>
+        </actionGroup>
+    </test>
+</tests>

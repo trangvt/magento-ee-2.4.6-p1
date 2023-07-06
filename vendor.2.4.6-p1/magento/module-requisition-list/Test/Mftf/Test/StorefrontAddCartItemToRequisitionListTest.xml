@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAddCartItemToRequisitionListTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="Add to Requisition List"/>
+            <title value="Add Cart Item to Requisition List"/>
+            <description value="Verify that a buyer can successfully add an individual cart item in their shopping cart to a requisition list"/>
+            <severity value="MAJOR"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <createData entity="Simple_US_Customer" stepKey="createSimpleUSCustomer">
+                <field key="group_id">1</field>
+            </createData>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <field key="price">100.00</field>
+            </createData>
+            <createData entity="SimpleProduct" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <field key="price">200.00</field>
+            </createData>
+        </before>
+        <after>
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <deleteData createDataKey="createSimpleUSCustomer" stepKey="deleteCreatedSimpleUSCustomer"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <!-- Login to storefront -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin1">
+            <argument name="Customer" value="$$createSimpleUSCustomer$$"/>
+        </actionGroup>
+        <!-- Add first product to cart with qty 2 -->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openFirstProduct">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddProductWithQtyToCartFromStorefrontProductPageActionGroup" stepKey="addFirstProductToCart">
+            <argument name="productName" value="$$createFirstProduct.name$$"/>
+            <argument name="productQty" value="2"/>
+        </actionGroup>
+        <!-- Add second product to cart with qty 2 -->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openSecondProduct">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddProductWithQtyToCartFromStorefrontProductPageActionGroup" stepKey="addSecondProductToCart">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="productQty" value="2"/>
+        </actionGroup>
+        <!-- Go to cart page -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="goToCartPage"/>
+        <!-- Add first product to a new requisition list -->
+        <actionGroup ref="StorefrontAddCartItemToNewRequisitionListActionGroup" stepKey="addFirstProductToRequisitionList">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <!-- Go to requisition list -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListsPage"/>
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup" stepKey="goToRequisitionListPage">
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$" />
+        </actionGroup>
+        <!-- Assert first product is in requisition list with correct quantity of 2 -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="assertFirstProductIsInRequisitionList">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="price" value="100"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="200"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <!-- Go back to cart page -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="goToCartPage2"/>
+        <!-- Assert cart still contains the first product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasFirstProduct">
+            <argument name="productName" value="$$createFirstProduct.name$$" />
+            <argument name="productPrice" value="100"/>
+            <argument name="subtotal" value="200"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Assert cart still contains the second product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasSecondProduct">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="productPrice" value="200"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Add second product to the same requisition list we created earlier -->
+        <actionGroup ref="StorefrontAddCartItemToExistingRequisitionListActionGroup" stepKey="addSecondProductToRequisitionList">
+            <argument name="product" value="$createSecondProduct$"/>
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <!-- Go to requisition list -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListsPage2"/>
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup" stepKey="goToRequisitionListPage2">
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$" />
+        </actionGroup>
+        <!-- Assert second product is in requisition list with correct quantity of 2 -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="assertSecondProductIsInRequisitionList">
+            <argument name="product" value="$$createSecondProduct$$"/>
+            <argument name="price" value="200"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="index" value="2"/>
+        </actionGroup>
+        <!-- Assert first product is still in the requisition list with correct quantity of 2 -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="assertFirstProductIsInRequisitionList2">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="price" value="100"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="200"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <!-- Go back to cart page -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="goToCartPage3"/>
+        <!-- Assert cart still contains the first product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasFirstProduct2">
+            <argument name="productName" value="$$createFirstProduct.name$$" />
+            <argument name="productPrice" value="100"/>
+            <argument name="subtotal" value="200"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Assert cart still contains the second product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasSecondProduct2">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="productPrice" value="200"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Add first product again to the created requisition list; assert modal appears about existence of product in requisition list and confirm combining quantities -->
+        <actionGroup ref="StorefrontAddCartItemToExistingRequisitionListWithQtyConfirmationActionGroup" stepKey="addFirstProductToRequisitionList2">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <!-- Go to requisition list -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListsPage3"/>
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup" stepKey="goToRequisitionListPage3">
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$" />
+        </actionGroup>
+        <!-- Assert first product is in the requisition list with updated quantity of 4 -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="assertFirstProductIsInRequisitionList3">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="price" value="100"/>
+            <argument name="quantity" value="4"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <!-- Assert second product is still in requisition list with correct quantity of 2 -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="assertSecondProductIsInRequisitionList2">
+            <argument name="product" value="$$createSecondProduct$$"/>
+            <argument name="price" value="200"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="index" value="2"/>
+        </actionGroup>
+        <!-- Go back to cart page -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="goToCartPage4"/>
+        <!-- Assert cart still contains the first product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasFirstProduct3">
+            <argument name="productName" value="$$createFirstProduct.name$$"/>
+            <argument name="productPrice" value="100"/>
+            <argument name="subtotal" value="200"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Assert cart still contains the second product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasSecondProduct3">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="productPrice" value="200"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Assert pressing cancel button on quantity confirmation modal does nothing to cart or requisition list -->
+        <actionGroup ref="StorefrontCancelAddCartItemToExistingRequisitionListWithQtyConfirmationActionGroup" stepKey="cancelAddingSecondProductToRequisitionList">
+            <argument name="product" value="$createSecondProduct$"/>
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <!-- Reload cart page to verify no server-side changes have taken place -->
+        <reloadPage stepKey="reloadCartPage" />
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <!-- Assert cart still contains the first product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasFirstProduct4">
+            <argument name="productName" value="$$createFirstProduct.name$$" />
+            <argument name="productPrice" value="100"/>
+            <argument name="subtotal" value="200"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Assert cart still contains the second product with same quantity of 2 -->
+        <actionGroup ref="AssertStorefrontCheckoutCartItemsActionGroup" stepKey="assertCartStillHasSecondProduct4">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+            <argument name="productPrice" value="200"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="qty" value="2"/>
+        </actionGroup>
+        <!-- Go to requisition list -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListsPage4"/>
+        <actionGroup ref="StorefrontGoToRequisitionListViewPageActionGroup" stepKey="goToRequisitionListPage4">
+            <argument name="requisitionListName" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <!-- Assert first product is in the requisition list with same correct quantity of 4 -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="assertFirstProductIsInRequisitionList4">
+            <argument name="product" value="$$createFirstProduct$$"/>
+            <argument name="price" value="100"/>
+            <argument name="quantity" value="4"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <!-- Assert second product is still in requisition list with same correct quantity of 2 -->
+        <actionGroup ref="StorefrontValidateRequisitionListProductActionGroup" stepKey="assertSecondProductIsInRequisitionList3">
+            <argument name="product" value="$$createSecondProduct$$"/>
+            <argument name="price" value="200"/>
+            <argument name="quantity" value="2"/>
+            <argument name="subtotal" value="400"/>
+            <argument name="index" value="2"/>
+        </actionGroup>
+    </test>
+</tests>

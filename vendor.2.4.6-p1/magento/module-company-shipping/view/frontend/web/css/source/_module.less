@@ -1,0 +1,86 @@
+// /**
+//  * Copyright © Magento, Inc. All rights reserved.
+//  * See COPYING.txt for license details.
+//  */
+
+//
+//  Variables
+//  _____________________________________________
+
+.lib-font-face(
+    @family-name: @icons-magento__font-name,
+    @font-path: @icons-magento__font-path,
+    @font-weight: @font-weight__regular,
+    @font-style: normal
+);
+
+@links-container__z-index: @dropdown-list__z-index + 1;
+
+//  Fonts
+@icons-magento__font-name: 'magento-icons';
+@icons-magento__font-path: '@{baseDir}Magento_Company/fonts/Magento-Icons';
+
+//  Icons
+@icon-circle-down: '\e909';
+@icon-circle-up: '\e90a';
+@icon-customer-lead: '\e908';
+@icon-move-vertical: '\e90b';
+@icon-organization: '\e906';
+@icon-person: '\e907';
+
+@tree-icon__height: 20px;
+@tree-icon__width: 20px;
+
+//  Colors
+@company-button__color: @color-blue1;
+@company-button__hover__color: @color-blue2;
+@exist-notification-message__color: @color-gray60;
+@links-container__color: @color-gray20;
+@popup-input__hover__color: @color-sky-blue1;
+@tree-icon__color__base: @color-gray52;
+@tree-icon__color__dark: @color-gray34;
+@tree-icon__color__light: @color-gray76;
+@tree-leaf__background-color: @color-white;
+@tree-leaf-clicked__background-color: @color-blue2;
+@tree-leaf-clicked__color: @color-white;
+@tree-tooltip__color: @color-black;
+@nav-delimiter__border-color: @color-gray82;
+@tree-dnd-ok__color: #ff008000;
+@tree-dnd-error__color: #ffff0000;
+//
+//  Common
+//  _____________________________________________
+
+& when (@media-common = true) {
+    .company-profile-shipping-methods {
+        font-size: 1.6rem;
+        line-height: 24px;
+        .lib-vendor-prefix-display(flex);
+
+        .shipping-methods-label {
+            font-weight: 700;
+            margin-bottom: @indent__s;
+        }
+
+        .shipping-methods-list {
+            list-style: none;
+        }
+    }
+}
+
+//
+//  Mobile
+//  ---------------------------------------------
+
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__s) {
+    .company-profile-index {
+        .company-profile-shipping-methods {
+            .lib-vendor-prefix-flex-direction(column);
+
+            .shipping-methods-list {
+                font-size: 1.4rem;
+                padding-left: 0;
+            }
+        }
+    }
+}

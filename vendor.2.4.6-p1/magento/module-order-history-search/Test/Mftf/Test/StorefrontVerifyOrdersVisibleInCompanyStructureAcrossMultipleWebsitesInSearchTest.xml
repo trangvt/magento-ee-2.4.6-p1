@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyOrdersVisibleInCompanyStructureAcrossMultipleWebsitesInSearchTest" extends="StorefrontVerifyOrdersVisibleInCompanyStructureAcrossMultipleWebsitesTest">
+        <annotations>
+            <features value="Company"/>
+            <features value="Sales"/>
+            <stories value="Order View Across Multiple Websites"/>
+            <title value="Verify Orders Visible In Company Structure Across Multiple Websites In Search"/>
+            <description value="Verify Orders Visible In Company Structure Across Multiple Websites Based on Role In Company Structure While Searching"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-29146"/>
+            <group value="company"/>
+            <group value="sales"/>
+        </annotations>
+        <conditionalClick selector="{{StorefrontCustomerMyOrdersSection.showFiltersButton}}" dependentSelector="{{StorefrontCustomerMyOrdersSection.filtersFieldset}}" visible="false" stepKey="showFiltersFieldsetIfNotVisible" before="fillOrderId" />
+        <fillField selector="{{StorefrontCustomerMyOrdersSection.orderNumberFilter}}" userInput="$grabCompanyUserOrderNumber" stepKey="fillOrderId" after="seeOrderInGridAsCompanyAdmin" />
+        <click selector="{{StorefrontCustomerMyOrdersSection.orderNumberFilter}}" stepKey="clickOrderSearch" after="fillOrderId" />
+        <waitForPageLoad stepKey="waitForOrderSearchToComplete" after="clickOrderSearch" />
+        <seeElement selector="{{StorefrontCustomerOrdersGridSection.orderView({$grabCompanyUserOrderNumber})}}" after="waitForOrderSearchToComplete" stepKey="seeOrderInGridAsCompanyAdminAfterSearching"/>
+
+        <conditionalClick selector="{{StorefrontCustomerMyOrdersSection.showFiltersButton}}" dependentSelector="{{StorefrontCustomerMyOrdersSection.filtersFieldset}}" visible="false" stepKey="showFiltersFieldsetIfNotVisible2" before="fillOrderId2" />
+        <fillField selector="{{StorefrontCustomerMyOrdersSection.orderNumberFilter}}" userInput="$grabCompanyUserOrderNumber" stepKey="fillOrderId2" after="dontSeeCompanyAdminOrderInGridAsCompanyUser" />
+        <click selector="{{StorefrontCustomerMyOrdersSection.orderNumberFilter}}" stepKey="clickOrderSearch2" after="fillOrderId2" />
+        <waitForPageLoad stepKey="waitForOrderSearchToComplete2" after="clickOrderSearch2" />
+        <dontSeeElement selector="{{StorefrontCustomerOrdersGridSection.orderView({$grabCompanyAdminOrderNumber})}}" after="waitForOrderSearchToComplete2" stepKey="dontSeeCompanyAdminOrderInGridAsCompanyUserAfterSearching"/>
+    </test>
+</tests>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminFillCompanyGeneralInformationActionGroup">
+        <annotations>
+            <description>Fills the company general information fields in admin. Must be on the Create or Edit Company page.</description>
+        </annotations>
+        <arguments>
+            <argument name="companyName" defaultValue="{{Default_Company.company_name}}" type="string"/>
+            <argument name="companyStatus" defaultValue="Active" type="string"/>
+            <argument name="companyEmail" defaultValue="{{CustomerEntityOne.email}}" type="string"/>
+            <argument name="companySalesRepresentative" defaultValue="admin" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{AdminNewCompanySection.companyName}}" stepKey="waitForCompanyName"/>
+        <fillField selector="{{AdminNewCompanySection.companyName}}" userInput="{{companyName}}" stepKey="fillCompanyName"/>
+        <selectOption selector="{{AdminNewCompanySection.status}}" userInput="{{companyStatus}}" stepKey="fillCompanyStatus"/>
+        <fillField selector="{{AdminNewCompanySection.companyEmail}}" userInput="{{companyEmail}}" stepKey="fillCompanyEmail"/>
+        <selectOption selector="{{AdminNewCompanySection.salesRepresentative}}" userInput="{{companySalesRepresentative}}" stepKey="fillCompanySalesRepresentative"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCustomerDashboardUserRoleSection">
+        <element name="title" type="text" selector="//div[contains(@class,'box-role')]//strong[contains(@class,'box-title')]"/>
+        <element name="role" type="text" selector="//div[contains(@class,'box-role')]//p[contains(@class,'company-roles')]"/>
+    </section>
+</sections>

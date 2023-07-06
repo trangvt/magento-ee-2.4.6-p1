@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCreateCompanyAccountButtonIsNotAvailableTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Website Restrictions"/>
+            <title value="Cannot Create Company when Website Restrictions are Enabled"/>
+            <description value="Verifies that the 'Create a Company Account' and 'Create an Account' buttons aren't
+            available on the storefront if Website Restrictions are enabled"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-16532"/>
+            <useCaseId value="MAGETWO-96419"/>
+            <group value="b2b"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies, Allow Company Registration From Storefront, Login Only Website Access Restriction -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="setYesValueForB2bFeaturesCompany"/>
+            <createData entity="EnableAdminAccountAllowCompanyRegFromStorefront" stepKey="setYesAllowCompanyRegFromStorefrontCountries"/>
+            <createData entity="EnableAdminAccountWebAccessRestriction" stepKey="setYesValueForWebRestrictionAccess"/>
+            <createData entity="EnableAdminAccountWebAccessRestrictionMode" stepKey="setLoginOnlyValueForWebRestrictionMode"/>
+            <comment userInput="BIC workaround" stepKey="setYesValueForB2bFeaturesQuote"/>
+            <comment userInput="BIC workaround" stepKey="setYesValueForB2bFeaturesQuickOrder"/>
+            <comment userInput="BIC workaround" stepKey="setYesValueForB2bFeaturesRequisitionList"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations -->
+            <createData entity="B2BDefaultConfig" stepKey="B2BDefaultConfig"/>
+            <createData entity="DisableAdminAccountAllowCompanyReg" stepKey="setDefaultValueForAllowCompanyReg"/>
+            <createData entity="DisableAdminAccountWebAccessRestriction" stepKey="setNoValueForWebRestrictionAccess"/>
+            <createData entity="DisableAdminAccountWebAccessRestrictionMode" stepKey="setWebsiteClosedValueForWebRestrictionMode"/>
+        </after>
+
+        <!-- Verify Create a Company Account and Create an Account Buttons are Missing on Storefront Login Page -->
+        <actionGroup ref="StorefrontOpenCustomerLoginPageActionGroup" stepKey="amOnSignInPage"/>
+        <comment userInput="BIC workaround" stepKey="WaitForPageLoad"/>
+        <dontSeeElementInDOM selector="{{StorefrontSignInFormSection.createAccount}}" stepKey="dontCreateAccount"/>
+        <dontSeeElementInDOM selector="{{StorefrontSignInFormSection.createCompanyAccount}}" stepKey="dontSeeCreateCompanyAccount"/>
+        <comment userInput="BIC workaround" stepKey="clickCreateAnAccountLinkIfVisible"/>
+        <dontSeeElementInDOM selector="{{StorefrontPanelHeaderSection.createAnAccountLink}}" stepKey="dontSeeCreateAnAccountButton"/>
+        <dontSeeElementInDOM selector="{{StorefrontHeaderSection.createNewCustomer}}" stepKey="dontSeeCreateNewCustomer"/>
+        <dontSeeElementInDOM selector="{{StorefrontHeaderSection.createNewCompanyAccount}}" stepKey="dontSeeCreateNewCompanyAccount"/>
+    </test>
+</tests>

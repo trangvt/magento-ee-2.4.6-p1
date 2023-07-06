@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontVerifyCompanyCustomerAccountInformationActionGroup" extends="StorefrontVerifyCustomerAccountInformationActionGroup">
+        <annotations>
+            <description>Verifies that for a company customer, the Company and Job Title fields are shown in plaintext on the Edit Account Information page on the storefront</description>
+        </annotations>
+        <arguments>
+            <argument name="companyName" type="string" defaultValue=""/>
+            <argument name="jobTitle" type="string" defaultValue=""/>
+        </arguments>
+        <waitForText selector="{{StorefrontCustomerAccountInformationSection.companyNameLabel}}" userInput="Company" stepKey="verifyCompanyNameLabel"/>
+        <waitForText selector="{{StorefrontCustomerAccountInformationSection.jobTitleLabel}}" userInput="Job Title" stepKey="verifyJobTitleLabel"/>
+        <see selector="{{StorefrontCustomerAccountInformationSection.companyName}}" userInput="{{companyName}}" stepKey="verifyCompanyName"/>
+        <grabTextFrom selector="{{StorefrontCustomerAccountInformationSection.jobTitle}}" stepKey="jobTitle"/>
+        <assertEquals stepKey="assertJobTitle">
+            <expectedResult type="string">{{jobTitle}}</expectedResult>
+            <actualResult type="variable">jobTitle</actualResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

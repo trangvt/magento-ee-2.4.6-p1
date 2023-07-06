@@ -1,0 +1,37 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var $block \Magento\RequisitionList\Block\Checkout\Cart\Addto\Requisition */
+/** @var $escaper \Magento\Framework\Escaper */
+
+$validationUrl = $block->getUrl('requisition_list/items/cartValidation');
+?>
+<div class="block block-requisition-list" data-bind="scope: 'requisition_cart_add_all'">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+</div>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "requisition_cart_add_all": {
+                        "component": "Magento_RequisitionList/js/requisition/action/product/cart/items/add",
+                        "editModuleName": "requisition_cart_add_all.edit",
+                        "title": "<?= $escaper->escapeJs(__('Add Shopping Cart to Requisition List')) ?>",
+                        "action": "<?= $escaper->escapeUrl($block->getUrl('requisition_list/items/add')) ?>",
+                        "validationUrl": "<?= $escaper->escapeUrl($validationUrl) ?>",
+                        "productData": <?= /* @noEscape */ $block->getProductData() ?>
+                    },
+                    "requisition_cart_add_all.edit": {
+                        "component": "Magento_RequisitionList/js/requisition/list/edit",
+                        "modal": "add_to_requisition_popup",
+                        "saveUrl": "<?= $escaper->escapeUrl($block->getUrl('rest/V1/requisition_lists')) ?>"
+                    }
+                }
+            }
+        }
+    }
+</script>

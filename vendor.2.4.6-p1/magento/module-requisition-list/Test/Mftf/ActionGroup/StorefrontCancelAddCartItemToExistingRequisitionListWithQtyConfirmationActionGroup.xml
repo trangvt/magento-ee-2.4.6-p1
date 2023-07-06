@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontCancelAddCartItemToExistingRequisitionListWithQtyConfirmationActionGroup">
+        <annotations>
+            <description>Clicks Cancel when adding $product to an existing requisition list specified by $requisitionListName. Expects $requisitionListName already contains $product and asserts modal prompt for qty addition confirmation appears. Assumes you are currently on checkout cart page (CheckoutCartPage.url).</description>
+        </annotations>
+        <arguments>
+            <argument name="product" type="entity"/>
+            <argument name="requisitionListName" type="string" />
+        </arguments>
+        <waitForElementVisible selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton(product.sku)}}" stepKey="waitForCartItemAddToRequisitionListButton"/>
+        <click selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton(product.sku)}}" stepKey="clickCartItemAddToRequisitionListButton"/>
+        <waitForElementVisible selector="{{CheckoutCartProductSection.requisitionListNameButtonInPopup(requisitionListName)}}" stepKey="waitForRequisitionListNameButton"/>
+        <click selector="{{CheckoutCartProductSection.requisitionListNameButtonInPopup(requisitionListName)}}" stepKey="clickRequisitionListNameButton"/>
+        <waitForElementVisible selector="{{CheckoutCartProductSection.cancelQtyAdditionAddToRequisitionListModalButton}}" stepKey="waitForModalCancelButtonToAppear"/>
+        <click selector="{{CheckoutCartProductSection.cancelQtyAdditionAddToRequisitionListModalButton}}" stepKey="clickModalCancelButton"/>
+        <waitForElementNotVisible selector="{{CheckoutCartProductSection.cancelQtyAdditionAddToRequisitionListModalButton}}" stepKey="waitForCancelButtonGone"/>
+    </actionGroup>
+</actionGroups>

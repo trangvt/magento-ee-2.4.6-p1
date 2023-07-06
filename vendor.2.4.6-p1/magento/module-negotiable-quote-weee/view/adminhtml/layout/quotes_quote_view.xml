@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="negotiable.quote.items.grid" template="Magento_NegotiableQuoteWeee::quote/view/items/grid.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">Magento\NegotiableQuoteWeee\Block\Adminhtml\Quote\View\Items\GridViewModel</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

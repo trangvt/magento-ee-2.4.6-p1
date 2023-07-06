@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AssertAdminNegotiableQuoteItemWithWeeeAttributeIncludingAndExcludingTaxActionGroup" extends="AssertAdminNegotiableQuoteItemActionGroup">
+        <annotations>
+            <description>Validates that the provided Product details (Name and Price), Product Quantity, Weee data including and excluding tax are present and correct in the Negotiable Quote in admin.</description>
+        </annotations>
+        <arguments>
+            <argument name="weeeAmountExcludingTax" defaultValue="50" type="string"/>
+            <argument name="weeeAmountIncludingTax" defaultValue="50" type="string"/>
+        </arguments>
+
+        <see selector="{{AdminNegotiableQuoteItemSection.productWeeeSubtotalByName(productName)}}" userInput="{{weeeAmountExcludingTax}}" after="seeProductSubtotalInNegotiableQuoteItemsGrid" stepKey="seeProductWeeeExcludingTaxInNegotiableQuoteItemsGrid"/>
+        <see selector="{{AdminNegotiableQuoteItemSection.productWeeeIncludingTaxSubtotalByName(productName)}}" userInput="{{weeeAmountIncludingTax}}" after="seeProductWeeeExcludingTaxInNegotiableQuoteItemsGrid" stepKey="seeProductWeeeIncludingTaxInNegotiableQuoteItemsGrid"/>
+    </actionGroup>
+</actionGroups>

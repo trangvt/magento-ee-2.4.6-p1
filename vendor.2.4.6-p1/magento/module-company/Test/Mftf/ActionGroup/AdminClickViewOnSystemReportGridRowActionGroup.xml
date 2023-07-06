@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminClickViewOnSystemReportGridRowActionGroup">
+        <annotations>
+            <description>Clicks on the View link for a the first grid row on the admin System > Action Logs > Report page. Should be moved to CE repository</description>
+        </annotations>
+        <waitForElementVisible selector="{{AdminActionLogReportGridSection.viewLink}}" stepKey="waitForViewButton"/>
+        <click selector="{{AdminActionLogReportGridSection.viewLink}}" stepKey="clickOnViewButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForText selector="{{AdminHeaderSection.pageTitle}}" userInput="Log Entry" stepKey="waitForPageTitle"/>
+    </actionGroup>
+</actionGroups>

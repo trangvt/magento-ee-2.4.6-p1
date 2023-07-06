@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontRejectSubordinatePurchaseOrderTest">
+        <!-- Verify PO Status on Approval POs Tab -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusInGridActionGroup" stepKey="verifyPOStatusInGrid2">
+            <argument name="gridName" value="approval"/>
+            <argument name="purchaseOrderNumber" value="$purchaseOrderId"/>
+            <argument name="status" value="{{PurchaseOrderStatuses.rejected}}"/>
+        </actionGroup>
+    </test>
+</tests>

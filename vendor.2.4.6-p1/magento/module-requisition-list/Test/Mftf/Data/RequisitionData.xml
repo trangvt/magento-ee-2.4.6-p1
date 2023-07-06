@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="RequisitionListProduct1" type="product" extends="SimpleProduct">
+        <data key="sku" unique="suffix">RequisitionListProduct1</data>
+        <data key="name" unique="suffix">RequisitionListProduct1</data>
+        <data key="urlKey" unique="suffix">requisitionlistproduct1</data>
+    </entity>
+    <entity name="RequisitionListProduct2" type="product" extends="SimpleProduct">
+        <data key="sku" unique="suffix">RequisitionListProduct2</data>
+        <data key="name" unique="suffix">RequisitionListProduct2</data>
+        <data key="urlKey" unique="suffix">requisitionlistproduct2</data>
+    </entity>
+    <entity name="RequisitionListProduct3" type="product" extends="SimpleProduct">
+        <data key="sku" unique="suffix">RequisitionListProduct3</data>
+        <data key="name" unique="suffix">RequisitionListProduct3</data>
+        <data key="urlKey" unique="suffix">requisitionlistproduct3</data>
+    </entity>
+    <entity name="RequisitionList" type="requisitionList">
+        <data key="name" unique="suffix">Requisition List Name </data>
+        <data key="description" unique="suffix">Requisition List Description </data>
+    </entity>
+    <entity name="RequisitionList_InvalidData" type="requisitionList">
+        <data key="long">LoremIpsumLoremIpsumLoremIpsum LoremIpsum</data>
+        <data key="longError">Please enter less or equal than 40 symbols.</data>
+    </entity>
+</entities>

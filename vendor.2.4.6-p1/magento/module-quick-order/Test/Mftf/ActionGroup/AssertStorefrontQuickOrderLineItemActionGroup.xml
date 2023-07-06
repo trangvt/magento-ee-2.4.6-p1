@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AssertStorefrontQuickOrderLineItemActionGroup">
+        <annotations>
+            <description>Verifies that storefront Quick Order line item has the expected product name and quantity</description>
+        </annotations>
+        <arguments>
+            <argument name="productName" type="string"/>
+            <argument name="quantity" defaultValue="1" type="string"/>
+            <argument name="index" defaultValue="1" type="string"/>
+        </arguments>
+        <waitForText selector="{{StorefrontQuickOrderSection.productNameByIndex(index)}}" userInput="{{productName}}" stepKey="waitForProductName"/>
+        <grabValueFrom selector="{{StorefrontQuickOrderSection.quantityByIndex(index)}}" stepKey="quantityValue"/>
+        <assertEquals stepKey="assertProductQty">
+            <actualResult type="const">$quantityValue</actualResult>
+            <expectedResult type="const">{{quantity}}</expectedResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

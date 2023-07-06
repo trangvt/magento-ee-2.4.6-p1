@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminUniqueCompanyEmailAndCompanyAdminEmailTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Edit Company"/>
+            <title value="Verify Company Email and Company Admin Email Must Be Unique Respectively"/>
+            <description value="Verify that a company email cannot be changed to match the email of another company.
+            Verify that company admin email cannot be changed to match the email of another company admin."/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-26764"/>
+            <group value="b2b"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Create 2 Company Admins, & 1 Customer -->
+            <createData entity="Simple_US_Customer" stepKey="companyAdmin1"/>
+            <createData entity="Simple_US_Customer" stepKey="companyAdmin2"/>
+            <createData entity="Default_Company" stepKey="defaultCompany">
+                <requiredEntity createDataKey="companyAdmin1"/>
+            </createData>
+            <createData entity="Ukraine_Company" stepKey="ukraineCompany">
+                <requiredEntity createDataKey="companyAdmin2"/>
+            </createData>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Delete Data -->
+            <deleteData createDataKey="defaultCompany" stepKey="deleteDefaultCompany"/>
+            <deleteData createDataKey="ukraineCompany" stepKey="deleteUkraineCompany"/>
+            <deleteData createDataKey="companyAdmin1" stepKey="deleteCompanyAdmin1"/>
+            <deleteData createDataKey="companyAdmin2" stepKey="deleteCompanyAdmin2"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Assign Created Company to Customer -->
+        <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCustomerEditPage">
+            <argument name="customerId" value="$$createCustomer.id$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignCompanyToCustomer">
+            <argument name="companyName" value="$ukraineCompany.company_name$"/>
+        </actionGroup>
+
+        <!-- Go to Company Edit Page -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$defaultCompany.id$"/>
+            <argument name="companyName" value="$defaultCompany.company_name$"/>
+        </actionGroup>
+
+        <!-- Change Company Email to Customer in Ukraine Company & Verify Error Message -->
+        <fillField selector="{{AdminNewCompanySection.companyEmail}}" userInput="$companyAdmin2.email$" stepKey="fillCompanyEmailField"/>
+        <pressKey selector="{{AdminNewCompanySection.companyEmail}}" parameterArray="[\Facebook\WebDriver\WebDriverKeys::TAB]" stepKey="unFocusCompanyEmailField"/>
+        <waitForText selector="{{AdminNewCompanySection.companyEmailErrorMessage}}" userInput="Company with this email address already exists in the system. Enter a different email address to continue." stepKey="waitForCompanyEmailFieldErrorMessage"/>
+
+        <!-- Change Company Admin Email to Customer in Ukraine Company & Verify Error Message -->
+        <conditionalClick selector="{{AdminNewCompanySection.companyAdmin}}" dependentSelector="{{AdminNewCompanySection.companyAdminEmail}}" visible="false" stepKey="expandCompanyAdminSection"/>
+        <waitForElementVisible selector="{{AdminNewCompanySection.companyAdminEmail}}" stepKey="waitForCompanyAdminEmailField"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminEmail}}" userInput="$createCustomer.email$" stepKey="fillCompanyAdminEmailField"/>
+        <pressKey selector="{{AdminNewCompanySection.companyAdminEmail}}" parameterArray="[\Facebook\WebDriver\WebDriverKeys::TAB]" stepKey="unFocusCompanyAdminEmailField"/>
+        <waitForText selector="{{AdminNewCompanySection.companyAdminEmailErrorMessage}}" userInput="This customer is a user of a different company. Enter a different email address to continue." stepKey="waitForCompanyAdminEmailFieldErrorMessage"/>
+    </test>
+</tests>

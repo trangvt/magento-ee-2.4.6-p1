@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRuleEditTest" extends="StorefrontPurchaseOrderRuleCreateTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="CRUD"/>
+            <title value="Edit Purchase Order Rule"/>
+            <description value="This test is intended to ensure that Purchase Order Rule could be edited using form on storefront."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-33358"/>
+            <useCaseId value="B2B-515"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <!-- Edit Purchase Order Rule -->
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" after="validateApprovers" stepKey="fillRuleFormEdit">
+            <argument name="rule" value="PurchaseOrderRule_Edited"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontDisablePurchaseOrderRuleActionGroup" after="fillRuleFormEdit" stepKey="disableRuleEdit"/>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" after="disableRuleEdit" stepKey="fillRuleConditionEdit">
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan1200"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToAllActionGroup" after="fillRuleConditionEdit" stepKey="selectAppliesToAllEdit"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" after="selectAppliesToAllEdit" stepKey="deselectApproversEdit"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" after="deselectApproversEdit" stepKey="selectApproversEdit"/>
+        <actionGroup ref="StorefrontSaveExistingPurchaseOrderRuleActionGroup" after="selectApproversEdit" stepKey="saveRuleEdit"/>
+        <!-- Verify Rule in Grid -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" after="saveRuleEdit" stepKey="verifyRuleEdited">
+            <argument name="rule" value="PurchaseOrderRule_Edited"/>
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan1200"/>
+        </actionGroup>
+        <!-- View and Verify Updated Rule -->
+        <actionGroup ref="StorefrontGoToEditPurchaseOrderRuleActionGroup" after="verifyRuleEdited" stepKey="clickEditRule2"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleDisabledActionGroup" after="clickEditRule2" stepKey="verifyRuleDisabled"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleEditFormActionGroup" after="verifyRuleDisabled" stepKey="validateUpdatedRule">
+            <argument name="rule" value="PurchaseOrderRule_Edited"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleAppliesToAllActionGroup" after="validateUpdatedRule" stepKey="verifyUpdatedAppliedToAll"/>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleConditionEditFormActionGroup" after="verifyUpdatedAppliedToAll" stepKey="validateUpdatedRuleCondition">
+            <argument name="condition" value="PurchaseOrderRuleCondition_OrderTotalMoreThan1200"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidateSelectOptionActionGroup" after="validateUpdatedRuleCondition" stepKey="validateUpdatedApprovers"/>
+    </test>
+</tests>

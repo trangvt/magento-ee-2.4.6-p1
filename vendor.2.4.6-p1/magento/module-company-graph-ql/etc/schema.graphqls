@@ -1,0 +1,301 @@
+# Copyright © Magento, Inc. All rights reserved.
+# See COPYING.txt for license details.
+
+type Query {
+    company: Company @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company") @doc(description: "Return detailed information about the authenticated customer's company.")
+    isCompanyEmailAvailable(email: String!): IsCompanyEmailAvailableOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\CompanyEmailChecker") @doc(description: "Check whether the specified email can be used to register a new company.")
+    isCompanyAdminEmailAvailable(email: String!): IsCompanyAdminEmailAvailableOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\CompanyUserEmailChecker") @doc(description: "Check whether the specified email can be used to register a company admin.")
+    isCompanyUserEmailAvailable(email: String!): IsCompanyUserEmailAvailableOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\CompanyUserEmailChecker") @doc(description: "Check whether the specified email can be used to register a company user.")
+    isCompanyRoleNameAvailable(name: String!): IsCompanyRoleNameAvailableOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\CompanyRoleNameChecker") @doc(description: "Check whether the specified role name is valid for the company.")
+}
+
+type Company @doc(description: "Contains the output schema for a company.") {
+    id: ID! @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Profile") @doc(description: "The unique ID of a `Company` object.")
+    name: String @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Profile") @doc(description: "The name of the company.")
+    email: String @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Profile") @doc(description: "The email address of the company contact.")
+    legal_name: String @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Profile") @doc(description: "The full legal name of the company.")
+    vat_tax_id: String @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Profile") @doc(description: "The value-added tax number that is assigned to the company by some jurisdictions for tax reporting purposes.")
+    reseller_id: String @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Profile") @doc(description: "The resale number that is assigned to the company for tax reporting purposes.")
+    legal_address: CompanyLegalAddress @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\LegalAddress") @doc(description: "The address where the company is registered to conduct business.")
+    company_admin: Customer @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Contacts") @doc(description: "An object containing information about the company administrator.")
+    sales_representative: CompanySalesRepresentative @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Contacts") @doc(description: "An object containing information about the company sales representative.")
+    payment_methods: [String] @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\PaymentInformation") @doc(description: "The list of payment methods available to a company.")
+    users(
+        filter: CompanyUsersFilterInput @doc(description: "The type of company users to return."),
+        pageSize: Int = 20 @doc(description: "The maximum number of results to return at once. The default value is 20."),
+        currentPage: Int = 1 @doc(description: "The page of results to return. The default value is 1."),
+    ): CompanyUsers @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Users") @doc(description: "An object that contains a list of company users based on activity status.")
+    user(id: ID!): Customer @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\User") @doc(description: "A company user filtered by the unique ID of a `Customer` object.")
+    roles(
+        pageSize: Int = 20 @doc(description: "The maximum number of results to return at once. The default value is 20."),
+        currentPage: Int = 1 @doc(description: "The page of results to return. The default value is 1"),
+    ): CompanyRoles! @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Roles") @doc(description: "An object that contains a list of company roles.")
+    role(id: ID!): CompanyRole @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Role")  @doc(description: "A company role filtered by the unique ID of a `CompanyRole` object.")
+    acl_resources: [CompanyAclResource] @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\AclResources") @doc(description: "The list of all resources defined within the company.")
+    structure(
+        rootId: ID = 0 @doc(description: "The ID of the node in the company structure that serves as the root for the query.")
+        depth: Int = 10 @doc(description: "The maximum number of levels of the structure to return.")
+    ): CompanyStructure @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Structure") @doc(description: "The company structure of teams and customers in depth-first order.")
+    team(id: ID!): CompanyTeam @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Team") @doc(description: "The company team data filtered by the unique ID for a `CompanyTeam` object.")
+}
+
+type CompanyLegalAddress @doc(description: "Contains details about the address where the company is registered to conduct business.") {
+    street: [String] @doc(description: "An array of strings that define the company's street address.")
+    city: String @doc(description: "The city where the company is registered to conduct business.")
+    region: CustomerAddressRegion @doc(description: "An object containing region data for the company.")
+    country_code: CountryCodeEnum @doc(description: "The country code of the company's legal address.")
+    postcode: String @doc(description: "The company's postal code.")
+    telephone: String @doc(description: "The company's phone number.")
+}
+
+type CompanyAdmin @doc(description: "Contains details about the company administrator.") {
+    id: ID! @doc(description: "The unique ID for a `CompanyAdmin` object.")
+    email: String @doc(description: "The email address of the company administrator.")
+    firstname: String @doc(description: "The company administrator's first name.")
+    lastname: String @doc(description: "The company administrator's last name.")
+    job_title: String @doc(description: "The job title of the company administrator.")
+    gender: Int @doc(description: "The company administrator's gender (Male - 1, Female - 2, Not Specified - 3).")
+}
+
+type CompanySalesRepresentative @doc(description: "Contains details about a company sales representative.") {
+    email: String @doc(description: "The email address of the company sales representative.")
+    firstname: String @doc(description: "The company sales representative's first name.")
+    lastname: String @doc(description: "The company sales representative's last name.")
+}
+
+type CompanyUsers @doc(description: "Contains details about company users.") {
+    items: [Customer]! @doc(description: "An array of `CompanyUser` objects that match the specified filter criteria.")
+    total_count: Int! @doc(description: "The number of objects returned.")
+    page_info: SearchResultPageInfo @doc(description: "Pagination metadata.")
+}
+
+type CompanyRoles @doc(description: "Contains an array of roles.") {
+    items: [CompanyRole]! @doc(description: "A list of company roles that match the specified filter criteria.")
+    total_count: Int! @doc(description: "The total number of objects matching the specified filter.")
+    page_info: SearchResultPageInfo @doc(description: "Pagination metadata.")
+}
+
+type CompanyRole @doc(description: "Contails details about a single role.") {
+    id: ID! @doc(description: "The unique ID for a `CompanyRole` object.")
+    name: String @doc(description: "The name assigned to the role.")
+    users_count: Int @doc(description: "The total number of users assigned the specified role.")
+    permissions: [CompanyAclResource] @doc(description: "A list of permission resources defined for a role.")
+}
+
+type CompanyAclResource @doc(description: "Contains details about the access control list settings of a resource.") {
+    id: ID! @doc(description: "The unique ID for a `CompanyAclResource` object.")
+    text: String @doc(description: "The label assigned to the ACL resource.")
+    sort_order: Int @doc(description: "The sort order of an ACL resource.")
+    children: [CompanyAclResource!] @doc(description: "An array of sub-resources.")
+}
+
+type IsCompanyRoleNameAvailableOutput @doc(description: "Contains the response of a role name validation query.") {
+    is_role_name_available: Boolean! @doc(description: "Indicates whether the specified company role name is available.")
+}
+
+type IsCompanyUserEmailAvailableOutput @doc(description: "Contains the response of a company user email validation query.") {
+    is_email_available: Boolean! @doc(description: "Indicates whether the specified email address can be used to create a company user.")
+}
+
+type IsCompanyAdminEmailAvailableOutput @doc(description: "Contains the response of a company admin email validation query.") {
+    is_email_available: Boolean! @doc(description: "Indicates whether the specified email address can be used to create a company administrator.")
+}
+
+type IsCompanyEmailAvailableOutput @doc(description: "Contains the response of a company email validation query.") {
+    is_email_available: Boolean! @doc(description: "Indicates whether the specified email address can be used to create a company.")
+}
+
+union CompanyStructureEntity @typeResolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\StructureEntityTypeResolver") = CompanyTeam | Customer
+
+type CompanyStructureItem @doc(description: "Defines an individual node in the company structure.") {
+    id: ID! @doc(description: "The unique ID for a `CompanyStructureItem` object.")
+    parent_id: ID @doc(description: "The ID of the parent item in the company hierarchy.")
+    entity: CompanyStructureEntity @doc(description: "A union of `CompanyTeam` and `Customer` objects.")
+}
+
+type CompanyStructure @doc(description: "Contains an array of the individual nodes that comprise the company structure.") {
+    items: [CompanyStructureItem] @doc(description: "An array of elements in a company structure.")
+}
+
+type CompanyTeam @doc(description: "Describes a company team.") {
+    id: ID! @doc(description: "The unique ID for a `CompanyTeam` object.")
+    name: String @doc(description: "The display name of the team.")
+    description: String @doc(description: "An optional description of the team.")
+    structure_id: ID! @doc(description: "ID of the company structure")
+}
+
+input CompanyUsersFilterInput @doc(description: "Defines the filter for returning a list of company users.") {
+    status: CompanyUserStatusEnum @doc(description: "The activity status to filter on.")
+}
+
+enum CompanyUserStatusEnum @doc(description: "Defines the list of company user status values.") {
+    ACTIVE @doc(description: "Only active users.")
+    INACTIVE @doc(description: "Only inactive users.")
+}
+
+type Mutation {
+    createCompanyTeam(input: CompanyTeamCreateInput!): CreateCompanyTeamOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\CreateCompanyTeam") @doc(description:"Create a new team for the authenticated customer's company.")
+    updateCompanyTeam(input: CompanyTeamUpdateInput!): UpdateCompanyTeamOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\UpdateCompanyTeam") @doc(description:"Update company team data.")
+    deleteCompanyTeam(id: ID!): DeleteCompanyTeamOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\DeleteCompanyTeam") @doc(description:"Delete the specified company team.")
+    updateCompanyStructure(input: CompanyStructureUpdateInput!): UpdateCompanyStructureOutput @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\UpdateCompanyStructure") @doc(description:"Change the parent node of a company team.")
+    createCompany(input: CompanyCreateInput!): CreateCompanyOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\CreateCompany") @doc(description:"Create a company at the request of either a customer or a guest.")
+    updateCompany(input: CompanyUpdateInput!): UpdateCompanyOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\UpdateCompany") @doc(description:"Update company information.")
+    createCompanyUser(input: CompanyUserCreateInput!): CreateCompanyUserOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\CreateCompanyUser")  @doc(description:"Create a new company user at the request of an existing customer.")
+    updateCompanyUser(input: CompanyUserUpdateInput!): UpdateCompanyUserOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\UpdateCompanyUser") @doc(description:"Update an existing company user.")
+    deleteCompanyUser(id: ID!): DeleteCompanyUserOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\DeleteCompanyUser") @doc(description:"Delete the specified company user.")
+    createCompanyRole(input: CompanyRoleCreateInput!): CreateCompanyRoleOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\CreateCompanyRole") @doc(description:"Create a new company role.")
+    updateCompanyRole(input: CompanyRoleUpdateInput!): UpdateCompanyRoleOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\UpdateCompanyRole") @doc(description:"Update company role information.")
+    deleteCompanyRole(id: ID!): DeleteCompanyRoleOutput @resolver(class: "\\Magento\\CompanyGraphQl\\Model\\Resolver\\DeleteCompanyRole") @doc(description:"Delete the specified company role.")
+}
+
+type CreateCompanyTeamOutput @doc(description: "Contains the response to the request to create a company team.") {
+    team: CompanyTeam! @doc(description: "The new company team instance.")
+}
+
+type UpdateCompanyTeamOutput @doc(description: "Contains the response to the request to update a company team.") {
+    team: CompanyTeam! @doc(description: "The updated company team instance.")
+}
+
+type DeleteCompanyTeamOutput @doc(description: "Contains the status of the request to delete a company team.") {
+    success: Boolean! @doc(description: "Indicates whether the delete operation succeeded.")
+}
+
+input CompanyTeamCreateInput @doc(description: "Defines the input schema for creating a company team.") {
+    name: String! @doc(description: "The display name of the team.")
+    description: String @doc(description: "An optional description of the team.")
+    target_id: ID @doc(description: "The ID of a node within a company's structure. This ID will be the parent of the created team.")
+}
+
+input CompanyTeamUpdateInput @doc(description: "Defines the input schema for updating a company team.") {
+    id: ID! @doc(description: "The unique ID of the `CompanyTeam` object to update.")
+    name: String @doc(description: "The display name of the team.")
+    description: String @doc(description: "An optional description of the team.")
+}
+
+type UpdateCompanyStructureOutput @doc(description: "Contains the response to the request to update the company structure.") {
+    company: Company! @doc(description: "The updated company instance.")
+}
+
+input CompanyStructureUpdateInput @doc(description: "Defines the input schema for updating the company structure.") {
+    tree_id: ID! @doc(description: "The ID of the company team that is being moved to another parent.")
+    parent_tree_id: ID! @doc(description: "The ID of a company that will be the new parent.")
+}
+
+type CreateCompanyOutput @doc(description: "Contains the response to the request to create a company.") {
+    company: Company! @doc(description: "The new company instance.")
+}
+
+type UpdateCompanyOutput @doc(description: "Contains the response to the request to update the company.")  {
+    company: Company! @doc(description: "The updated company instance.")
+}
+
+type CreateCompanyUserOutput @doc(description: "Contains the response to the request to create a company user.") {
+    user: Customer! @doc(description: "The new company user instance.")
+}
+
+type UpdateCompanyUserOutput @doc(description: "Contains the response to the request to update the company user.") {
+    user: Customer! @doc(description: "The updated company user instance.")
+}
+
+type DeleteCompanyUserOutput @doc(description: "Contains the response to the request to delete the company user.") {
+    success: Boolean! @doc(description: "Indicates whether the company user has been deactivated successfully.")
+}
+
+type CreateCompanyRoleOutput @doc(description: "Contains the response to the request to create a company role.") {
+    role: CompanyRole! @doc(description: "The new company role instance.")
+}
+
+type UpdateCompanyRoleOutput @doc(description: "Contains the response to the request to update the company role.") {
+    role: CompanyRole! @doc(description: "The updated company role instance.")
+}
+
+type DeleteCompanyRoleOutput @doc(description: "Contains the response to the request to delete the company role.") {
+    success: Boolean! @doc(description: "SIndicates whether the company role has been deleted successfully.")
+}
+
+input CompanyCreateInput @doc(description: "Defines the input schema for creating a new company."){
+    company_name: String! @doc(description: "The name of the company to create.")
+    company_email: String! @doc(description: "The email address of the company contact.")
+    legal_name: String @doc(description: "The full legal name of the company.")
+    vat_tax_id: String @doc(description: "The value-added tax number that is assigned to the company by some jurisdictions for tax reporting purposes.")
+    reseller_id: String @doc(description: "The resale number that is assigned to the company for tax reporting purposes.")
+    legal_address: CompanyLegalAddressCreateInput! @doc(description: "Defines legal address data of the company.")
+    company_admin: CompanyAdminInput! @doc(description: "Defines the company administrator.")
+}
+
+input CompanyAdminInput @doc(description: "Defines the input schema for creating a company administrator.") {
+    email: String! @doc(description: "The email address of the company administrator.")
+    firstname: String! @doc(description: "The company administrator's first name.")
+    lastname: String! @doc(description: "The company administrator's last name.")
+    job_title: String @doc(description: "The job title of the company administrator.")
+    gender: Int @doc(description: "The company administrator's gender (Male - 1, Female - 2, Not Specified - 3).")
+}
+
+input CompanyLegalAddressCreateInput @doc(description: "Defines the input schema for defining a company's legal address.") {
+    street: [String!]! @doc(description: "An array of strings that define the street address where the company is registered to conduct business.")
+    city: String! @doc(description: "The city where the company is registered to conduct business.")
+    country_id: CountryCodeEnum! @doc(description: "The company's country ID. Use the `countries` query to get this value.")
+    region: CustomerAddressRegionInput! @doc(description: "An object containing the region name and/or region ID where the company is registered to conduct business.")
+    postcode: String! @doc(description: "The postal code of the company.")
+    telephone: String! @doc(description: "The primary phone number of the company.")
+}
+
+input CompanyUpdateInput @doc(description: "Defines the input schema for updating a company.") {
+    company_name: String @doc(description: "The name of the company to update.")
+    company_email: String @doc(description: "The email address of the company contact.")
+    legal_name: String @doc(description: "The full legal name of the company.")
+    vat_tax_id: String @doc(description: "The value-added tax number that is assigned to the company by some jurisdictions for tax reporting purposes.")
+    reseller_id: String @doc(description: "The resale number that is assigned to the company for tax reporting purposes.")
+    legal_address: CompanyLegalAddressUpdateInput @doc(description: "The legal address data of the company.")
+}
+
+input CompanyLegalAddressUpdateInput @doc(description: "Defines the input schema for updating a company's legal address.") {
+    street: [String!] @doc(description: "An array of strings that define the street address where the company is registered to conduct business.")
+    city: String @doc(description: "The city where the company is registered to conduct business.")
+    country_id: CountryCodeEnum @doc(description: "The unique ID for a `Country` object.")
+    region: CustomerAddressRegionInput @doc(description: "An object containing the region name and/or region ID where the company is registered to conduct business.")
+    postcode: String @doc(description: "The postal code of the company.")
+    telephone: String @doc(description: "The primary phone number of the company.")
+}
+
+input CompanyUserCreateInput @doc(description: "Defines the input schema for creating a company user.") {
+    job_title: String! @doc(description: "The company user's job title or function.")
+    role_id: ID! @doc(description: "The unique ID for a `CompanyRole` object.")
+    firstname: String! @doc(description: "The company user's first name.")
+    lastname: String! @doc(description: "The company user's last name.")
+    email: String! @doc(description: "The company user's email address")
+    telephone: String! @doc(description: "The company user's phone number.")
+    status: CompanyUserStatusEnum! @doc(description: "Indicates whether the company user is ACTIVE or INACTIVE.")
+    target_id: ID @doc(description: "The ID of a node within a company's structure. This ID will be the parent of the created company user.")
+}
+
+input CompanyUserUpdateInput @doc(description: "Defines the input schema for updating a company user.") {
+    id: ID! @doc(description: "The unique ID of a `Customer` object.")
+    role_id: ID @doc(description: "The unique ID for a `CompanyRole` object.")
+    status: CompanyUserStatusEnum @doc(description: "Indicates whether the company user is ACTIVE or INACTIVE.")
+    job_title: String @doc(description: "The company user's job title or function.")
+    firstname: String @doc(description: "The company user's first name.")
+    lastname: String @doc(description: "The company user's last name.")
+    email: String @doc(description: "The company user's email address.")
+    telephone: String @doc(description: "The company user's phone number.")
+}
+
+input CompanyRoleCreateInput @doc(description: "Defines the input schema for creating a company role.") {
+    name: String! @doc(description: "The name of the role to create.")
+    permissions: [String!]! @doc(description: "A list of resources the role can access.")
+}
+
+input CompanyRoleUpdateInput @doc(description: "Defines the input schema for updating a company role.") {
+    id: ID! @doc(description: "The unique ID for a `CompanyRole` object.")
+    name: String @doc(description: "The name of the role to update.")
+    permissions: [String!] @doc(description: "A list of resources the role can access.")
+}
+
+type Customer {
+    job_title: String @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Customer\\Customer") @doc(description: "The job title of a company user.")
+    role: CompanyRole @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Customer\\Role") @doc(description: "The role name and permissions assigned to the company user.")
+    team: CompanyTeam @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Customer\\Team")@doc(description: "The team the company user is assigned to.")
+    telephone: String @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Customer\\Customer") @doc(description: "The phone number of the company user.")
+    status: CompanyUserStatusEnum @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Customer\\Customer") @doc(description: "Indicates whether the company user is ACTIVE or INACTIVE.")
+    structure_id: ID! @resolver(class: "Magento\\CompanyGraphQl\\Model\\Resolver\\Company\\Customer\\StructureId") @doc(description: "ID of the company structure")
+}

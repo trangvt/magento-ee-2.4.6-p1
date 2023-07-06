@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCheckoutShippingNewAddressFormSection">
+        <element name="newAddressButton" type="button" selector="button.action.action-show-popup"/>
+        <element name="firstname" type="text" selector="input[name='firstname']"/>
+        <element name="lastname" type="text" selector="input[name='lastname']"/>
+        <element name="company" type="text" selector="input[name='company']"/>
+        <element name="street1" type="text" selector="input[name='street[0]']"/>
+        <element name="city" type="text" selector="input[name='city']"/>
+        <element name="region" type="select" selector="select[name=region_id]"/>
+        <element name="postcode" type="text" selector="input[name='postcode']"/>
+        <element name="telephone" type="text" selector="input[name='telephone']"/>
+        <element name="saveAddress" type="button" selector="button.action.primary.action-save-address"/>
+    </section>
+</sections>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup">
+        <annotations>
+            <description>Fills the form fields for name and description for a purchase order rule. Must be on the create or edit purchase order page.</description>
+        </annotations>
+        <arguments>
+            <argument name="rule" defaultValue="PurchaseOrderRule_Default"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.name}}" stepKey="waitRuleNameField"/>
+        <fillField selector="{{StorefrontPurchaseOrderRuleFormSection.name}}" userInput="{{rule.name}}" stepKey="fillRuleName"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.description}}" stepKey="waitRuleDescriptionField"/>
+        <fillField selector="{{StorefrontPurchaseOrderRuleFormSection.description}}" userInput="{{rule.description}}" stepKey="fillRuleDescription"/>
+        <waitForPageLoad stepKey="waitForRuleNameValidationCompleted"/>
+    </actionGroup>
+</actionGroups>

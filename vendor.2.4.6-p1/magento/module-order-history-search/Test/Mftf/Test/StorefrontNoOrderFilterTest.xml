@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontNoOrderFilterTest">
+        <annotations>
+            <features value="Customer can not see any orders if he/she does not have any."/>
+            <stories value="B2B-228: Storefront Order Search"/>
+            <title value="B2B-284: Customer can not see any orders if he/she does not have any."/>
+            <description value="Customer can not see any orders if he/she does not have any."/>
+            <severity value="CRITICAL"/>
+            <group value="customer"/>
+            <useCaseId value="B2B-228"/>
+        </annotations>
+        <before>
+            <createData entity="Simple_US_Customer" stepKey="customer"/>
+
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+                <argument name="Customer" value="$$customer$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+        </after>
+
+        <amOnPage url="{{StorefrontCustomerDashboardPage.url}}" stepKey="amOnSignInPage"/>
+        <amOnPage url="{{StorefrontCustomerMyOrdersPage.url}}" stepKey="amOnMyOrdersPage"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.showFiltersButton}}" stepKey="clickShowFilters1"/>
+        <click selector="{{StorefrontCustomerMyOrdersSection.applyFiltersButton}}" stepKey="clickApplyFilters"/>
+        <seeElement selector="{{StorefrontCustomerMyOrdersSection.noOrdersInformation}}" stepKey="assertNoOrders"/>
+    </test>
+</tests>

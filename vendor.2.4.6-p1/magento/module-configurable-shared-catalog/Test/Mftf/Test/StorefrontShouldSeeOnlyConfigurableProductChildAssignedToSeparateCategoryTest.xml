@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontShouldSeeOnlyConfigurableProductChildAssignedToSeparateCategoryTest">
+        <annotations>
+            <features value="Configurable Shared Catalog"/>
+            <stories value="View Products"/>
+            <title value="Verify Can Only View Child Product of Configurable Product"/>
+            <description value="Create a configurable product, add product to to category such that only child variation
+            is visible in category, assign product to a shared catalog, verify only child products are visible on storefront."/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-25651"/>
+            <group value="configurable_product"/>
+            <group value="catalog"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies & Shared Catalog -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+        </after>
+
+        <!-- Assign Shared Catalog to Product -->
+        <actionGroup ref="AdminAssignSharedCatalogToProductActionGroup" after="addProductToCategoryAndSaveProduct" stepKey="assignSharedCatalogToProduct">
+            <argument name="catalog" value="DefaultSharedCatalog.name"/>
+        </actionGroup>
+        <actionGroup ref="SaveProductFormActionGroup" after="assignSharedCatalogToProduct" stepKey="saveChildProduct"/>
+        <actionGroup ref="CliConsumerStartActionGroup" after="saveChildProduct" stepKey="startMessageQueue">
+            <argument name="consumerName" value="{{AdminCategoryPermissionUpdateConsumerData.consumerName}}"/>
+            <argument name="maxMessages" value="{{AdminCategoryPermissionUpdateConsumerData.messageLimit}}"/>
+        </actionGroup>
+    </test>
+</tests>

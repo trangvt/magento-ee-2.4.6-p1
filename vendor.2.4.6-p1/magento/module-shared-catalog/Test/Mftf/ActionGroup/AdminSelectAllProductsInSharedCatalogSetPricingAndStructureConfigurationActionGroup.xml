@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminSelectAllProductsInSharedCatalogSetPricingAndStructureConfigurationActionGroup">
+        <annotations>
+            <description>Selects all products in the Shared Catalog Set Pricing and Structure Configuration slide out.</description>
+        </annotations>
+        <click selector="{{AdminSharedCatalogsSection.multiCheckForProductsAndCatalog}}" stepKey="clickMulticheck"/>
+        <click selector="{{AdminSharedCatalogsSection.selectAllForProductsAndCatalog}}" stepKey="clickSelectAll"/>
+    </actionGroup>
+</actionGroups>

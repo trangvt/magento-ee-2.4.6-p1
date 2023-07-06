@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminFillCompanyAdminActionGroup">
+        <annotations>
+            <description>Fills the company admin fields in admin. Must be on the Create or Edit Company page.</description>
+        </annotations>
+        <arguments>
+            <argument name="companyAdmin" defaultValue="CustomerEntityOne"/>
+        </arguments>
+        <conditionalClick selector="{{AdminNewCompanySection.companyAdmin}}" dependentSelector="{{AdminNewCompanySection.companyAdminEmail}}" visible="false" stepKey="clickAdmin"/>
+        <waitForElementVisible selector="{{AdminNewCompanySection.companyAdmin}}" stepKey="waitForFormVisible"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminFirstName}}" userInput="{{companyAdmin.firstname}}" stepKey="fillAdminFirstName"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminLastName}}" userInput="{{companyAdmin.lastname}}" stepKey="fillAdminLastName"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminEmail}}" userInput="{{companyAdmin.email}}" stepKey="fillAdminEmail"/>
+    </actionGroup>
+</actionGroups>

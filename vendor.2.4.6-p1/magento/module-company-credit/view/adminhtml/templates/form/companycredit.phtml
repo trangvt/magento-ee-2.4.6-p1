@@ -1,0 +1,59 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+/**
+ * @var \Magento\CompanyCredit\Block\Form\CompanyCredit $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php
+$methodTitle = $block->getMethod()->getTitle();
+?>
+<fieldset class="admin__fieldset payment-method" style="display:none"
+          id="payment_form_<?= $escaper->escapeHtmlAttr($block->getMethodCode()) ?>">
+    <div class="admin__field">
+        <label for="po_number" class="admin__field-label">
+            <span><?= $escaper->escapeHtml(__('Custom Reference Number')) ?></span>
+        </label>
+        <div class="admin__field-control">
+            <input type="text" id="po_number" name="payment[po_number]"
+                   title="<?= $escaper->escapeHtmlAttr(__("Custom Reference Number")) ?>"
+                   class="admin__control-text input-text"
+                   data-validate='{"validate-purchase-order-number":true}'
+                   value="<?= /* @noEscape */ $block->getInfoData('po_number') ?>"/>
+        </div>
+    </div>
+</fieldset>
+<?php
+$scriptString = "
+require([
+    'jquery',
+], function($) {
+    var tooltip = \"\";\n";
+
+
+if ($block->hasExceededCreditLimit()):
+
+    $scriptString .= "
+      tooltip = '<div class=\"tooltip\"><span class=\"help\">'+
+      '<span></span></span><div class=\"tooltip-content\">'+";
+    $scriptString .=
+      "'".$escaper->escapeJs(__(
+          "%1 is disabled when the available credit is less than the Order Grand Total.",
+          $methodTitle
+      ))."'+";
+    $scriptString .= "'</div></div>';\n";
+    $scriptString .= "$('input#p_method_".$escaper->escapeJs($block->getMethodCode())."').attr('disabled', 'disabled')";
+
+endif;
+
+$scriptString .= "
+      var availableLimit = \"".$escaper->escapeJs($block->getCurrentCustomerCreditBalance())."\";
+      var methodTitle = \"".$escaper->escapeJs($methodTitle)."\";
+      $('label[for=p_method_".$escaper->escapeJs($block->getMethodCode())."]').html(methodTitle+\" \"+
+      availableLimit+\" \"+tooltip);
+});";
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>

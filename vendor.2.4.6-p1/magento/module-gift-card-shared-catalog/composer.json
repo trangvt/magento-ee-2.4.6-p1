@@ -1,0 +1,30 @@
+{
+    "name": "magento/module-gift-card-shared-catalog",
+    "description": "N/A",
+    "type": "magento2-module",
+    "license": [
+        "proprietary"
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "version": "100.3.5-p1",
+    "require": {
+        "magento/framework": "103.0.6-p1",
+        "magento/module-catalog": "104.0.6-p1",
+        "magento/module-ui": "101.2.6",
+        "php": "~8.1.0||~8.2.0"
+    },
+    "suggest": {
+        "magento/module-shared-catalog": "100.3.5-p1"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Magento\\GiftCardSharedCatalog\\": ""
+        }
+    }
+}
+

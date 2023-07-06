@@ -1,0 +1,355 @@
+// /**
+//  * Copyright © Magento, Inc. All rights reserved.
+//  * See COPYING.txt for license details.
+//  */
+
+//
+//  Variables
+//  _____________________________________________
+
+@action-multicheck__z-index: 200;
+@control-checkbox-radio__size: 1.6rem;
+@action__active__border-color: @color-gray46;
+@field-control__hover__border-color: @color-gray46;
+@control-checkbox-radio__background-color: @color-white;
+@field-control__border-color: @color-gray55;
+@button-marker-triangle__height: .5rem;
+@button-marker-triangle__width: .8rem;
+@smooth__border-color: border-color .1s linear;
+@data-grid-cell__border-width: .1rem;
+@data-grid-cell__padding-horizontal: 1rem;
+@color-black-50: rgba(0, 0, 0, .5);
+@page-wrapper__background-color: @color-white;
+@action-menu__hover__background-color: @color-gray89;
+@select-all__background: @form-element-input__background url('../images/select-bg.svg') no-repeat 50% 50%;
+@component__box-shadow__account: 1px 1px @component__shadow-size__base rgba(0, 0, 0, .2);
+
+//
+//  Actions -> Actions multicheck
+//  _____________________________________________
+
+//  Action multicheck is a combining of checkbox and dropdown elements
+
+& when (@media-common =true) {
+    .account {
+        .table-wrapper {
+            .data-grid-checkbox-cell-inner {
+                input {
+                    border: 1px solid @field-control__border-color;
+                    cursor: pointer;
+                    height: @control-checkbox-radio__size;
+                    text-align: center;
+                    width: @control-checkbox-radio__size;
+
+                    &:active,
+                    &:hover,
+                    &:focus {
+                        box-shadow: none;
+                        outline-offset: 0;
+                        outline: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    .appearing__off() {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .appearing__on() {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    @media (max-width: @screen__s) {
+        .page-main {
+            .table-wrapper {
+                table.data-grid {
+                    tbody {
+                        tr.data-row {
+                            th {
+                                &.data-grid-multicheck-cell {
+                                    display: none;
+                                }
+                            }
+
+                            td {
+                                &.data-grid-checkbox-cell {
+                                    display: none;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    table {
+        th {
+            .action-menu {
+                background-color: @page-wrapper__background-color;
+                border: 1px solid @color-grey;
+                box-shadow: @component__box-shadow__account;
+                color: @link__color;
+                display: none;
+                font-weight: @font-weight__regular;
+                left: 0;
+                list-style: none;
+                margin: 2px 0 0;
+                min-width: 19.5rem;
+                padding: 0;
+                position: absolute;
+                right: 0;
+                top: 100%;
+
+                &._active {
+                    display: block;
+                }
+
+                > li {
+                    border: none;
+                    display: block;
+                    padding: 0;
+                    transition: background-color .1s linear;
+
+                    > a {
+                        &:hover {
+                            text-decoration: none;
+                        }
+                    }
+
+                    &._visible {
+                        background-color: @action-menu__hover__background-color;
+                    }
+
+                    &:hover {
+                        background-color: @action-menu__hover__background-color;
+                    }
+
+                    &:active {
+                        background-color: darken(@action-menu__hover__background-color, 10%);
+                    }
+
+                    &._parent {
+                        .lib-vendor-prefix-display(flex);
+                        .lib-vendor-prefix-flex-direction(row);
+                        display: flex;
+                        flex-direction: row;
+
+                        > .action-menu-item {
+                            min-width: 100%;
+                        }
+
+                        &::after {
+                            border-color: transparent transparent transparent @color-black;
+                            border-style: solid;
+                            border-width: .4rem 0 .4rem .5rem;
+                            content: '';
+                            height: 0;
+                            position: relative;
+                            right: 1.2rem;
+                            top: 1.4rem;
+                            width: 0;
+                        }
+                    }
+                }
+
+                .item,
+                .action-menu-item {
+                    cursor: pointer;
+                    display: block;
+                    padding: .6875em 1em;
+                }
+
+                .action-submenu {
+                    &:extend(.action-menu all);
+                    bottom: auto;
+                    left: auto;
+                    margin-left: 0;
+                    margin-top: -1px;
+                    position: absolute;
+                    right: auto;
+                    top: auto;
+                }
+
+                a {
+                    &.action-menu-item {
+                        color: @text__color;
+
+                        &:focus {
+                            background-color: @action-menu__hover__background-color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .action-multicheck-wrap {
+        &:extend(.abs-clearfix all);
+        display: inline-block;
+        height: @control-checkbox-radio__size;
+        padding-top: 1px;
+        position: relative;
+        width: @control-checkbox-radio__size * 2 + .2rem;
+        z-index: @action-multicheck__z-index;
+
+        &:hover {
+            .admin__control-checkbox + label:before,
+            .action-multicheck-toggle {
+                border-color: @field-control__hover__border-color;
+            }
+        }
+
+        &._active {
+            .admin__control-checkbox + label:before,
+            .action-multicheck-toggle {
+                border-color: @action__active__border-color;
+            }
+
+            .action-menu {
+                .appearing__on();
+                display: inline-block;
+            }
+        }
+
+        &._disabled {
+            .admin__control-checkbox {
+                + label {
+                    &:before {
+                        background-color: @control-checkbox-radio__background-color;
+                    }
+                }
+            }
+
+            .admin__control-checkbox + label:before,
+            .action-multicheck-toggle {
+                border-color: @field-control__border-color;
+                opacity: 1;
+            }
+        }
+
+        .admin__control-checkbox,
+        .admin__control-checkbox + label,
+        .action-multicheck-toggle {
+            float: left;
+            margin: 0;
+        }
+
+        .admin__control-checkbox {
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            border: 1px solid @field-control__border-color;
+            border-bottom-left-radius: 3px;
+            border-right: 0;
+            border-top-left-radius: 3px;
+            cursor: pointer;
+            height: @control-checkbox-radio__size;
+            text-align: center;
+            width: @control-checkbox-radio__size;
+
+            &:active,
+            &:hover,
+            &:focus {
+                box-shadow: none;
+                outline-offset: 0;
+                outline: 0;
+                border-color: @action__active__border-color;
+            }
+
+            &._indeterminate {
+                &:before {
+                    content: '-';
+                    display: inline-block;
+                    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                    font-size: @control-checkbox-radio__size + .2rem;
+                    line-height: @control-checkbox-radio__size - .4rem;
+                    text-align: center;
+                    vertical-align: top;
+                    width: 100%;
+                }
+            }
+
+            &:checked {
+                &:before {
+                    content: @icon-checkmark;
+                    font-family: @icons__font-name;
+                    font-size: 1.1rem;
+                    line-height: 125%;
+                }
+            }
+        }
+
+        .action-multicheck-toggle {
+            background: @select-all__background;
+            background-size: 200%;
+            border: 1px solid @field-control__border-color;
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+            height: @control-checkbox-radio__size;
+            margin-top: 2px;
+            padding: 0;
+            position: relative;
+            width: @control-checkbox-radio__size + .2rem;
+
+            &:focus {
+                border-color: @action__active__border-color;
+            }
+
+            &:after {
+                right: .3rem;
+            }
+
+            > span {
+                &:extend(.abs-visually-hidden all);
+            }
+        }
+    }
+
+    .action-select-wrap {
+        &.buttons {
+            align-items: center;
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px 0;
+            @media (max-width: @screen__s) {
+                display: none;
+            }
+
+            .selected-number {
+                margin-right: auto;
+            }
+
+            button {
+                margin-left: 15px;
+            }
+
+            .secondary {
+                .lib-button-as-link(
+                    @_padding: .7rem 1.5rem;
+                );
+                font-weight: @font-weight__regular;
+
+                &:disabled {
+                    text-decoration: none;
+                }
+
+                &:active,
+                &:not(:focus) {
+                    box-shadow: none;
+                }
+            }
+        }
+    }
+}
+
+.media-width(@extremum, @break) when (@extremum = 'max') and (@break = @screen__xs) {
+    .action-select-wrap {
+        &.buttons {
+            display: none;
+        }
+    }
+}

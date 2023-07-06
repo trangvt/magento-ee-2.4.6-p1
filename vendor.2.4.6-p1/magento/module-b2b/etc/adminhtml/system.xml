@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="btob" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>B2B Features</label>
+            <tab>general</tab>
+            <resource>Magento_B2b::config_btob</resource>
+            <group id="website_configuration" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1">
+                <label>B2B Features</label>
+                <comment>As a store administrator, you can control which B2B features are available for company accounts. On the storefront user dashboard, the designated company administrator can enable or disable available features for use in the account. If you disable a feature in the Admin, it will not be functional for the company account.</comment>
+                <!-- B2B Features config fields -->
+            </group>
+        </section>
+    </system>
+</config>

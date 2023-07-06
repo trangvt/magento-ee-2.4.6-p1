@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminFilterCompanyByCompanyNameActionGroup">
+        <annotations>
+            <description>Filters the companies grid on the Companies Index page by company name.</description>
+        </annotations>
+        <arguments>
+            <argument name="company" defaultValue=""/>
+        </arguments>
+        <conditionalClick selector="{{AdminCompanyGridFiltersSection.clearFilters}}" dependentSelector="{{AdminCompanyGridFiltersSection.clearFilters}}" visible="true" stepKey="clickClearFilters"/>
+        <waitForElementVisible selector="{{AdminCompanyGridFiltersSection.filtersButton}}" stepKey="waitForFilters"/>
+        <click selector="{{AdminCompanyGridFiltersSection.filtersButton}}" stepKey="openFilter"/>
+        <waitForElementVisible selector="{{AdminCompanyGridFiltersSection.companyNameInput}}" stepKey="waitForCompanyNameFilter"/>
+        <fillField userInput="{{company.company_name}}" selector="{{AdminCompanyGridFiltersSection.companyNameInput}}" stepKey="fillCompanyNameFilter"/>
+        <waitForElementVisible selector="{{AdminCompanyGridFiltersSection.apply}}" stepKey="waitForApplyFilterButton"/>
+        <click selector="{{AdminCompanyGridFiltersSection.apply}}" stepKey="applyFilter"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+    </actionGroup>
+</actionGroups>

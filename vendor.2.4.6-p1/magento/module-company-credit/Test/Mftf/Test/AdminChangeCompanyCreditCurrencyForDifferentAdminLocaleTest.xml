@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminChangeCompanyCreditCurrencyForDifferentAdminLocaleTest">
+        <annotations>
+            <features value="Company Credit"/>
+            <stories value="Convert Credit Currency"/>
+            <title value="Convert Company Credit Currency to Different Admin Locale"/>
+            <description value="Verify that a user can change add a company credit limit, enable a different admin locale,
+            convert the company credit currency with a conversion rate, and have all admin company credit values update
+            to the new currency and rate."/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-12129"/>
+            <group value="b2b"/>
+            <group value="company"/>
+            <group value="companyCredit"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Changing Locale to Russian (Russia) -->
+            <magentoCLI command="setup:static-content:deploy" arguments="-f ru_RU" stepKey="staticDeployAfterChangeLocaleToRU"/>
+
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <comment userInput="BIC workaround" stepKey="enableNegotiableQuote"/>
+
+            <!-- Create Website, Store, & Store View, Change Base Currency To RUB in Customer Website -->
+            <createData entity="secondCustomWebsite" stepKey="createCustomWebsite"/>
+            <magentoCLI command="config:set {{WebsiteCatalogPriceScopeConfigData.path}} {{WebsiteCatalogPriceScopeConfigData.value}}" stepKey="setCatalogPriceScopeWebsite"/>
+            <magentoCLI command="config:set {{BaseCurrencyRUBConfigData.path}} {{BaseCurrencyRUBConfigData.value}} --scope website --scope-code $createCustomWebsite.website[code]$" stepKey="changeBaseCurrencyToRUB"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginToAdminPanel"/>
+            <actionGroup ref="AdminStoreGroupCreateActionGroup" stepKey="createNewStore">
+                <argument name="Website" value="secondCustomWebsite"/>
+                <argument name="storeGroup" value="customStoreGroup"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createCustomStoreView">
+                <argument name="StoreGroup" value="customStoreGroup"/>
+                <argument name="customStore" value="customStoreEN"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+
+            <!-- Change Admin Locale to Russian (Russia) -->
+            <actionGroup ref="SetAdminAccountActionGroup" stepKey="setAdminAccountToRussian">
+                <argument name="InterfaceLocaleByValue" value="ru_RU"/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <!-- Revert Configurations, Delete Data, & Clear Filters -->
+            <magentoCLI command="config:set {{GlobalCatalogPriceScopeConfigData.path}} {{GlobalCatalogPriceScopeConfigData.value}}" stepKey="setCatalogPriceScopeDefault"/>
+            <comment userInput="BIC workaround" stepKey="disableNegotiableQuote"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <actionGroup ref="DeleteCustomWebsiteActionGroup" stepKey="deleteCustomWeWebsite">
+                <argument name="websiteName" value="$createCustomWebsite.website[name]$"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="SetAdminAccountActionGroup" stepKey="setAdminAccountToEnUS">
+                <argument name="InterfaceLocaleByValue" value="en_US"/>
+            </actionGroup>
+            <actionGroup ref="AdminDeleteCompanyActionGroup" stepKey="deleteCompanyFromPreconditions">
+                <argument name="companyName" value="{{Default_Company.company_name}}"/>
+            </actionGroup>
+            <actionGroup ref="DeleteCustomerFromAdminActionGroup" stepKey="deleteCustomer">
+                <argument name="customer" value="CustomerEntityOne"/>
+            </actionGroup>
+            <actionGroup ref="AdminClearCustomersFiltersActionGroup" stepKey="clearCustomersFilters"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Create New Company in Admin With 100000 Credit Limit -->
+        <comment userInput="BIC workaround" stepKey="createCompany"/>
+        <actionGroup ref="AdminGoToCreateCompanyPageActionGroup" stepKey="goToCreateCompanyPage"/>
+        <actionGroup ref="AdminFillCompanyGeneralInformationActionGroup" stepKey="fillCompanyGeneralInformation"/>
+        <actionGroup ref="AdminFillCompanyLegalAddressActionGroup" stepKey="fillCompanyLegalAddressInformation"/>
+        <actionGroup ref="AdminFillCompanyAdminActionGroup" stepKey="fillCompanyAdminInformation"/>
+        <actionGroup ref="AdminFillCompanyCreditInformationActionGroup" stepKey="fillCompanyCreditInformation">
+            <argument name="creditLimit" value="100000"/>
+        </actionGroup>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany">
+            <argument name="saveMessage" value="You have created company"/>
+        </actionGroup>
+
+        <!-- Verify Credit Limit Format Displays in Russian -->
+        <actionGroup ref="AdminAssertCreditLimitActionGroup" stepKey="assertCompanyCreditLimit">
+            <argument name="creditLimit" value="100000,00"/>
+        </actionGroup>
+
+        <!-- Convert Company Credit Currency to Russian with 0.1 Conversion Rate -->
+        <actionGroup ref="AdminChangeCreditCurrencyActionGroup" stepKey="changeCreditCurrency">
+            <argument name="creditCurrency" value="RUB"/>
+            <argument name="currencyRate" value="0.1"/>
+        </actionGroup>
+
+        <!-- Verify Credit Limit Format Displays in USD with Amount After Conversion -->
+        <actionGroup ref="AdminAssertCreditLimitActionGroup" stepKey="assertCompanyCreditLimitAfterChangeCreditCurrency">
+            <argument name="creditLimit" value="10000.00"/>
+        </actionGroup>
+
+        <!-- Verify Credit Limit History Displays as Previous Format -->
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="clickSaveButtonAndAssertSuccessMessage"/>
+        <actionGroup ref="AdminAssertCompanyCreditHistoryListingGridValueActionGroup" stepKey="assertCompanyCreditHistoryListingCreditLimitValue">
+            <argument name="columnName" value="Credit Limit"/>
+            <argument name="columnValue" value="10 000,00 ₽"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertCreditLimitActionGroup" stepKey="assertCompanyCreditLimitAfterSaveCompany">
+            <argument name="creditLimit" value="10000,00"/>
+        </actionGroup>
+    </test>
+</tests>

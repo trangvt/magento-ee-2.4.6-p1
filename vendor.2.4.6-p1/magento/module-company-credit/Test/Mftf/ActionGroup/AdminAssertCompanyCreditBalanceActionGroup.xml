@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminAssertCompanyCreditBalanceActionGroup">
+        <annotations>
+            <description>Expands the Company Credit section in admin on the Edit Company page and verifies the Outstanding Balance, Available Credit, and Credit Limit</description>
+        </annotations>
+        <arguments>
+            <argument name="outstandingBalance" type="string"/>
+            <argument name="availableBalance" type="string"/>
+            <argument name="creditLimit" type="string"/>
+        </arguments>
+        <conditionalClick selector="{{AdminCompanyEditSection.customerCredit}}" dependentSelector="{{AdminCompanyEditSection.customerCredit}}" visible="true" stepKey="clickOnCustomerCredit"/>
+        <waitForPageLoad stepKey="waitForCustomerCreditSectionToOpen"/>
+        <waitForText selector="{{AdminCompanyEditSection.outstandingBalance}}" userInput="{{outstandingBalance}}" stepKey="seeOutstandingBalance"/>
+        <grabTextFrom selector="{{AdminCompanyEditSection.outstandingBalance}}" stepKey="grabOutstandingBalance"/>
+        <assertEquals stepKey="assertOutstandingBalance">
+            <actualResult type="variable">grabOutstandingBalance</actualResult>
+            <expectedResult type="string">{{outstandingBalance}}</expectedResult>
+        </assertEquals>
+        <waitForText selector="{{AdminCompanyEditSection.availableCredit}}" userInput="{{availableBalance}}" stepKey="seeAvailableCredit"/>
+        <grabTextFrom selector="{{AdminCompanyEditSection.availableCredit}}" stepKey="grabAvailableCredit"/>
+        <assertEquals stepKey="assertAvailableBalance">
+            <actualResult type="variable">grabAvailableCredit</actualResult>
+            <expectedResult type="string">{{availableBalance}}</expectedResult>
+        </assertEquals>
+        <waitForText selector="{{AdminCompanyEditSection.creditLimitAmount}}" userInput="{{creditLimit}}" stepKey="seeCreditLimit"/>
+        <grabTextFrom selector="{{AdminCompanyEditSection.creditLimitAmount}}" stepKey="grabCreditLimit"/>
+        <assertEquals stepKey="assertCreditLimit">
+            <actualResult type="variable">grabCreditLimit</actualResult>
+            <expectedResult type="string">{{creditLimit}}</expectedResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

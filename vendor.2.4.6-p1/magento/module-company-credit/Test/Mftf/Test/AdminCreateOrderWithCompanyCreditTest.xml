@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCreateOrderWithCompanyCreditTest">
+        <annotations>
+            <features value="Company Credit"/>
+            <stories value="Payment on Account"/>
+            <title value="Verify Company Credit Updates Correctly After Placing Order"/>
+            <description value="Verify when an order is created by a company user with the Payment on Account payment
+            method for an amount less than the company credit limit, that the Company Credit details in admin and on
+            the storefront update correctly."/>
+            <severity value="BLOCKER"/>
+            <group value="company"/>
+            <group value="companyCredit"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies and Payment on Account -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableCompanyCreditData.path}} {{EnableCompanyCreditData.value}}" stepKey="enableCompanyCredit"/>
+            <magentoCLI command="config:set {{EnableSpecificPaymentMethod.path}} {{EnableSpecificPaymentMethod.value}}" stepKey="enableSpecificPaymentMethod"/>
+            <magentoCLI command="config:set {{SelectSpecificPaymentMethodPaymentOnAccount.path}} {{SelectSpecificPaymentMethodPaymentOnAccount.value}}" stepKey="selectPaymentOnAccountMethod"/>
+
+            <!-- Create Company Admin & 1 Product -->
+            <createData entity="SimpleProduct_25" stepKey="createSimpleProduct">
+                <field key="price">5</field>
+            </createData>
+            <createData entity="Simple_US_Customer_CA" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createDefaultCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableCompanyCreditData.path}} {{DisableCompanyCreditData.value}}" stepKey="disableCompanyCredit"/>
+            <magentoCLI command="config:set {{DisableSpecificPaymentMethod.path}} {{DisableSpecificPaymentMethod.value}}" stepKey="disableSpecificPaymentMethod"/>
+            <magentoCLI command="config:set {{SelectSpecificPaymentMethodPaymentOnAccount.path}} {{SelectDefaultPaymentMethod.value}}" stepKey="setDefaultPaymentMethods"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createDefaultCompany" stepKey="deleteCompany"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Add $1,000 Company Credit Limit -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$createDefaultCompany.id$"/>
+            <argument name="companyName" value="$createDefaultCompany.company_name$"/>
+        </actionGroup>
+        <actionGroup ref="AdminFillCompanyCreditInformationActionGroup" stepKey="addCompanyCredit">
+            <argument name="creditLimit" value="1000"/>
+        </actionGroup>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+
+        <!-- Create Order for $250 with Payment On Account Payment Method w/ Custom Reference Number -->
+        <actionGroup ref="NavigateToNewOrderPageExistingCustomerActionGroup" stepKey="navigateToNewOrderWithExistingCustomer">
+            <argument name="customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="AddSimpleProductToOrderActionGroup" stepKey="addSimpleProductToOrder">
+            <argument name="product" value="$$createSimpleProduct$$"/>
+            <argument name="productQty" value="{{SimpleProduct_25.quantity}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminSelectFlatRateShippingMethodActionGroup"  stepKey="orderSelectFlatRateShipping"/>
+        <actionGroup ref="AdminSelectPaymentOnAccountPaymentMethodActionGroup" stepKey="selectPaymentOnAccountPaymentMethod"/>
+        <actionGroup ref="AdminEnterCustomReferenceNumberForCreateOrderActionGroup" stepKey="enterCustomReferenceNumberForCreateOrder">
+            <argument name="customReferenceNumber" value="{{CustomReferenceNumber.number}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="scrollToSubmitButton"/>
+        <actionGroup ref="AdminSubmitOrderActionGroup" stepKey="submitOrder"/>
+        <generateDate date="now" format="M j, Y" stepKey="currentDate"/>
+
+        <!-- Verify Order Data is Correct in Admin -->
+        <actionGroup ref="VerifyCreatedOrderInformationActionGroup" stepKey="verifyCreatedOrderInformation"/>
+        <grabFromCurrentUrl regex="~/order_id/(\d+)/~" stepKey="orderId"/>
+        <grabTextFrom selector="{{AdminOrderDetailsInformationSection.orderId}}" stepKey="orderNo"/>
+        <scrollTo selector="{{AdminOrderPaymentInformationSection.paymentMethod}}" x="0" y="-100" stepKey="scrollToPaymentMethod"/>
+        <waitForText selector="{{AdminOrderPaymentInformationSection.paymentMethod}}" userInput="{{SelectSpecificPaymentMethodPaymentOnAccount.label}}" stepKey="waitForSelectedPaymentMethodLabel" />
+        <waitForText selector="{{AdminOrderPaymentInformationSection.customReferenceNo}}" userInput="{{CustomReferenceNumber.number}}" stepKey="waitForCustomReferenceNoText" />
+
+        <!-- Verify Company Credit Data Updates Correctly in Admin -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPageToVerifyCompanyCredit">
+            <argument name="companyId" value="$createDefaultCompany.id$"/>
+            <argument name="companyName" value="$createDefaultCompany.company_name$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertCompanyCreditBalanceActionGroup" stepKey="assertCompanyCredit">
+            <argument name="outstandingBalance" value="-$250.00"/>
+            <argument name="availableBalance" value="$750.00"/>
+            <argument name="creditLimit" value="$1,000.00"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssertCompanyCreditListingGridActionGroup" stepKey="adminAssertCompanyCreditListingGrid">
+            <argument name="date" value="$currentDate"/>
+            <argument name="operation" value="Purchased"/>
+            <argument name="amount" value="-$250.00"/>
+            <argument name="outstandingBalance" value="-$250.00"/>
+            <argument name="availableCredit" value="$750.00"/>
+            <argument name="creditLimit" value="$1,000.00"/>
+            <argument name="updatedBy" value="Admin User"/>
+            <argument name="customReferenceNo" value="{{CustomReferenceNumber.number}}"/>
+            <argument name="comment" value="$orderNo"/>
+        </actionGroup>
+
+        <!-- Verify Order Data is Correct on Storefront -->
+         <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToCustomerOrdersHistoryPageActionGroup"  stepKey="storefrontNavigateToCustomerOrdersHistoryPageActionGroup"/>
+        <executeJS function="var d=new Date('{$currentDate}'); var formattedDate=(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear().toString().substr(2); return formattedDate;"  stepKey="formatedCurrentDate"/>
+        <actionGroup ref="StorefrontAssertOrderHistoryGridDataActionGroup" stepKey="StorefrontAssertOrderHistoryGridDataActionGroup">
+            <argument name="orderNumber" value="$orderNo"/>
+            <argument name="date" value="$formatedCurrentDate"/>
+            <argument name="createdBy" value="$$createCompanyAdmin.firstname$$ $$createCompanyAdmin.lastname$$"/>
+            <argument name="orderTotal" value="$250.00"/>
+            <argument name="status" value="Pending"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="storefrontClickViewOrderFromOrdersHistoryPage"/>
+        <actionGroup ref="StorefrontGoToCustomerOrderDetailsPageActionGroup" stepKey="storefrontGoToCustomerOrderDetailsPage">
+            <argument name="orderId" value="$orderId"/>
+            <argument name="orderNumber" value="$orderNo"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyCustomerOrderDataActionGroup" stepKey="storefrontVerifyOrderAndCreditDataInOrderDetails">
+            <argument name="orderPlacedBy" value="Store Administrator"/>
+            <argument name="paymentMethod" value="{{SelectSpecificPaymentMethodPaymentOnAccount.label}}"/>
+            <argument name="orderNumber" value="$orderNo"/>
+            <argument name="createdDate" value="$currentDate"/>
+            <argument name="productName" value="$$createSimpleProduct.name$$"/>
+            <argument name="grandTotal" value="$250.00"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyCustomerOrderDataWithCustomReferenceNumberActionGroup" stepKey="storefrontVerifyCustomerOrderDataWithCustomReferenceNumber">
+            <argument name="customReferenceNo" value="{{CustomReferenceNumber.number}}"/>
+        </actionGroup>
+
+        <!-- Verify Company Credit Data Updates Correctly on Storefront -->
+        <actionGroup ref="StorefrontNavigateToCompanyCreditPageActionGroup" stepKey="storefrontNavigateToCompanyCreditHistoryPage"/>
+        <actionGroup ref="StorefrontVerifyCompanyCreditBalanceActionGroup" stepKey="storefrontVerifyCreditHistoryData">
+            <argument name="outstandingBalance" value="-$250.00"/>
+            <argument name="availableCredit" value="$750.00"/>
+            <argument name="creditLimit" value="$1,000.00"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyCompanyCreditHistoryGridDataActionGroup" stepKey="storefrontVerifyCreditHistoryGridData">
+            <argument name="index" value="1"/>
+            <argument name="operation" value="Purchased"/>
+            <argument name="purchasedAmount" value="-$250.00"/>
+            <argument name="outstandingBalance" value="-$250.00"/>
+            <argument name="availableCredit" value="$750.00"/>
+            <argument name="creditLimit" value="$1,000.00"/>
+            <argument name="customReferenceNumber" value="{{CustomReferenceNumber.number}}"/>
+            <argument name="updatedBy" value="Admin User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyCompanyCreditHistoryGridDataActionGroup" stepKey="storefrontVerifyCreditHistoryGridData2">
+            <argument name="index" value="2"/>
+            <argument name="operation" value="Allocated"/>
+            <argument name="purchasedAmount" value=""/>
+            <argument name="outstandingBalance" value="$0.00"/>
+            <argument name="availableCredit" value="$1,000.00"/>
+            <argument name="creditLimit" value="$1,000.00"/>
+            <argument name="customReferenceNumber" value=""/>
+            <argument name="updatedBy" value="Admin User"/>
+        </actionGroup>
+    </test>
+</tests>

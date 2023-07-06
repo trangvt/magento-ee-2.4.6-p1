@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCatalogProductsListWidgetInSharedCatalogTest">
+        <annotations>
+            <features value="Shared Catalog"/>
+            <stories value="Widgets"/>
+            <title value="Catalog Products List Widget with Shared Catalog"/>
+            <description value="Verify that a catalog products list widget renders successfully with shared catalog enabled"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-16551"/>
+            <group value="shared_catalog"/>
+            <group value="widget"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createSimpleProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="_defaultProduct" stepKey="createDefaultProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="CompanyAdminUser" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+            <deleteData createDataKey="createSimpleProduct" stepKey="deleteSimpleProduct"/>
+            <deleteData createDataKey="createDefaultProduct" stepKey="deleteDefaultProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="AdminDeleteWidgetActionGroup" stepKey="deleteWidget">
+                <argument name="widget" value="ProductsListWidget"/>
+            </actionGroup>
+            <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="goToSharedCatalogIndexPage"/>
+            <actionGroup ref="AdminGridFilterResetActionGroup" stepKey="resetSharedCatalogGrid"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="indexerReindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cacheClean">
+                <argument name="tags" value="full_page"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <!-- Create Catalog Products List Widget -->
+        <actionGroup ref="AdminCreateCatalogProductsListWidgetActionGroup" stepKey="createProductsListWidget">
+            <argument name="widget" value="ProductsListWidget"/>
+            <argument name="condition" value="SKU"/>
+            <argument name="conditionsOperator" value="is one of"/>
+            <argument name="conditionParameter" value="$$createSimpleProduct.sku$$, $$createDefaultProduct.sku$$"/>
+        </actionGroup>
+        <!-- Enable Shared Catalog -->
+        <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+        <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+        <!-- Add Products to Shared Catalog -->
+        <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="goToSharedCatalogIndexPage"/>
+        <actionGroup ref="AdminGridFilterFillInputFieldActionGroup" stepKey="searchSharedCatalog">
+            <argument name="filterInputName" value="name"/>
+            <argument name="filterValue" value="Default (General)"/>
+        </actionGroup>
+        <actionGroup ref="AdminGridFilterApplyActionGroup" stepKey="applyFilter"/>
+        <actionGroup ref="AdminClickSetPricingAndStructureInSharedCatalogActionGroup" stepKey="clickSetPricingAndStructure">
+            <argument name="sharedCatalog" value="Default (General)"/>
+        </actionGroup>
+        <actionGroup ref="AdminClickConfigureForSharedCatalogSetPricingAndStructureActionGroup" stepKey="clickConfigure"/>
+        <actionGroup ref="AdminSelectAllProductsInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="selectAllProducts"/>
+        <actionGroup ref="AdminClickNextInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="clickNext"/>
+        <actionGroup ref="AdminClickGenerateCatalogInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="clickGenerate"/>
+        <actionGroup ref="AdminSaveSharedCatalogSetPricingAndStructureActionGroup" stepKey="clickSave"/>
+        <!-- Reindex and Clean Cache -->
+        <actionGroup ref="CliIndexerReindexActionGroup" stepKey="indexerReindex">
+            <argument name="indices" value=""/>
+        </actionGroup>
+        <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+            <argument name="tags" value="full_page"/>
+        </actionGroup>
+        <!-- Verify Widget on Storefront -->
+        <actionGroup ref="StorefrontOpenHomePageActionGroup" stepKey="goToStorefront"/>
+        <waitForElementVisible selector="{{StorefrontWidgetsSection.widgetProductsGrid}}" stepKey="waitForWidgetVisible"/>
+        <see selector="{{StorefrontWidgetsSection.widgetProductName}}" userInput="{{_defaultProduct.name}}" stepKey="seeDefaultProductInWidget"/>
+        <see selector="{{StorefrontWidgetsSection.widgetProductName}}" userInput="{{SimpleProduct.name}}" stepKey="seeSimpleProductInWidget"/>
+        <dontSeeJsError stepKey="dontSeeJsError"/>
+    </test>
+</tests>

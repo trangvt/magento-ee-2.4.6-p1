@@ -1,0 +1,15 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php /** @var $block Magento\NegotiableQuoteSharedCatalog\Block\Adminhtml\Quote\View\Info */ ?>
+<tr>
+    <th>
+        <?= $block->escapeHtml(__('Shared Catalog (or Customer Group)')) ?></th>
+    <td>
+        <a href="<?= $block->escapeUrl($block->getSharedCatalogUrl()) ?>"><?=
+            $block->escapeHtml($block->getSharedCatalogName()) ?></a>
+    </td>
+</tr>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontSaveAndValidateEmptyPurchaseOrderRuleActionGroup">
+        <annotations>
+            <description>Clicks the Save button on the create or edit purchase order page before a rule type is selected and expects to see required field errors. Must have empty required fields.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.saveRule}}" stepKey="waitSaveRule"/>
+        <click selector="{{StorefrontPurchaseOrderRuleFormSection.saveRule}}" stepKey="saveRule"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('rule_name')}}" stepKey="waitRequiredErrorMessageOnName"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('rule_name')}}" userInput="This is a required field." stepKey="seeRequiredErrorMessageOnName"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('validate-applies_to[]')}}" userInput="This is a required field." stepKey="seeRequiredErrorMessageOnAppliesTo"/>
+        <see selector="{{StorefrontPurchaseOrderRuleFormSection.validationErrorMessage('condition_attribute')}}" userInput="This is a required field." stepKey="seeRequiredErrorMessageOnRuleType"/>
+    </actionGroup>
+</actionGroups>

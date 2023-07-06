@@ -1,0 +1,30 @@
+{
+    "name": "magento/module-negotiable-quote-weee",
+    "description": "N/A",
+    "type": "magento2-module",
+    "license": [
+        "proprietary"
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "version": "100.3.5-p1",
+    "require": {
+        "magento/framework": "103.0.6-p1",
+        "magento/module-quote": "101.2.6-p1",
+        "magento/module-weee": "100.4.6",
+        "magento/module-tax": "100.4.6",
+        "magento/module-negotiable-quote": "100.3.5-p1",
+        "magento/module-catalog": "104.0.6-p1",
+        "php": "~8.1.0||~8.2.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Magento\\NegotiableQuoteWeee\\": ""
+        }
+    }
+}
+

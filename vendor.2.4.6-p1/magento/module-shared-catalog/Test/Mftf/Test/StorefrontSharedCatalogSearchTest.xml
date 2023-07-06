@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontSharedCatalogSearchTest">
+        <annotations>
+            <features value="SharedCatalog"/>
+            <stories value="Shared Catalog"/>
+            <title value="Shared Catalog search - disabled products"/>
+            <description value="Disabled products in shared catalog should not show in search result"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-41927"/>
+            <useCaseId value="MC-41819"/>
+            <group value="b2b"/>
+            <group value="sharedCatalog"/>
+        </annotations>
+        <before>
+            <!-- Enable Company and Shared Catalog -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+
+            <!-- Set custom pagination -->
+            <magentoCLI command="config:set {{DefaultGridPerPageValuesConfigData.path}} 4,8,12,24,36" stepKey="setCustomGridPerPageValues"/>
+            <magentoCLI command="config:set {{DefaultGridPerPageDefaultConfigData.path}} 4" stepKey="setCustomGridPerPageDefaults"/>
+
+            <!-- Create category -->
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+
+            <!-- Create 6 simple products -->
+            <createData entity="ApiSimplePrice100Qty100" stepKey="createProduct1">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="ApiSimplePrice100Qty100" stepKey="createProduct2">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="ApiSimplePrice100Qty100" stepKey="createProduct3">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="ApiSimplePrice100Qty100" stepKey="createProduct4">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="ApiSimplePrice100Qty100" stepKey="createProduct5">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="ApiSimplePrice100Qty100" stepKey="createProduct6">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+
+            <!--Assign products to shared catalog-->
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct1ToSharedCatalog">
+                <requiredEntity createDataKey="createProduct1"/>
+            </createData>
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct2ToSharedCatalog">
+                <requiredEntity createDataKey="createProduct2"/>
+            </createData>
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct3ToSharedCatalog">
+                <requiredEntity createDataKey="createProduct3"/>
+            </createData>
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct4ToSharedCatalog">
+                <requiredEntity createDataKey="createProduct4"/>
+            </createData>
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct5ToSharedCatalog">
+                <requiredEntity createDataKey="createProduct5"/>
+            </createData>
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProduct6ToSharedCatalog">
+                <requiredEntity createDataKey="createProduct6"/>
+            </createData>
+
+            <!-- Start message queues -->
+            <actionGroup ref="CliConsumerStartActionGroup" stepKey="startMessageQueueConsumer">
+                <argument name="consumerName" value="{{AdminCategoryPermissionUpdateConsumerData.consumerName}}"/>
+                <argument name="maxMessages" value="{{AdminCategoryPermissionUpdateConsumerData.messageLimit}}"/>
+            </actionGroup>
+            <!-- Run cron -->
+            <magentoCron groups="index" stepKey="runIndexCronJobs"/>
+            <!-- Login to admin panel -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <!-- Restore config to default values -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+            <magentoCLI command="config:set {{DefaultGridPerPageValuesConfigData.path}} {{DefaultGridPerPageValuesConfigData.value}}" stepKey="setDefaultGridPerPageValues"/>
+            <magentoCLI command="config:set {{DefaultGridPerPageDefaultConfigData.path}} {{DefaultGridPerPageDefaultConfigData.value}}" stepKey="setDefaultGridPerPageDefaults"/>
+            <!-- Delete Category -->
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <!-- Delete Products -->
+            <deleteData createDataKey="createProduct1" stepKey="deleteProduct1"/>
+            <deleteData createDataKey="createProduct2" stepKey="deleteProduct2"/>
+            <deleteData createDataKey="createProduct3" stepKey="deleteProduct3"/>
+            <deleteData createDataKey="createProduct4" stepKey="deleteProduct4"/>
+            <deleteData createDataKey="createProduct5" stepKey="deleteProduct5"/>
+            <deleteData createDataKey="createProduct6" stepKey="deleteProduct6"/>
+            <!-- Logout -->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdminPanel"/>
+
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+        </after>
+        <!--Navigate to storefront and search for products common name-->
+        <actionGroup ref="StorefrontOpenHomePageActionGroup" stepKey="openStorefrontHomePage"/>
+        <actionGroup ref="StorefrontCheckQuickSearchStringActionGroup" stepKey="quickSearchSimpleProduct">
+            <argument name="phrase" value="{{ApiSimplePrice100Qty100.name}}"/>
+        </actionGroup>
+        <!--Verify that pagination is correct-->
+        <see userInput="1-4 of 6" selector="{{StorefrontCategoryMainSection.productCount}}" stepKey="assertProductCountAgain"/>
+        <!-- Open Shared catalog index page -->
+        <actionGroup ref="AdminGoToSharedCatalogIndexPageActionGroup" stepKey="goToAdminSharedCatalogIndexPage2"/>
+        <!-- Set pricing and structure for Shared Catalog -->
+        <actionGroup ref="AdminFilterSharedCatalogByNameActionGroup" stepKey="filterSharedCatalog2">
+            <argument name="sharedCatalogName" value="{{DefaultSharedCatalog.name}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="navigateToStructure2"/>
+        <!--Search for product 3-->
+        <actionGroup ref="AdminSharedCatalogFilterProductsOnGridActionGroup" stepKey="filterProductsOnGrid2">
+            <argument name="productName" value="$createProduct3.name$"/>
+        </actionGroup>
+        <!--Disable product 3-->
+        <actionGroup ref="AdminDeselectAllProductsInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="DeselectAll"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetProductFilter2"/>
+        <actionGroup ref="AdminClickNextInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="clickNextButton2"/>
+        <!-- Generate catalog -->
+        <actionGroup ref="AdminClickGenerateCatalogInSharedCatalogSetPricingAndStructureConfigurationActionGroup" stepKey="clickSaveSharedCatalog2"/>
+        <actionGroup ref="ClickSaveButtonActionGroup" stepKey="saveSharedCatalog2">
+            <argument name="message" value="The selected changes have been applied to the shared catalog."/>
+        </actionGroup>
+        <!--Navigate to storefront and search for products common name-->
+        <actionGroup ref="StorefrontOpenHomePageActionGroup" stepKey="openStorefrontHomePage2"/>
+        <actionGroup ref="StorefrontCheckQuickSearchStringActionGroup" stepKey="quickSearchSimpleProduct2">
+            <argument name="phrase" value="{{ApiSimplePrice100Qty100.name}}"/>
+        </actionGroup>
+        <!--Verify that pagination is correct-->
+        <see userInput="1-4 of 6" selector="{{StorefrontCategoryMainSection.productCount}}" stepKey="assertProductCount2"/>
+        <!-- Start message queues -->
+        <actionGroup ref="CliConsumerStartActionGroup" stepKey="startMessageQueueConsumer2">
+            <argument name="consumerName" value="{{AdminCategoryPermissionUpdateConsumerData.consumerName}}"/>
+            <argument name="maxMessages" value="{{AdminCategoryPermissionUpdateConsumerData.messageLimit}}"/>
+        </actionGroup>
+        <!-- Run cron -->
+        <magentoCron groups="index" stepKey="runIndexCronJobs2" />
+        <!--Navigate to storefront and search for products common name-->
+        <actionGroup ref="StorefrontOpenHomePageActionGroup" stepKey="openStorefrontHomePage3"/>
+        <actionGroup ref="StorefrontCheckQuickSearchStringActionGroup" stepKey="quickSearchSimpleProduct3">
+            <argument name="phrase" value="{{ApiSimplePrice100Qty100.name}}"/>
+        </actionGroup>
+        <!--Verify that pagination is correct-->
+        <see userInput="1-4 of 5" selector="{{StorefrontCategoryMainSection.productCount}}" stepKey="assertProductCount3"/>
+        <!--Verify that product3 is not present in the search result-->
+        <actionGroup ref="AssertStorefrontProductNameIsNotOnProductMainPageActionGroup" stepKey="dontSeeProduct3a">
+            <argument name="productName" value="$createProduct3.name$"/>
+        </actionGroup>
+        <!--Navigate to next page-->
+        <actionGroup ref="StorefrontNavigateCategoryNextPageActionGroup" stepKey="navigateToCategoryNextPage"/>
+        <!--Verify that product3 is not present in the search result-->
+        <actionGroup ref="AssertStorefrontProductNameIsNotOnProductMainPageActionGroup" stepKey="dontSeeProduct3b">
+            <argument name="productName" value="$createProduct3.name$"/>
+        </actionGroup>
+    </test>
+</tests>

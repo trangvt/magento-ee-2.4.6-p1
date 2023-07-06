@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRuleListingWithMultipleApproversTest" extends="StorefrontPurchaseOrderRuleListingTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="CRUD"/>
+            <title value="Purchase Order Rule Grid With Multiple approvers"/>
+            <description value="Verify the listing page functions as expected with empty states and displaying new rules with multiple approvers."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-33292"/>
+            <useCaseId value="B2B-507"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="CompanyApprover" stepKey="createApprover" after="createCompanyAdmin"/>
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openApproverCustomerEditPage" after="loginCompanyAdmin">
+                <argument name="customerId" value="$$createApprover.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignApproverToCompany" after="openApproverCustomerEditPage">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="openMyAccount" after="assignApproverToCompany"/>
+            <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage" after="openMyAccount"/>
+            <actionGroup ref="StorefrontClickDuplicateForRoleInRolesGridActionGroup" stepKey="clickDuplicateForDefaultUserRole" after="navigateToRolesAndPermissionsPage">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditRoleInformationActionGroup" stepKey="editApproverRole" after="clickDuplicateForDefaultUserRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveApproverRole" after="editApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontGoToCompanyUsersPageActionGroup" stepKey="goToCompanyUsersPage" after="saveApproverRole"/>
+            <actionGroup ref="StorefrontClickEditForCompanyUserInUsersGridActionGroup" stepKey="clickEditForApprover" after="goToCompanyUsersPage">
+                <argument name="companyUser" value="$$createApprover$$"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditCompanyUserActionGroup" stepKey="assignApproverToRole" after="clickEditForApprover">
+                <argument name="customerData" value="$$createApprover$$"/>
+                <argument name="companyUserData" value="CompanyApprover"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyUserActionGroup" stepKey="saveApproverUser" after="assignApproverToRole"/>
+            <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="openMyAccount2" after="saveApproverUser"/>
+        </before>
+        <after>
+            <deleteData createDataKey="createApprover" stepKey="deleteApprover" after="logoutStorefront"/>
+        </after>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm">
+            <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers">
+            <argument name="approver" value="PurchaseOrderRuleApprover_MultipleApprovers"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleCreated">
+            <argument name="rule" value="PurchaseOrderRule_MultipleApprovers"/>
+            <argument name="approvers" value="{{PurchaseOrderRuleApprover_MultipleApprovers.approvers[0]}}, {{PurchaseOrderRuleApprover_MultipleApprovers.approvers[1]}}"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontPurchaseOrderRequiredApprovalCounterIsVisibleWithValueActionGroup">
+        <annotations>
+            <description>Checks if required approval counter visible in DOM and has proper value</description>
+        </annotations>
+        <arguments>
+            <argument name="counterValue" defaultValue="1" type="string" />
+        </arguments>
+
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderGridSection.requiredApprovalPurchaseOrderCounter}}" stepKey="checkIfCustomerSeeRequiredApprovalPurchaseOrderCounter" />
+        <grabTextFrom selector="{{StorefrontPurchaseOrderGridSection.requiredApprovalPurchaseOrderCounter}}" stepKey="grabCounterValue"/>
+        <assertEquals message="Counter value check" stepKey="counterValueCheck">
+            <expectedResult type="string">{{counterValue}}</expectedResult>
+            <actualResult type="variable">grabCounterValue</actualResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

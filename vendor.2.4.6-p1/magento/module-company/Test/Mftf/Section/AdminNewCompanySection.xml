@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminNewCompanySection">
+        <element name="companyName" type="input" selector="[name='general[company_name]']"/>
+        <element name="companyEmail" type="input" selector="[name='general[company_email]']"/>
+        <element name="companyEmailErrorMessage" type="text" selector="//input[@name='general[company_email]']/following-sibling::label[@class='admin__field-error']"/>
+        <element name="status" type="select" selector="[name='general[status]']"/>
+        <element name="salesRepresentative" type="select" selector="[name='general[sales_representative_id]']" timeout="30"/>
+        <element name="companyLegalAddress" type="text" selector="div[data-index='address'] strong>span:nth-of-type(1)" timeout="30"/>
+        <element name="legalAddressTitle" type="button" selector="div[data-index='address'] .fieldset-wrapper-title" timeout="30"/>
+        <element name="legalAddressBody" type="button" selector="div[data-index='address'] .admin__fieldset-wrapper-content"/>
+        <element name="companyStreet" type="input" selector="[name='address[street][0]']"/>
+        <element name="companyCity" type="input" selector="[name='address[city]']"/>
+        <element name="companyCountry" type="select" selector="[name='address[country_id]']"/>
+        <element name="companyState" type="select" selector="[name='address[region_id]']"/>
+        <element name="companyStateText" type="select" selector="[name='address[region]']"/>
+        <element name="companyPostcode" type="input" selector="[name='address[postcode]']"/>
+        <element name="companyTelephone" type="input" selector="[name='address[telephone]']"/>
+        <element name="companyAdmin" type="text" selector="div[data-index='company_admin'] strong>span:nth-of-type(1)" timeout="30"/>
+        <element name="companyAdminTitle" type="button" selector="div[data-index='company_admin'] .fieldset-wrapper-title" timeout="30"/>
+        <element name="companyAdminBody" type="button" selector="div[data-index='company_admin'] .admin__fieldset-wrapper-content"/>
+        <element name="companyAdminEmail" type="input" selector="[name='company_admin[email]']"/>
+        <element name="companyAdminEmailErrorMessage" type="text" selector="//input[@name='company_admin[email]']/following-sibling::label[@class='admin__field-error']"/>
+        <element name="companyAdminFirstName" type="input" selector="[name='company_admin[firstname]']"/>
+        <element name="companyAdminLastName" type="input" selector="[name='company_admin[lastname]']"/>
+        <element name="advancedSettings" type="button" selector="//span[text()='Advanced Settings']"/>
+        <element name="customerGroupDropDown" type="button" selector="div[data-action='open-search']"/>
+        <element name="customerGroupSearch" type="input" selector=".admin__action-multiselect-search-wrap input"/>
+        <element name="customerGroupFirstSharedCatalog" type="select" selector="//div[@class='action-menu-item _with-checkbox']//span[text()='{{var}}']" parameterized="true"/>
+        <element name="proceedButton" type="button" selector="//button[@class='action-primary']//span[text()='Proceed']"/>
+        <element name="companyAdminWebsite" type="select" selector="div[data-index='website_id'] select"/>
+        <element name="customerCustomTextAttribute" type="input" selector="[name='company_admin[{{var1}}]']" parameterized="true"/>
+        <element name="isVisibleDefault" type="checkbox" selector="//input[@id='is_visible_default']"/>
+    </section>
+</sections>

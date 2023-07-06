@@ -1,0 +1,200 @@
+# Copyright © Magento, Inc. All rights reserved.
+# See COPYING.txt for license details.
+
+type Customer {
+    requisition_lists(
+        pageSize: Int = 20 @doc(description: "The maximum number of results to return at once. The default value is 20."),
+        currentPage: Int = 1 @doc(description: "The page of results to return. The default value is 1."),
+        filter: RequisitionListFilterInput @doc(description: "The filter to use to limit the number of requisition lists to return.")
+    ): RequisitionLists @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList") @doc(description: "An object that contains the customer's requisition lists.")
+}
+
+type RequisitionLists @doc(description: "Defines customer requisition lists.")  {
+    items: [RequisitionList] @doc(description: "An array of requisition lists.")
+    page_info: SearchResultPageInfo @doc(description: "Pagination metadata.")
+    total_count: Int @doc(description: "The number of returned requisition lists.")
+}
+
+type RequisitionList @doc(description: "Defines the contents of a requisition list."){
+    uid: ID! @doc(description: "The unique requisition list ID.")
+    name: String! @doc(description: "The requisition list name.")
+    description: String @doc(description: "Optional text that describes the requisition list.")
+    items(
+        currentPage: Int = 1 @doc(description: "The page of results to return. The default value is 1."),
+        pageSize: Int = 20 @doc(description: "The maximum number of results to return. The default value is 1.")
+    ): RequistionListItems @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Items") @doc(description: "An array of products added to the requisition list.")
+    items_count: Int! @doc(description: "The number of items in the list.")
+    updated_at:String @doc(description: "The time of the last modification of the requisition list.")
+}
+
+type RequistionListItems @doc(description: "Contains an array of items added to a requisition list.") {
+    items: [RequisitionListItemInterface]! @doc(description: "An array of items in the requisition list.")
+    page_info: SearchResultPageInfo  @doc(description: "Pagination metadata.")
+    total_pages: Int! @doc(description: "The number of pages returned.")
+}
+
+interface RequisitionListItemInterface @typeResolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\ProductType") @doc(description: "The interface for requisition list items.") {
+    uid: ID! @doc(description: "The unique ID for the requisition list item.")
+    product: ProductInterface! @doc(description: "Details about a requisition list item.")
+    quantity: Float! @doc(description: "The amount added.")
+    customizable_options: [SelectedCustomizableOption]! @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\CustomizableOptions") @doc(description: "Selected custom options for an item in the requisition list.")
+}
+
+type SimpleRequisitionListItem implements RequisitionListItemInterface
+@doc(description: "Contains details about simple products added to a requisition list.") {
+}
+
+type VirtualRequisitionListItem implements RequisitionListItemInterface
+@doc(description: "Contains details about virtual products added to a requisition list.") {
+}
+
+type Mutation {
+    createRequisitionList(
+        input: CreateRequisitionListInput
+    ): CreateRequisitionListOutput @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\CreateRequisitionList") @doc(description:"Create an empty requisition list.")
+
+    updateRequisitionList(
+        requisitionListUid: ID!, @doc(description: "The unique ID of the requisition list.")
+        input: UpdateRequisitionListInput
+    ): UpdateRequisitionListOutput @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\UpdateRequisitionList") @doc(description:"Rename a requisition list and change its description.")
+
+    updateRequisitionListItems(
+        requisitionListUid: ID!, @doc(description: "The unique ID of the requisition list.")
+        requisitionListItems: [UpdateRequisitionListItemsInput!]! @doc(description: "Items to be updated in the requisition list.")
+    ): UpdateRequisitionListItemsOutput @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\UpdateItems") @doc(description: "Update items in a requisition list.")
+
+    deleteRequisitionList(
+        requisitionListUid: ID!, @doc(description: "The unique ID of the requisition list.")
+    ): DeleteRequisitionListOutput @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\DeleteRequisitionList") @doc(description:"Delete a requisition list.")
+
+    addProductsToRequisitionList(
+        requisitionListUid: ID!, @doc(description:"The unique ID of the requisition list.")
+        requisitionListItems: [RequisitionListItemsInput!]! @doc(description:"An array of products to be added to the requisition list.")
+    ): AddProductsToRequisitionListOutput @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\AddProducts") @doc(description:"Add items to the specified requisition list.")
+
+    deleteRequisitionListItems(
+        requisitionListUid: ID!, @doc(description: "The unique ID of the requisition list.")
+        requisitionListItemUids: [ID!]! @doc(description: "An array of UIDs representing products to be removed from the requisition list.")
+    ):  DeleteRequisitionListItemsOutput @resolver(class: "\\Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\DeleteItems") @doc(description: "Delete items from a requisition list.")
+
+    addRequisitionListItemsToCart(
+        requisitionListUid: ID!, @doc(description: "The unique ID of the requisition list.")
+        requisitionListItemUids: [ID!] @doc(description: "An array of UIDs presenting products to be added to the cart. If no UIDs are specified, all items in the requisition list will be added to the cart.")
+    ): AddRequisitionListItemsToCartOutput @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\AddToCart") @doc(description: "Add items in the requisition list to the customer's cart.")
+
+    copyItemsBetweenRequisitionLists(
+        sourceRequisitionListUid: ID!, @doc(description: "The unique ID of the source requisition list.")
+        destinationRequisitionListUid: ID,  @doc(description: "The unique ID of the destination requisition list. If null, a new requisition list will be created.")
+        requisitionListItem: CopyItemsBetweenRequisitionListsInput @doc(description: "The list of products to copy.")
+    ): CopyItemsFromRequisitionListsOutput @resolver(class: "\\Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\CopyItems") @doc(description: "Copy items from one requisition list to another.")
+
+    moveItemsBetweenRequisitionLists(
+        sourceRequisitionListUid: ID!, @doc(description: "The unique ID of the source requisition list.")
+        destinationRequisitionListUid: ID, @doc(description: "The unique ID of the destination requisition list. If null, a new requisition list will be created.")
+        requisitionListItem: MoveItemsBetweenRequisitionListsInput @doc(description: "The list of products to move.")
+    ): MoveItemsBetweenRequisitionListsOutput @resolver(class: "\\Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\MoveItems") @doc(description: "Move Items from one requisition list to another.")
+
+    clearCustomerCart(
+        cartUid: String! @doc(description: "The masked ID of the cart.")
+    ): ClearCustomerCartOutput @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\ClearCustomerCart") @doc(description: "Remove all items from the specified cart.")
+}
+
+input CreateRequisitionListInput @doc(description: "An input object that identifies and describes a new requisition list.") {
+    name: String! @doc(description: "The name assigned to the requisition list.")
+    description: String @doc(description: "An optional description of the requisition list.")
+}
+
+input UpdateRequisitionListInput @doc(description: "An input object that defines which requistion list characteristics to update.") {
+    name: String! @doc(description: "The new name of the requisition list.")
+    description: String @doc(description: "The updated description of the requisition list.")
+}
+
+type UpdateRequisitionListOutput @doc(description: "Output of the request to rename the requisition list.") {
+    requisition_list: RequisitionList @doc(description: "The renamed requisition list.")
+}
+
+input UpdateRequisitionListItemsInput @doc(description: "Defines which items in a requisition list to update.") {
+    item_id: ID! @doc(description: "The ID of the requisition list item to update.")
+    quantity: Float @doc(description: "The new quantity of the item.")
+    selected_options: [String!] @doc(description: "An array of selected option IDs.")
+    entered_options: [EnteredOptionInput!] @doc(description: "An array of customer-entered options.")
+}
+
+type UpdateRequisitionListItemsOutput @doc(description: "Output of the request to update items in the specified requisition list.") {
+    requisition_list: RequisitionList @doc(description: "The requisition list after updating items.")
+}
+
+type DeleteRequisitionListOutput @doc(description: "Indicates whether the request to delete the requisition list was successful.") {
+    status: Boolean! @doc(description: "Indicates whether the request to delete the requisition list was successful.")
+    requisition_lists: RequisitionLists @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList") @doc(description: "The customer's requisition lists after deleting a requisition list.")
+}
+
+type AddProductsToRequisitionListOutput @doc(description: "Output of the request to add products to a requisition list.") {
+    requisition_list: RequisitionList @doc(description: "The requisition list after adding products.")
+}
+
+type DeleteRequisitionListItemsOutput @doc(description: "Output of the request to remove items from the requisition list.") {
+    requisition_list: RequisitionList @doc(description: "The requisition list after removing items.")
+}
+
+type AddRequisitionListItemsToCartOutput @doc(description: "Output of the request to add items in a requisition list to the cart.") {
+    status: Boolean! @doc(description: "Indicates whether the attempt to add items to the requisition list was successful.")
+    add_requisition_list_items_to_cart_user_errors: [AddRequisitionListItemToCartUserError]!  @doc(description: "Details about why the attempt to add items to the requistion list was not successful.")
+    cart: Cart @doc(description: "The cart after adding requisition list items.")
+}
+
+type AddRequisitionListItemToCartUserError @doc(description: "Contains details about why an attempt to add items to the requistion list failed.") {
+    message: String! @doc(description: "A description of the error.")
+    type: AddRequisitionListItemToCartUserErrorType! @doc(description: "The type of error that occurred.")
+}
+
+enum AddRequisitionListItemToCartUserErrorType {
+    OUT_OF_STOCK
+    UNAVAILABLE_SKU
+    OPTIONS_UPDATED
+    LOW_QUANTITY
+}
+
+input CopyItemsBetweenRequisitionListsInput @doc(description: "An input object that defines the items in a requisition list to be copied.") {
+    requisitionListItemUids: [ID!]! @doc(description:  "An array of IDs representing products copied from one requisition list to another.")
+}
+
+type CopyItemsFromRequisitionListsOutput @doc(description: "Output of the request to copy items to the destination requisition list.") {
+    requisition_list : RequisitionList  @doc(description:  "The destination requisition list after the items were copied.") # since source requisition list is not mutated it is not part of the output
+}
+
+input MoveItemsBetweenRequisitionListsInput @doc(description: "An input object that defines the items in a requisition list to be moved.") {
+    requisitionListItemUids: [ID!]! @doc(description: "An array of IDs representing products moved from one requisition list to another.")
+}
+
+type MoveItemsBetweenRequisitionListsOutput @doc(description: "Output of the request to move items to another requisition list.") {
+    source_requisition_list : RequisitionList @doc(description:  "The source requisition list after moving items.")
+    destination_requisition_list: RequisitionList @doc(description: "The destination requisition list after moving items.") # Since source requisition list is not mutated it is not part of the output
+}
+
+input RequisitionListFilterInput @doc(description:"Defines requisition list filters.") {
+    uids: FilterEqualTypeInput, @doc(description: "Filter requisition lists by one or more requisition list IDs.")
+    name: FilterMatchTypeInput @doc(description: "Filter by the display name of the requisition list.")
+}
+
+type CreateRequisitionListOutput @doc(description: "Output of the request to create a requisition list.") {
+    requisition_list: RequisitionList @doc(description: "The created requisition list.")
+}
+
+type ClearCustomerCartOutput @doc(description: "Output of the request to clear the customer cart.") {
+    status: Boolean! @doc(description:"Indicates whether cart was cleared.")
+    cart: Cart @doc(description: "The cart after clearing items.")
+}
+
+input RequisitionListItemsInput @doc(description: "Defines the items to add.") {
+    sku: String! @doc(description: "The product SKU.")
+    quantity: Float @doc(description: "The quantity of the product to add.")
+    parent_sku: String @doc(description: "For configurable products, the SKU of the parent product.")
+    selected_options: [String!] @doc(description: "Selected option IDs.")
+    entered_options: [EnteredOptionInput!] @doc(description: "Entered option IDs.")
+}
+
+type StoreConfig {
+    is_requisition_list_active: String @doc(description: "Indicates whether requisition lists are enabled. Possible values: 1 (Yes) and 0 (No).")
+}
+

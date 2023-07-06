@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidateRequisitionListProductActionGroup">
+        <annotations>
+            <description>Validates product data in a requisition list from the requisition list view page</description>
+        </annotations>
+        <arguments>
+            <argument name="product" type="entity" defaultValue="SimpleProduct"/>
+            <argument name="index" type="string" defaultValue="1"/>
+            <argument name="quantity" type="string" defaultValue="1"/>
+            <argument name="subtotal" type="string" defaultValue="{{SimpleProduct.price}}"/>
+        </arguments>
+
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.productCheckBox(product.name)}}" stepKey="waitForProductCheckBox"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.productNameByIndex(index, product.name)}}" stepKey="waitForProductName"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.productSKU(product.sku)}}" stepKey="waitForProductSKU"/>
+        <waitForText selector="{{StorefrontRequisitionListViewSection.productPrice(product.name)}}" userInput="{{product.price}}" stepKey="waitForProductPrice"/>
+        <seeInField selector="{{StorefrontRequisitionListViewSection.productQTY(index)}}" userInput="{{quantity}}" stepKey="waitForProductQuantity"/>
+        <waitForText selector="{{StorefrontRequisitionListViewSection.productSubtotal(product.name)}}" userInput="{{subtotal}}" stepKey="waitForProductSubtotal"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListViewSection.removeItemButton(product.name)}}" stepKey="waitForRemoveItemButton"/>
+    </actionGroup>
+</actionGroups>

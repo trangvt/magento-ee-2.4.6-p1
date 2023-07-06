@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontRequisitionListDateValidationTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="CRUD"/>
+            <title value="Requisition List Latest Activity Date Validation"/>
+            <description value="Test to ensure that the Requisition List Date displays correctly with different locale on storefront."/>
+            <severity value="AVERAGE"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <!-- Deploy static for locale UA, Enable Requisition List, Set locale to Ukrainian -->
+            <magentoCLI command="setup:static-content:deploy" arguments="-f uk_UA" stepKey="staticDeployAfterChangeLocaleToUA"/>
+            <magentoCLI command="config:set {{GeneralLocaleCodeConfigsForUkraine.path}} {{GeneralLocaleCodeConfigsForUkraine.value}}" stepKey="setLocaleToUA"/>
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <createData entity="CustomerEntityOne" stepKey="createCustomer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginToAdminPanel"/>
+        </before>
+        <after>
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <magentoCLI command="config:set {{GeneralLocalCodeConfigsForUS.path}} {{GeneralLocalCodeConfigsForUS.value}}" stepKey="resetLocaleToUS"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontCustomerLogout"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+        <!-- Login to Storefront -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <!-- Open Create New Requisition List Form -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListPage"/>
+        <actionGroup ref="StorefrontClickCreateRequisitionListActionGroup" stepKey="clickCreateRequisitionList"/>
+
+        <actionGroup ref="StorefrontFillCreateRequisitionListFormActionGroup" stepKey="fillCreateRequisitionListForm">
+            <argument name="requisitionListName" value="{{RequisitionList.name}}"/>
+            <argument name="requisitionListDescription" value="{{RequisitionList.description}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontClickSaveRequisitionListActionGroup" stepKey="clickCancelButton"/>
+
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMaskToDisappear"/>
+
+        <grabTextFrom selector="td:nth-child(3) .data-grid-cell-content" stepKey="getLatestActivityDateInRow"/>
+        <assertRegExp stepKey="checkImagePositionInThumbnail">
+            <actualResult type="variable">$getLatestActivityDateInRow</actualResult>
+            <expectedResult type="string">/(?:січ|лют|бер|квіт|трав|черв|лип|серп|вер|жовт|лист|груд)\.\s\d{1,2},\s\d{4}/</expectedResult>
+        </assertRegExp>
+    </test>
+</tests>

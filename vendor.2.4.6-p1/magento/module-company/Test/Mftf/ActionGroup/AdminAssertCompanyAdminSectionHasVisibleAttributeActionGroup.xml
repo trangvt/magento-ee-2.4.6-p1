@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminAssertCompanyAdminSectionHasVisibleAttributeActionGroup">
+        <annotations>
+            <description>Admin to assert the custom customer attribute is visible in company admin section</description>
+        </annotations>
+        <arguments>
+            <argument name="companyAdminCustomElement" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{AdminNewCompanySection.companyAdmin}}" stepKey="waitForCompanyAdmin"/>
+        <conditionalClick selector="{{AdminNewCompanySection.companyAdmin}}" dependentSelector="{{AdminNewCompanySection.companyAdmin}}.show" visible="false" stepKey="expandCompanyAdminAccordion"/>
+        <waitForElementVisible selector="{{AdminNewCompanySection.customerCustomTextAttribute(companyAdminCustomElement)}}" stepKey="waitForCustomerCustomAttributes"/>
+        <seeElement selector="{{AdminNewCompanySection.customerCustomTextAttribute(companyAdminCustomElement)}}" stepKey="seeCustomerCustomAttributeElement"/>
+    </actionGroup>
+</actionGroups>

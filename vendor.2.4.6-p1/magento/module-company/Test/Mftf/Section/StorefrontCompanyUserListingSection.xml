@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCompanyUserListingSection">
+        <element name="userEditLinkByEmail" type="text" selector="//td[@data-th='Email']//*[text()='{{email}}']/ancestor::tr//a[@data-action='item-edit']" parameterized="true" timeout="30"/>
+    </section>
+</sections>

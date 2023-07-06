@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidateApprovalFlowAppliedRuleApproverContainsTextActionGroup">
+        <annotations>
+            <description>Validates the status, message, and date for an applied approval rule on the Approval Flow page.</description>
+        </annotations>
+        <arguments>
+            <argument name="ruleIndex" defaultValue="1" type="string"/>
+            <argument name="approverIndex" defaultValue="1" type="string"/>
+            <argument name="status" defaultValue="pending" type="string"/>
+            <argument name="message" defaultValue="" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderViewApprovalFlowSection.content}}" stepKey="waitForApprovalFlowTabContent"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderViewApprovalFlowSection.ruleName(ruleIndex)}}" stepKey="waitForRuleNamePresent"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderViewApprovalFlowSection.approvalItemStatus(ruleIndex, approverIndex, status)}}" stepKey="waitForApprovalItemStatus"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderViewApprovalFlowSection.approvalItem(ruleIndex, approverIndex)}}" stepKey="waitForApprovalItem"/>
+        <grabTextFrom selector="{{StorefrontPurchaseOrderViewApprovalFlowSection.approvalItem(ruleIndex, approverIndex)}}" stepKey="approvalItemText"/>
+        <assertStringContainsString stepKey="assertApprovalItemContainsMessage">
+            <expectedResult type="string">{{message}}</expectedResult>
+            <actualResult type="variable">approvalItemText</actualResult>
+        </assertStringContainsString>
+    </actionGroup>
+</actionGroups>

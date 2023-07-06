@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAssertOrderHistoryGridDataActionGroup">
+        <annotations>
+            <description>Verify order history data on the storefront My Orders page for the specified order number.</description>
+        </annotations>
+        <arguments>
+            <argument name="orderNumber" type="string"/>
+            <argument name="date" type="string"/>
+            <argument name="createdBy" type="string"/>
+            <argument name="orderTotal" type="string"/>
+            <argument name="status" type="string"/>
+        </arguments>
+        <waitForText selector="{{StorefrontCustomerOrdersGridSection.column(orderNumber, 'Order #')}}" userInput="{{orderNumber}}" stepKey="assertOrderNumber"/>
+        <waitForText selector="{{StorefrontCustomerOrdersGridSection.column(orderNumber, 'Date')}}" userInput="{{date}}" stepKey="assertDate"/>
+        <waitForText selector="{{StorefrontCustomerOrdersGridSection.column(orderNumber, 'Created By')}}" userInput="{{createdBy}}" stepKey="assertCreatedBy"/>
+        <waitForText selector="{{StorefrontCustomerOrdersGridSection.column(orderNumber, 'Order Total')}}" userInput="{{orderTotal}}" stepKey="waitForOrderTotal"/>
+        <grabTextFrom selector="{{StorefrontCustomerOrdersGridSection.column(orderNumber, 'Order Total')}}" stepKey="grabOrderTotal"/>
+        <assertEquals stepKey="assertOrderTotal">
+            <actualResult type="variable">grabOrderTotal</actualResult>
+            <expectedResult type="string">{{orderTotal}}</expectedResult>
+        </assertEquals>
+        <waitForText selector="{{StorefrontCustomerOrdersGridSection.column(orderNumber, 'Status')}}" userInput="{{status}}" stepKey="assertStatus"/>
+    </actionGroup>
+</actionGroups>

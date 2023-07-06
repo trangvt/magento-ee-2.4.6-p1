@@ -1,0 +1,11 @@
+# Copyright © Magento, Inc. All rights reserved.
+# See COPYING.txt for license details.
+
+type DownloadableRequisitionListItem implements RequisitionListItemInterface @doc(description: "Contains details about downloadable products added to a requisition list.") {
+    uid: ID! @doc(description: "The unique ID of an item in a requisition list.")
+    product: ProductInterface! @doc(description: "Details about a requisition list item.")
+    quantity: Float! @doc(description: "The quantity of the product added to the requisition list.")
+    customizable_options: [SelectedCustomizableOption]! @resolver(class: "Magento\\RequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\CustomizableOptions") @doc(description:  "Selected custom options for an item in the requisition list.")
+    links: [DownloadableProductLinks] @resolver(class: "Magento\\DownloadableRequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\DownloadableLinks") @doc(description: "An array of links for downloadable products in the requisition list.")
+    samples: [DownloadableProductSamples] @resolver(class: "Magento\\DownloadableRequisitionListGraphQl\\Model\\Resolver\\RequisitionList\\Item\\DownloadableSamples") @doc(description:  "An array of links to downloadable product samples.")
+}

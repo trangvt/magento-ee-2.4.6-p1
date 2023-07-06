@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAddMultipleProductsAtRequisitionListActionGroup">
+        <arguments>
+            <argument name="requisitionListName" type="string" defaultValue="RL1" />
+        </arguments>
+        <!--Attach first product to requisition list-->
+        <amOnPage url="{{StorefrontProductPage.url(RequisitionListProduct1.name)}}" stepKey="goToDetailFirstProductPageOnStorefront" />
+        <waitForPageLoad time="10" stepKey="waitForFirstProductPageLoad"/>
+        <!-- Add product to requisition list -->
+        <click selector="{{StorefrontProductPageSection.addToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton1"/>
+        <click selector="{{StorefrontProductPageSection.selectRequisitionListName(requisitionListName)}}" stepKey="addToRequisitionList1"/>
+        <waitForPageLoad stepKey="waitForAddingToList1"/>
+
+        <!--Attach Second product to requisition list-->
+        <amOnPage url="{{StorefrontProductPage.url(RequisitionListProduct2.name)}}" stepKey="goToDetailSecondProductPageOnStorefront" />
+        <waitForPageLoad time="10" stepKey="waitForSecondProductPageLoad"/>
+        <!-- Add product to requisition list -->
+        <click selector="{{StorefrontProductPageSection.addToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton2"/>
+        <click selector="{{StorefrontProductPageSection.selectRequisitionListName(requisitionListName)}}" stepKey="addToRequisitionList2"/>
+        <waitForPageLoad stepKey="waitForAddingToList2"/>
+
+        <!--Attach Third product to requisition list-->
+        <amOnPage url="{{StorefrontProductPage.url(RequisitionListProduct3.name)}}" stepKey="goToDetailThirdProductPageOnStorefront" />
+        <waitForPageLoad time="10" stepKey="waitForThirdProductPageLoad"/>
+        <!-- Add product to requisition list -->
+        <click selector="{{StorefrontProductPageSection.addToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton3"/>
+        <click selector="{{StorefrontProductPageSection.selectRequisitionListName(requisitionListName)}}" stepKey="addToRequisitionList3"/>
+        <waitForPageLoad stepKey="waitForAddingToList3"/>
+    </actionGroup>
+</actionGroups>

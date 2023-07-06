@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCheckProductInSharedCatalogTest">
+        <annotations>
+            <features value="Shared Catalog"/>
+            <stories value="Products with customizable options"/>
+            <title value="Checking product in storefront with customization option of type File in storefront"/>
+            <description value="Checking product int storefront with customization option of type File"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-11669"/>
+            <useCaseId value="MAGETWO-96407"/>
+            <group value="b2b"/>
+            <group value="sharedCatalog"/>
+        </annotations>
+        <before>
+            <!--Enable chared catalog configurations-->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+            <comment userInput="Create product" stepKey="commentCreateProduct"/>
+            <createData entity="ApiCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <!--Create company and assign shared catalog-->
+            <createData entity="Simple_US_Customer_CA" stepKey="createCompanyCustomer"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyCustomer"/>
+            </createData>
+            <!--Assign product to shared catalog-->
+            <createData entity="AssignProductToDefaultSharedCatalog" stepKey="assignProductToSharedCatalog">
+                <requiredEntity createDataKey="createProduct"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+        <after>
+            <!--Disable b2b configurations-->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+            <!--Delete created data-->
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyCustomer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+        </after>
+        <!--Add customizable option to product-->
+        <amOnPage url="{{AdminProductEditPage.url($$createProduct.id$$)}}" stepKey="amOnEditPage"/>
+        <waitForPageLoad stepKey="waitForEditProductPage"/>
+        <actionGroup ref="AddProductCustomOptionFileActionGroup" stepKey="addCustomOptionToProduct"/>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProductForm"/>
+        <!--Open created product on storefront-->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin1">
+            <argument name="Customer" value="$$createCompanyCustomer$$"/>
+        </actionGroup>
+        <amOnPage url="{{StorefrontProductPage.url($$createProduct.custom_attributes[url_key]$$)}}" stepKey="navigateToProductPage"/>
+        <!--Assert product on storefront-->
+        <waitForPageLoad stepKey="waitForStorefrontProductPageLoad"/>
+        <see userInput="IN STOCK" selector="{{StorefrontProductInfoMainSection.productStockStatus}}" stepKey="assertProductInStock"/>
+    </test>
+</tests>

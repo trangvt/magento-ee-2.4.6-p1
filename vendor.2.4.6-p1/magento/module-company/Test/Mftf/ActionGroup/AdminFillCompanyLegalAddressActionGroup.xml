@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminFillCompanyLegalAddressActionGroup">
+        <annotations>
+            <description>Fills the company legal address fields in admin. Must be on the Create or Edit Company page.</description>
+        </annotations>
+        <arguments>
+            <argument name="company" defaultValue="Default_Company"/>
+        </arguments>
+        <conditionalClick selector="{{AdminNewCompanySection.companyLegalAddress}}" dependentSelector="{{AdminNewCompanySection.companyCountry}}" visible="false" stepKey="clickLegalAddress"/>
+        <waitForElementVisible selector="{{AdminNewCompanySection.companyStreet}}" stepKey="waitForFormVisible"/>
+        <fillField selector="{{AdminNewCompanySection.companyStreet}}" userInput="{{company.street[0]}}" stepKey="fillStreet"/>
+        <fillField selector="{{AdminNewCompanySection.companyCity}}" userInput="{{company.city}}" stepKey="fillCity"/>
+        <selectOption selector="{{AdminNewCompanySection.companyCountry}}" userInput="{{company.country_id}}" stepKey="setCountry"/>
+        <selectOption selector="{{AdminNewCompanySection.companyState}}" userInput="{{company.region_id}}" stepKey="setState"/>
+        <fillField selector="{{AdminNewCompanySection.companyPostcode}}" userInput="{{company.postcode}}" stepKey="fillPostcode"/>
+        <fillField selector="{{AdminNewCompanySection.companyTelephone}}" userInput="{{company.telephone}}" stepKey="fillTelephone"/>
+    </actionGroup>
+</actionGroups>

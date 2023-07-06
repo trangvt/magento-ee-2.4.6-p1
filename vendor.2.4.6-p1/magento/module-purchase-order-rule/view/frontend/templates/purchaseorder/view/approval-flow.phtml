@@ -1,0 +1,50 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+use Magento\Framework\Escaper;
+use Magento\PurchaseOrderRule\Api\Data\AppliedRuleApproverInterface;
+use Magento\PurchaseOrderRule\Block\PurchaseOrder\ApprovalFlow;
+use Magento\PurchaseOrderRule\Model\AppliedRule;
+
+/**
+ * @var ApprovalFlow $block
+ * @var Escaper $escaper
+ */
+?>
+<div class="purchase-order-approval-flow-block">
+    <div class="approval-flow-block-list">
+        <?php
+        /** @var AppliedRule $appliedRule */
+        foreach ($block->getAppliedRules() as $appliedRule):
+            $approvers = $block->getAppliedRuleApprovers($appliedRule);
+            ?>
+            <div class="block approval-flow-block-applied-rule">
+                <strong class="box-title">
+                    <span><?= $escaper->escapeHtml($appliedRule->getRule()->getName()); ?></span>
+                </strong>
+                <?php if (count($approvers) > 0): ?>
+                    <ul class="approval-rules-approvers">
+                        <?php foreach ($approvers as $approver): ?>
+                            <?php if ($approver->getStatus() === AppliedRuleApproverInterface::STATUS_PENDING): ?>
+                                <li class="pending">
+                                    <?= $escaper->escapeHtml($block->getPendingMessage($approver)); ?>
+                                </li>
+                            <?php elseif ($approver->getStatus() === AppliedRuleApproverInterface::STATUS_REJECTED): ?>
+                                <li class="rejected">
+                                    <?= $escaper->escapeHtml($block->getRejectedMessage($approver)) ?>
+                                </li>
+                            <?php elseif ($approver->getStatus() === AppliedRuleApproverInterface::STATUS_APPROVED): ?>
+                                <li class="approved">
+                                    <?= $escaper->escapeHtml($block->getApprovedMessage($approver)) ?>
+                                </li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>

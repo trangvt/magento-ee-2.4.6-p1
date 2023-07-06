@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup">
+        <annotations>
+            <description>Validates content in each column for provided row in the purchase order rule listing grid.</description>
+        </annotations>
+        <arguments>
+            <argument name="index" defaultValue="1"  type="string"/>
+            <argument name="createdBy" defaultValue="{{CustomerEntityOne.firstname}} {{CustomerEntityOne.lastname}}" type="string"/>
+            <argument name="rule" defaultValue="PurchaseOrderRule_Default"/>
+            <argument name="approvers" defaultValue="{{PurchaseOrderRuleApprover_DefaultUser.approvers[0]}}" type="string"/>
+            <argument name="condition" defaultValue="PurchaseOrderRuleCondition_OrderTotalMoreThan1000"/>
+            <argument name="appliesTo" defaultValue="{{PurchaseOrderRuleAppliesTo_All.roles[0]}}" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleGridSection.ruleName(index)}}" stepKey="waitForRuleNameColumn"/>
+        <see selector="{{StorefrontPurchaseOrderRuleGridSection.ruleName(index)}}" userInput="{{rule.name}}" stepKey="seeRuleName"/>
+        <see selector="{{StorefrontPurchaseOrderRuleGridSection.ruleType(index)}}" userInput="{{condition.attributeText}}" stepKey="seeRuleType"/>
+        <see selector="{{StorefrontPurchaseOrderRuleGridSection.createdBy(index)}}" userInput="{{createdBy}}" stepKey="seeCreatedBy"/>
+        <see selector="{{StorefrontPurchaseOrderRuleGridSection.approver(index)}}" userInput="{{approvers}}" stepKey="seeApprover"/>
+        <see selector="{{StorefrontPurchaseOrderRuleGridSection.appliesTo(index)}}" userInput="{{appliesTo}}" stepKey="seeAppliesTo"/>
+        <see selector="{{StorefrontPurchaseOrderRuleGridSection.status(index)}}" userInput="{{rule.status}}" stepKey="seeStatus"/>
+        <seeElement selector="{{StorefrontPurchaseOrderRuleGridSection.deleteAction(index)}}" stepKey="seeDeleteLink"/>
+        <seeElement selector="{{StorefrontPurchaseOrderRuleGridSection.editAction(index)}}" stepKey="seeEditLink"/>
+    </actionGroup>
+</actionGroups>

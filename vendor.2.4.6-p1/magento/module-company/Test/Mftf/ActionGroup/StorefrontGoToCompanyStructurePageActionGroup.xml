@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontGoToCompanyStructurePageActionGroup">
+        <annotations>
+            <description>Goes directly to the Company Structure url on the storefront.</description>
+        </annotations>
+        <amOnPage url="{{StorefrontCompanyStructurePage.url}}" stepKey="openCompanyStructurePage"/>
+        <waitForText selector="{{StorefrontCustomerAccountMainSection.pageTitle}}" userInput="Company Structure" stepKey="waitForPageTitle"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidateEditDisabledOnViewPurchaseOrderRulePageActionGroup">
+        <annotations>
+            <description>Verify that the Save button is missing and there is no a message about not being able to save on the View Purchase Order Rule page.</description>
+        </annotations>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.activeCheckboxDisabled}}" stepKey="waitForIsActiveSwitcher"/>
+        <seeElementInDOM selector="{{StorefrontPurchaseOrderRuleFormSection.appliesToAllDisabled}}" stepKey="appliesToAllDisabled"/>
+        <dontSeeElementInDOM selector="{{StorefrontPurchaseOrderRuleFormSection.saveRule}}" stepKey="SaveButtonMissing"/>
+        <dontSeeElementInDOM selector="{{AdminMessagesSection.noticeMessage}}" stepKey="dontSeeNoticeMessage"/>
+    </actionGroup>
+</actionGroups>
+

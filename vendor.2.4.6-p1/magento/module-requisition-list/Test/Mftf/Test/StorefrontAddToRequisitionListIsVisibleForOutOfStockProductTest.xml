@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAddToRequisitionListIsVisibleForOutOfStockProductTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="Add to Requisition list options disappear in cart when one product is out-of-stock"/>
+            <title value="Add to Requisition List Is Visible at View Cart For Out Of Stock Product"/>
+            <description value="Verify that add to requisition list button is visible at view cart page for out of stock product"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-41424"/>
+            <useCaseId value="MC-41123"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <!--Login as Admin-->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!--Enable requisition list-->
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <createData entity="Simple_US_Customer" stepKey="createSimpleUSCustomer">
+                <field key="group_id">1</field>
+            </createData>
+            <createData entity="_defaultCategory" stepKey="createCategory"/>
+            <createData entity="SimpleProduct" stepKey="createFirstProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <field key="price">100.00</field>
+            </createData>
+            <createData entity="SimpleProduct" stepKey="createSecondProduct">
+                <requiredEntity createDataKey="createCategory"/>
+                <field key="price">200.00</field>
+            </createData>
+        </before>
+        <after>
+            <!--Logout from storefront-->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontCustomerLogout"/>
+            <!--Disable requisition list-->
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <deleteData createDataKey="createSimpleUSCustomer" stepKey="deleteCreatedSimpleUSCustomer"/>
+            <deleteData createDataKey="createFirstProduct" stepKey="deleteFirstProduct"/>
+            <deleteData createDataKey="createSecondProduct" stepKey="deleteSecondProduct"/>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <!--Clear products grid-->
+            <amOnPage url="{{AdminProductIndexPage.url}}" stepKey="navigateToProductIndex"/>
+            <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearProductGridFilters"/>
+            <!--Logout from Admin-->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <!-- Login to storefront -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin1">
+            <argument name="Customer" value="$$createSimpleUSCustomer$$"/>
+        </actionGroup>
+        <!-- Add first product to cart-->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openFirstProduct">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddToCartFromStorefrontProductPageActionGroup" stepKey="addFirstProductToCart">
+            <argument name="productName" value="$$createFirstProduct.name$$"/>
+        </actionGroup>
+        <waitForPageLoad time="90" stepKey="waitForFirstProductToAdd"/>
+        <!-- Add second product to cart-->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openSecondProduct">
+            <argument name="product" value="$$createSecondProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="AddToCartFromStorefrontProductPageActionGroup" stepKey="addSecondProductToCart">
+            <argument name="productName" value="$$createSecondProduct.name$$"/>
+        </actionGroup>
+        <waitForPageLoad time="90" stepKey="waitForSecondProductToAdd"/>
+        <!-- Go to cart page -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="goToCartPage"/>
+        <waitForPageLoad stepKey="waitForViewCartForm"/>
+
+        <!-- Verify customer can see `Add to Requisition List` button -->
+        <seeElement selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton($$createFirstProduct.sku$$)}}" stepKey="seeAddToRequisitionListButtonForFirstProduct"/>
+        <seeElement selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton($$createSecondProduct.sku$$)}}" stepKey="seeAddToRequisitionListButtonForSecondProduct"/>
+
+        <!--Open Product Index Page and filter the product-->
+        <actionGroup ref="AdminOpenProductIndexPageActionGroup" stepKey="openProductIndexPage"/>
+
+        <actionGroup ref="FilterProductGridBySkuActionGroup" stepKey="filterProduct">
+            <argument name="product" value="$$createFirstProduct$$"/>
+        </actionGroup>
+
+        <!-- Update first product status and make it `out of stock` -->
+        <actionGroup ref="OpenProductForEditByClickingRowXColumnYInProductGridActionGroup" stepKey="openProduct"/>
+        <selectOption selector="{{AdminProductFormSection.productStockStatus}}" userInput="Out of Stock" stepKey="selectOutOfStockStatus"/>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="saveProduct"/>
+        <waitForPageLoad time="60" stepKey="waitForProductSave"/>
+
+        <!-- Go back to cart page again -->
+        <actionGroup ref="StorefrontCartPageOpenActionGroup" stepKey="goToCartPage2"/>
+        <waitForPageLoad stepKey="waitForViewCartForm2"/>
+
+        <!-- Verify at cart error message for `out of stock` is shown-->
+        <see userInput="Some of the products are out of stock." stepKey="seeErrorInShoppingCart"/>
+        <!-- Verify customer can see `Add to Requisition List` button -->
+        <seeElement selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton($$createFirstProduct.sku$$)}}" stepKey="seeAddToRequisitionListButtonForFirstProduct2"/>
+        <seeElement selector="{{CheckoutCartProductSection.cartItemAddToRequisitionListButton($$createSecondProduct.sku$$)}}" stepKey="seeAddToRequisitionListButtonForSecondProduct2"/>
+    </test>
+</tests>

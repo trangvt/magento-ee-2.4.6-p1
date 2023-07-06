@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="DefaultCompanyUser" type="customer">
+        <data key="job_title">Default Job Title</data>
+        <data key="prefix">Prefix</data>
+        <data key="role">Default User</data>
+        <data key="firstname">Company Customer FirstName</data>
+        <data key="lastname">Company Customer LastName</data>
+        <data key="email" unique="prefix">companyCustomer@mail.com</data>
+        <data key="telephone">555-555-5555</data>
+        <data key="status">Active</data>
+    </entity>
+    <entity name="CompanyAdminUser" type="customer">
+        <data key="role">Company Administrator</data>
+    </entity>
+</entities>

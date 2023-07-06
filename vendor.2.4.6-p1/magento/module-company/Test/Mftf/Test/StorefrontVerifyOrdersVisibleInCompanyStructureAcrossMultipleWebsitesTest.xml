@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyOrdersVisibleInCompanyStructureAcrossMultipleWebsitesTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="My Orders"/>
+            <title value="View Orders Across Multiple Websites"/>
+            <description value="Verify orders created by company subordinates in different websites are visible to the
+            company admin in the default website. Verify orders created by the company admin in the default website are
+            not visible to company subordinates in a custom website."/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-29146"/>
+            <group value="company"/>
+            <group value="sales"/>
+            <group value="multi-website"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="LoginAsAdmin"/>
+
+            <!-- Create Company Admin for Main Website -->
+            <createData entity="Simple_US_Customer_CA" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+
+            <!-- Create Products -->
+            <createData entity="defaultSimpleProduct" stepKey="createProduct" />
+            <createData entity="NewRootCategory" stepKey="newRootCategory"/>
+            <createData entity="defaultSimpleProduct" stepKey="createProductCustomWebsite">
+                <requiredEntity createDataKey="newRootCategory" />
+            </createData>
+
+            <!-- Create Website, Store, & Store View -->
+            <actionGroup ref="AdminCreateWebsiteActionGroup" stepKey="createWebsite">
+                <argument name="newWebsiteName" value="{{customWebsite.name}}"/>
+                <argument name="websiteCode" value="{{customWebsite.code}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminGetWebsiteIdActionGroup" stepKey="getCustomWebsiteId">
+                <argument name="website" value="customWebsite"/>
+            </actionGroup>
+            <actionGroup ref="CreateCustomStoreActionGroup" stepKey="createStore">
+                <argument name="website" value="{{customWebsite.name}}"/>
+                <argument name="store" value="{{customStoreGroup.name}}"/>
+                <argument name="rootCategory" value="$$newRootCategory.name$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="createStoreView">
+                <argument name="StoreGroup" value="customStoreGroup"/>
+                <argument name="customStore" value="customStoreEN"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+
+            <!-- Create Customer for Second Website -->
+            <createData entity="Simple_US_Customer" stepKey="createCompanyUser">
+                <field key="website_id">$grabFromCurrentUrlGetCustomWebsiteId</field>
+            </createData>
+
+            <!-- Add Store Codes to URLs -->
+            <magentoCLI command="config:set {{StorefrontEnableAddStoreCodeToUrls.path}} {{StorefrontEnableAddStoreCodeToUrls.value}}" stepKey="enableAddStoreCodeToUrls"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <magentoCLI command="config:set {{StorefrontDisableAddStoreCodeToUrls.path}} {{StorefrontDisableAddStoreCodeToUrls.value}}" stepKey="disableAddStoreCodeToUrls"/>
+            <actionGroup ref="DeleteCustomWebsiteActionGroup" stepKey="deleteStore1">
+                <argument name="websiteName" value="customWebsite.name"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+            <deleteData createDataKey="createCompanyUser" stepKey="deleteCompanyUser"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createProductCustomWebsite" stepKey="deleteProductCustomWebsite"/>
+            <deleteData createDataKey="newRootCategory" stepKey="deleteCategory"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Assign Company to Subordinate Customer -->
+        <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="goToCustomerEditPage">
+            <argument name="customerId" value="$$createCompanyUser.id$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="associateCustomerWithCompany">
+            <argument name="companyName" value="$$createCompany.company_name$$"/>
+        </actionGroup>
+
+        <!-- Assign Second Product to Second (Custom) Website -->
+        <actionGroup ref="AdminProductPageOpenByIdActionGroup" stepKey="openAdminProductPage">
+            <argument name="productId" value="$$createProductCustomWebsite.id$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAssignProductInWebsiteActionGroup" stepKey="selectProductInWebsites">
+            <argument name="website" value="{{customWebsite.name}}"/>
+        </actionGroup>
+        <actionGroup ref="SaveProductFormActionGroup" stepKey="clickSaveButton"/>
+
+        <!-- Create Order in Second (Custom) Website as Company User -->
+        <actionGroup ref="StorefrontCustomStoreLoginActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$$createCompanyUser$$"/>
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="amOnSignInPage"/>
+        <comment userInput="BIC workaround" stepKey="waitPageFullyLoaded"/>
+        <comment userInput="BIC workaround" stepKey="waitForFormToAppear"/>
+        <comment userInput="BIC workaround" stepKey="fillEmail"/>
+        <comment userInput="BIC workaround" stepKey="fillPassword"/>
+        <comment userInput="BIC workaround" stepKey="clickSignInAccountButton"/>
+        <comment userInput="BIC workaround" stepKey="waitForCustomerLoggedIn"/>
+        <actionGroup ref="StorefrontOpenProductPageOnSecondStoreActionGroup" stepKey="openStorefrontProductPage">
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+            <argument name="productUrl" value="$createProductCustomWebsite.name$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProductToCart"/>
+        <comment userInput="BIC workaround" stepKey="clickAddToCart"/>
+        <comment userInput="BIC workaround" stepKey="waitForSuccessMessage"/>
+        <comment userInput="BIC workaround" stepKey="assertSuccessMessage"/>
+        <comment userInput="BIC workaround" stepKey="seeCartQuantity"/>
+        <actionGroup ref="StorefrontOpenCustomStoreCheckoutPageActionGroup" stepKey="goToCheckout">
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFlatRateShippingMethod"/>
+        <comment userInput="BIC workaround" stepKey="waitNextButtonAppears"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNext"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="clickCheckMoneyOrderPayment"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlaceOrder"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="grabCompanyUserOrderNumber"/>
+
+        <!-- Verify Order in My Account > My Orders as Company User in Second (Custom) Website -->
+        <actionGroup ref="StorefrontCustomStoreNavigateToCustomerOrdersHistoryPageActionGroup" stepKey="goToMyOrdersPage2">
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="waitForMyOrdersPageLoad"/>
+        <seeElement selector="{{StorefrontCustomerOrdersGridSection.orderView({$grabCompanyUserOrderNumber})}}" stepKey="seeOrderInGrid"/>
+
+        <!-- Verify Order Created By Company User in Custom Website as Company Admin in Default Website -->
+        <actionGroup ref="StorefrontCustomStoreCustomerLogoutActionGroup" stepKey="storefrontSignOut">
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="waitForSignOut"/>
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefrontAsCompanyAdmin">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontNavigateToCustomerOrdersHistoryPageActionGroup" stepKey="goToMyOrdersPageAsCompanyAdmin"/>
+        <comment userInput="BIC workaround" stepKey="waitForMyOrdersPageLoad2"/>
+        <seeElement selector="{{StorefrontCustomerOrdersGridSection.orderView({$grabCompanyUserOrderNumber})}}" stepKey="seeOrderInGridAsCompanyAdmin"/>
+
+        <!-- Create Order in Default Website as Company Admin -->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openStorefrontProductPage2">
+            <argument name="product" value="$$createProduct$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="clickAddToCart2"/>
+        <comment userInput="BIC workaround" stepKey="waitForSuccessMessage2"/>
+        <comment userInput="BIC workaround" stepKey="assertSuccessMessage2"/>
+        <comment userInput="BIC workaround" stepKey="seeCartQuantity2"/>
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="goToCheckout2"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFlatRateShippingMethod2"/>
+        <comment userInput="BIC workaround" stepKey="waitNextButtonAppears2"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickNext2"/>
+        <actionGroup ref="CheckoutSelectCheckMoneyOrderPaymentActionGroup" stepKey="clickCheckMoneyOrderPayment2"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlaceOrder2"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber22}}" stepKey="grabCompanyAdminOrderNumber"/>
+
+        <!-- Verify Order in My Account > My Orders as Company Admin in Default Website -->
+        <actionGroup ref="StorefrontNavigateToCustomerOrdersHistoryPageActionGroup" stepKey="goToMyOrdersPageAsCompanyAdmin2"/>
+        <comment userInput="BIC workaround" stepKey="waitForMyOrdersPageLoad3"/>
+        <seeElement selector="{{StorefrontCustomerOrdersGridSection.orderView({$grabCompanyAdminOrderNumber})}}" stepKey="seeOrderInGridAsCompanyAdmin2"/>
+
+        <!-- Verify Company User in Second (Custom) Website Cannot See Order Created By Company Admin in Default Website at My Account > My Orders -->
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontSignOut2"/>
+        <comment userInput="BIC workaround" stepKey="waitForSignOut2"/>
+        <actionGroup ref="StorefrontCustomStoreLoginActionGroup" stepKey="loginToStorefront2">
+            <argument name="Customer" value="$$createCompanyUser$$"/>
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="amOnSignInPage2"/>
+        <comment userInput="BIC workaround" stepKey="waitPageFullyLoaded2"/>
+        <comment userInput="BIC workaround" stepKey="waitForFormToAppear2"/>
+        <comment userInput="BIC workaround" stepKey="fillEmail2"/>
+        <comment userInput="BIC workaround" stepKey="fillPassword2"/>
+        <comment userInput="BIC workaround" stepKey="clickSignInAccountButton2"/>
+        <comment userInput="BIC workaround" stepKey="waitForCustomerLoggedIn2"/>
+        <actionGroup ref="StorefrontCustomStoreNavigateToCustomerOrdersHistoryPageActionGroup" stepKey="goToMyOrdersPageAsCompanyAdmin3">
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="waitForMyOrdersPageLoad4"/>
+        <dontSeeElement selector="{{StorefrontCustomerOrdersGridSection.orderView({$grabCompanyAdminOrderNumber})}}" stepKey="dontSeeCompanyAdminOrderInGridAsCompanyUser"/>
+
+        <!-- Logout -->
+        <actionGroup ref="StorefrontCustomStoreCustomerLogoutActionGroup" stepKey="storefrontSignOut3">
+            <argument name="storeCode" value="{{customStoreEN.code}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="waitForSignOut3"/>
+    </test>
+</tests>

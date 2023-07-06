@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminSharedCatalogFilterProductsOnGridActionGroup">
+        <arguments>
+            <argument name="productName" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{AdminSharedCatalogCatalogStructureProductGridSection.filterButton}}" stepKey="waitForFilters"/>
+        <click selector="{{AdminSharedCatalogCatalogStructureProductGridSection.filterButton}}" stepKey="openFiltersSectionOnSharedCatalogIndexPage"/>
+        <conditionalClick selector="{{AdminSharedCatalogCatalogStructureProductGridSection.clearFiltersButton}}" dependentSelector="{{AdminSharedCatalogCatalogStructureProductGridSection.clearFiltersButton}}" visible="true" stepKey="cleanFiltersIfTheySet"/>
+        <fillField userInput="{{productName}}" selector="{{AdminSharedCatalogCatalogStructureProductGridSection.nameField}}" stepKey="fillNameFieldOnFiltersSection"/>
+        <click selector="{{AdminSharedCatalogCatalogStructureProductGridSection.applyFilters}}" stepKey="clickApplyFiltersButton"/>
+    </actionGroup>
+</actionGroups>

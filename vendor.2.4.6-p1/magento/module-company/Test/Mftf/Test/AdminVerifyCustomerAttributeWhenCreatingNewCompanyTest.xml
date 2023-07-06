@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminVerifyCustomerAttributeWhenCreatingNewCompanyTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Company admin tab does not show custom customer attribute"/>
+            <title value="Asserting the customer attribute that is set to be hidden from the storefront is visible in company admin section."/>
+            <description value="Asserting the customer attribute that is set to be hidden from the storefront is visible in company admin section."/>
+            <testCaseId value="AC-1130"/>
+            <useCaseId value="ACP2E-128"/>
+            <severity value="AVERAGE"/>
+            <group value="Company"/>
+        </annotations>
+
+        <before>
+            <!--Login As Admin-->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!--Create new website,store and store view-->
+            <actionGroup ref="AdminCreateWebsiteActionGroup" stepKey="adminCreateNewWebsite">
+                <argument name="newWebsiteName" value="{{NewWebSiteData.name}}"/>
+                <argument name="websiteCode" value="{{NewWebSiteData.code}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateNewStoreGroupActionGroup" stepKey="adminCreateNewStore">
+                <argument name="website" value="{{NewWebSiteData.name}}"/>
+                <argument name="storeGroupName" value="{{NewStoreData.name}}"/>
+                <argument name="storeGroupCode" value="{{NewStoreData.code}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminCreateStoreViewActionGroup" stepKey="adminCreateNewStoreView">
+                <argument name="StoreGroup" value="NewStoreData"/>
+            </actionGroup>
+            <!--Create customer attributes-->
+            <actionGroup ref="AdminCreateCustomerCustomAttribute" stepKey="createAttribute">
+                <argument name="customerAttribute" value="AttributeTextFieldData"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+        </before>
+
+        <after>
+            <comment userInput="BIC workaround" stepKey="delete"/>
+            <!-- Select and Delete created Website -->
+            <actionGroup ref="AdminDeleteWebsiteActionGroup" stepKey="deleteTestWebsite">
+                <argument name="websiteName" value="{{NewWebSiteData.name}}"/>
+            </actionGroup>
+            <!-- Select and Delete created Customer Attribute -->
+            <actionGroup ref="AdminDeleteCustomerCustomAttributeActionGroup" stepKey="deleteCustomerCustomAttribute">
+                <argument name="attributeLabel" value="{{AttributeTextFieldData.label}}"/>
+            </actionGroup>
+            <magentoCron groups="index" stepKey="reindex"/>
+            <!--Logout As Admin-->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <!-- Select and Edit created Customer Attribute for main website -->
+        <actionGroup ref="AdminCustomerAttributeSetShowInStoreFrontValueToSpecificWebsiteActionGroup" stepKey="editCustomerAttributesWithMainWebsite">
+            <argument name="attributeCode" value="{{AttributeTextFieldData.code}}"/>
+            <argument name="chooseWebsiteStoreView" value="Main Website"/>
+        </actionGroup>
+        <!-- Select and Edit created Customer Attribute for second website -->
+        <actionGroup ref="AdminCustomerAttributeSetShowInStoreFrontValueToSpecificWebsiteActionGroup" stepKey="editCustomerAttributesWithSecondWebsite">
+            <argument name="attributeCode" value="{{AttributeTextFieldData.code}}"/>
+            <argument name="chooseWebsiteStoreView" value="{{NewWebSiteData.name}}"/>
+        </actionGroup>
+        <!-- Select and open a new company form -->
+        <actionGroup ref="AdminStartToCreateCompanyActionGroup" stepKey="startToCreateCompany">
+            <argument name="companyName" value="{{Default_Company.company_name}}"/>
+            <argument name="companyEmail" value="{{CustomerEntityOne.email}}"/>
+        </actionGroup>
+        <!-- Expand company admin section and check the custom attribute is existing -->
+        <actionGroup ref="AdminAssertCompanyAdminSectionHasVisibleAttributeActionGroup" stepKey="adminExpandCompanyAdmin">
+            <argument name="companyAdminCustomElement" value="{{AttributeTextFieldData.code}}"/>
+        </actionGroup>
+    </test>
+</tests>

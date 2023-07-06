@@ -1,0 +1,14 @@
+{
+    "company_shipping": {
+        "column": {
+            "company_id": true,
+            "applicable_shipping_method": true,
+            "available_shipping_methods": true,
+            "use_config_settings": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "COMPANY_SHIPPING_COMPANY_ID_COMPANY_ENTITY_ID": true
+        }
+    }
+}

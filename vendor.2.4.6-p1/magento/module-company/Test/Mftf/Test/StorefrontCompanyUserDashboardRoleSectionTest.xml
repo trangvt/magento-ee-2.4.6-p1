@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCompanyUserDashboardRoleSectionTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="My Account"/>
+            <title value="Verify User Role on Storefront My Account Page"/>
+            <description value="Verify user role on the storefront My Account page for a company admin user, a non-admin
+            company user, and a non-company user"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-34216"/>
+            <useCaseId value="B2B-412"/>
+            <group value="company"/>
+            <group value="customer"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Create Company Admin & 2 Customers -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyCustomer"/>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+
+            <!-- Assign Customer 1 to Company -->
+            <actionGroup ref="AdminOpenCustomerEditPageActionGroup" stepKey="openCustomerEditPage">
+                <argument name="customerId" value="$$createCompanyCustomer.id$"/>
+            </actionGroup>
+            <actionGroup ref="AdminAddACompanyToCustomerActionGroup" stepKey="assignCustomerToCompany">
+                <argument name="companyName" value="$$createCompany.company_name$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontLogout"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <deleteData createDataKey="createCompanyCustomer" stepKey="deleteCompanyCustomer"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+
+        <!-- Verify Company Admin User Role on My Account Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCompanyAdminToStorefront">
+            <argument name="Customer" value="$$createCompanyAdmin$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="goToAdminCustomerAccountDashboard"/>
+        <actionGroup ref="StorefrontVerifyUserRoleOnCustomerAccountDashboardActionGroup" stepKey="verifyAdminUserRole">
+            <argument name="userRole" value="{{CompanyAdminUser.role}}"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCompanyAdmin"/>
+
+        <!-- Verify Company Non-Admin User Role on My Account Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCompanyCustomerToStorefront">
+            <argument name="Customer" value="$$createCompanyCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="goToCompanyCustomerAccountDashboard"/>
+        <actionGroup ref="StorefrontVerifyUserRoleOnCustomerAccountDashboardActionGroup" stepKey="verifyDefaultUserRole"/>
+        <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontCompanyCustomerLogout"/>
+
+        <!-- Verify Non-Company User Doesn't See Any Role on My Account Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsNotCompanyCustomerToStorefront">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="goToCustomerAccountDashboard"/>
+        <actionGroup ref="StorefrontVerifyNoUserRoleOnCustomerAccountDashboardActionGroup" stepKey="verifyNoUserRoleSection"/>
+    </test>
+</tests>

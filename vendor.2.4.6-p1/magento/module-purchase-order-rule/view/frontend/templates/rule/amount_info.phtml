@@ -1,0 +1,27 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var \Magento\PurchaseOrderRule\Block\RuleFieldset\Condition $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$ruleCondition = $block->getPurchaseOrderRuleCondition();
+?>
+<fieldset class="fieldset condition<?= !$block->isConditionSelected() ? ' _hide' : '' ?>">
+    <div class="field field-condition-order-total">
+        <label class="label" for="conditions_operator">
+            <span><?= $escaper->escapeHtml(__($block->getConditionLabel())) ?></span>
+        </label>
+        <div class="control">
+            <div class="control">
+                <?= $escaper->escapeHtmlAttr(__($block->getSelectedOperator())) . ' ' .
+                    $escaper->escapeHtmlAttr($block->getSelectedCurrency()) .
+                    $escaper->escapeHtmlAttr($ruleCondition[0]['value'])
+                ?>
+            </div>
+        </div>
+    </div>
+</fieldset>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontAddNotVisibleIndividuallyProductToQuickOrderTest">
+        <annotations>
+            <features value="Quick Order"/>
+            <stories value="Create Quick Order"/>
+            <title value="Not visible individually product can be added to the cart from the Quick Order page"/>
+            <description value="A product that is not visible individually can be added to the cart from the quick order page"/>
+            <severity value="CRITICAL"/>
+            <group value="quickOrder"/>
+            <testCaseId value="MC-41968"/>
+            <useCaseId value="MC-41299"/>
+            <group value="cloud_smoke"/>
+        </annotations>
+        <before>
+            <createData entity="B2BEnabledQuickOrderConfig" stepKey="enabledQuickOrderConfig"/>
+            <createData entity="SimpleProductNotVisibleIndividually" stepKey="createInvisibleProduct"/>
+        </before>
+        <after>
+            <createData entity="B2BDefaultConfig" stepKey="defaultB2BConfig"/>
+            <deleteData createDataKey="createInvisibleProduct" stepKey="deleteProduct1"/>
+        </after>
+        <!-- 1. Open the Quick Order page -->
+        <actionGroup ref="StorefrontGoToQuickOrderPageActionGroup" stepKey="goQuickOrderPage"/>
+        <!-- 2. Check that not visible individually product is founded by partial search by SKU -->
+        <actionGroup ref="StorefrontQuickOrderPartialSearchActionGroup" stepKey="quickOrderPartialSearch">
+            <argument name="productSku" value="$createInvisibleProduct.type_id$"/>
+            <argument name="productName" value="$createInvisibleProduct.name$"/>
+        </actionGroup>
+    </test>
+</tests>

@@ -1,0 +1,8 @@
+app/code/Magento/Company/Model/ResourceModel/Company/Grid
+app/code/Magento/Company/Ui/Component/Listing/Column
+app/code/Magento/CompanyCredit/Model
+app/code/Magento/NegotiableQuote/Controller/Quote
+app/code/Magento/NegotiableQuote/Model
+app/code/Magento/RequisitionList/Controller/Item
+app/code/Magento/PurchaseOrderRule/Model/ResourceModel/PurchaseOrder/Grid
+app/code/Magento/PurchaseOrder/Model/Notification/Email/ContentSource

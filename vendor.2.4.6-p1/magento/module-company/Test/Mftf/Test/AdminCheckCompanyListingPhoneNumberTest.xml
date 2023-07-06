@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCheckCompanyListingPhoneNumberTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Admin Company Grid"/>
+            <title value="Verify Phone Number on Company Grid Page"/>
+            <description value="Verify companies can be filtered by phone number successfully on the admin Company Index page."/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-30423"/>
+            <group value="b2b"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Create Company Admin for Main Website -->
+            <createData entity="Simple_US_Customer" stepKey="companyAdmin"/>
+            <createData entity="Default_Company" stepKey="defaultCompany">
+                <requiredEntity createDataKey="companyAdmin"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Delete Data & Clear Filters -->
+            <deleteData createDataKey="defaultCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="companyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearGridFilters"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Go to Admin Company Index Page and Filter Grid by Phone Number and Verify Result -->
+        <actionGroup ref="AdminNavigateToCompaniesIndexPageActionGroup" stepKey="navigateToCompaniesIndexPage"/>
+        <actionGroup ref="AdminFilterCompanyByPhoneNumberActionGroup" stepKey="filterByCompany">
+            <argument name="company" value="Default_Company"/>
+        </actionGroup>
+        <see selector="{{AdminCompanyGridSection.companyGridCell('1','Phone Number')}}" userInput="{{Default_Company.telephone}}" stepKey="seePhoneNumberInGrid"/>
+        <comment userInput="BIC workaround" stepKey="clickClearFilters"/>
+    </test>
+</tests>

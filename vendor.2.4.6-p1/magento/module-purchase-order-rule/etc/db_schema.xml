@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="purchase_order_rule" resource="default" engine="innodb" comment="Purchase Order Approval Rules Table">
+        <column xsi:type="int" name="rule_id" unsigned="true" nullable="false" identity="true"
+                comment="Rule ID"/>
+        <column xsi:type="varchar" name="name" nullable="false" comment="Rule Name"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Rule Description"/>
+        <column xsi:type="boolean" name="is_active" nullable="false" comment="Rule Status"/>
+        <column xsi:type="boolean" name="applies_to_all" nullable="false" comment="Does this rule apply to all roles?"/>
+        <column xsi:type="int" name="company_id" unsigned="true" nullable="false" comment="Company ID"/>
+        <column xsi:type="mediumtext" name="conditions_serialized" nullable="true"
+                comment="Serialized conditions for rule"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Updated At"/>
+        <column xsi:type="int" name="created_by" unsigned="true" nullable="true" comment="Customer ID"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="rule_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_RULE_CREATED_BY_CUSTOMER_ENTITY_ENTITY_ID"
+                    table="purchase_order_rule" column="created_by" referenceTable="customer_entity" referenceColumn="entity_id"
+                    onDelete="SET NULL"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_RULE_COMPANY_ID_COMPANY_ENTITY_ID"
+                    table="purchase_order_rule" column="company_id" referenceTable="company" referenceColumn="entity_id"
+                    onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="PURCHASE_ORDER_RULE_COMPANY_ID_NAME">
+            <column name="company_id"/>
+            <column name="name"/>
+        </constraint>
+    </table>
+    <table name="purchase_order_rule_approver" resource="default" engine="innodb"
+           comment="Purchase Order Approval Rules Approvers">
+        <column xsi:type="int" name="approver_id" unsigned="true" nullable="false" identity="true"
+                comment="Approver ID"/>
+        <column xsi:type="int" name="rule_id" unsigned="true" nullable="false"
+                comment="Purchase Order Rule ID"/>
+        <column xsi:type="int" name="role_id" unsigned="true" nullable="true" comment="Company Role ID"/>
+        <column xsi:type="boolean" name="requires_admin_approval" nullable="true" comment="Admin Approval Required"/>
+        <column xsi:type="boolean" name="requires_manager_approval" nullable="true" comment="Manager Approval Required"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_RULE_APPROVER_RULE_ID"
+                    table="purchase_order_rule_approver" column="rule_id" referenceTable="purchase_order_rule"
+                    referenceColumn="rule_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_RULE_APPROVER_ROLE_ID"
+                    table="purchase_order_rule_approver" column="role_id" referenceTable="company_roles"
+                    referenceColumn="role_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="PURCHASE_ORDER_RULE_APPROVER_RULE_ID_ROLE_ID_UNIQUE">
+            <column name="rule_id"/>
+            <column name="role_id"/>
+        </constraint>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="approver_id"/>
+        </constraint>
+    </table>
+    <table name="purchase_order_rule_applies_to" resource="default" engine="innodb"
+           comment="Defines which roles the rule applies to within the company">
+        <column xsi:type="int" name="rule_id" unsigned="true" nullable="false"
+                comment="Purchase Order Rule ID"/>
+        <column xsi:type="int" name="role_id" unsigned="true" nullable="false" comment="Company Role ID"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_RULE_APPLIES_TO_RULE_ID"
+                    table="purchase_order_rule_approver" column="rule_id" referenceTable="purchase_order_rule"
+                    referenceColumn="rule_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_RULE_APPLIES_TO_ROLE_ID"
+                    table="purchase_order_rule_approver" column="role_id" referenceTable="company_roles"
+                    referenceColumn="role_id" onDelete="CASCADE"/>
+        <constraint xsi:type="primary" referenceId="PURCHASE_ORDER_RULE_APPLIES_TO_RULE_ID_ROLE_ID_UNIQUE">
+            <column name="rule_id"/>
+            <column name="role_id"/>
+        </constraint>
+    </table>
+    <table name="purchase_order_applied_rule" resource="default" engine="innodb"
+           comment="Rules that were applied to a Purchase Order during validation">
+        <column xsi:type="int" name="applied_rule_id" unsigned="true" nullable="false" identity="true"
+                comment="Approver ID"/>
+        <column xsi:type="int" name="purchase_order_id" unsigned="true" nullable="false"
+                comment="Purchase Order ID"/>
+        <column xsi:type="int" name="rule_id" unsigned="true" nullable="false"
+                comment="Purchase Order Rule ID"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_APPLIED_RULE_PURCHASE_ORDER"
+                    table="purchase_order_applied_rule" column="purchase_order_id" referenceTable="purchase_order"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_APPLIED_RULE_PURCHASE_ORDER_RULE"
+                    table="purchase_order_applied_rule" column="rule_id" referenceTable="purchase_order_rule"
+                    referenceColumn="rule_id" onDelete="CASCADE"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="applied_rule_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="PURCHASE_ORDER_APPLIED_RULE_UNIQUE">
+            <column name="purchase_order_id"/>
+            <column name="rule_id"/>
+        </constraint>
+    </table>
+    <table name="purchase_order_applied_rule_approver" resource="default" engine="innodb"
+           comment="Approvers required for an applied rule on a Purchase Order">
+        <column xsi:type="int" name="applied_rule_approver_id" unsigned="true" nullable="false" identity="true"
+                comment="Applied rule approver ID"/>
+        <column xsi:type="int" name="applied_rule_id" unsigned="true" nullable="false"
+                comment="Purchase Order Applied ID"/>
+        <column xsi:type="int" name="role_id" unsigned="true" nullable="true"
+                comment="Company Role ID"/>
+        <column xsi:type="varchar" name="approver_type" nullable="false" length="32" default="simple" comment="Approver Type"/>
+        <column xsi:type="smallint" name="status" nullable="false" default="0" comment="Current state of the approver"/>
+        <column xsi:type="int" name="customer_id" unsigned="true" nullable="true"
+                comment="The customer ID who acted upon this approver entry"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="false" nullable="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="applied_rule_approver_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_APPLIED_RULE_APPROVER_APPLIED_RULE"
+                    table="purchase_order_applied_rule_approver" column="applied_rule_id"
+                    referenceTable="purchase_order_applied_rule"
+                    referenceColumn="applied_rule_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_APPLIED_RULE_ROLE_ID"
+                    table="purchase_order_applied_rule_approver" column="role_id" referenceTable="company_roles"
+                    referenceColumn="role_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="PURCHASE_ORDER_APPLIED_APPROVED_BY"
+                    table="purchase_order_applied_rule_approver" column="customer_id" referenceTable="customer_entity"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+    </table>
+</schema>

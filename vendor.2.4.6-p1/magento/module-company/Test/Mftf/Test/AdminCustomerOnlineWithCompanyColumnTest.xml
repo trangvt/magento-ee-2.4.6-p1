@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCustomerOnlineWithCompanyColumnTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Admin Customer Grid"/>
+            <title value="Check Company Column on Customer Online Grid"/>
+            <description value="Verify company column is not shown by default on the admin Customers Now Online page.
+            Verify can add company column to grid and successfully filter on the field"/>
+            <severity value="MAJOR"/>
+            <group value="company"/>
+            <group value="customer"/>
+        </annotations>
+
+        <before>
+            <!-- Create Company Admin & 1 Customer -->
+            <createData entity="Simple_US_Customer" stepKey="companyAdmin"/>
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="Default_Company" stepKey="defaultCompany">
+                <requiredEntity createDataKey="companyAdmin"/>
+            </createData>
+
+            <!-- Login to Storefront As Company Admin -->
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCompanyAdminToStorefront">
+                <argument name="Customer" value="$$companyAdmin$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="login"/>
+        </before>
+
+        <after>
+            <!-- Customer Log out -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <!-- Delete Data -->
+            <deleteData createDataKey="createCustomer" stepKey="deleteSecondCustomer"/>
+            <deleteData createDataKey="defaultCompany" stepKey="deleteCompany"/>
+            <comment userInput="BIC workaround" stepKey="customerLogout"/>
+            <deleteData createDataKey="companyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Go to Customers Now Online Page -->
+        <actionGroup ref="AdminNavigateToCustomerOnlinePageActionGroup" stepKey="navigateToNowOnlinePage"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+
+        <!-- Verify Company Column is Not Shown by Default -->
+        <dontSeeElementInDOM selector="{{AdminDataGridTableSection.columnHeader('Company')}}" stepKey="dontSeeCompanyColumn"/>
+
+        <!-- Add Company Column to Grid, Filter by Company, and Verify Customer is in Grid -->
+        <actionGroup ref="AdminAddColumnToAdminGridActionGroup"  stepKey="adminAddColumnToAdminGrid">
+            <argument name="columnName" value="Company"/>
+        </actionGroup>
+        <actionGroup ref="AdminGridFilterFillInputFieldActionGroup" stepKey="searchCompany">
+            <argument name="filterInputName" value="company_name"/>
+            <argument name="filterValue" value="{{Default_Company.company_name}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminGridFilterApplyActionGroup" stepKey="adminGridFilterApply"/>
+        <actionGroup ref="AdminAssertCustomerInCustomersNowOnlineGridActionGroup" stepKey="assertCustomerInCustomersNowOnlineGrid">
+            <argument name="text" value="$$companyAdmin.email$$"/>
+            <argument name="columnName" value="Email"/>
+        </actionGroup>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultViewAfterTest"/>
+    </test>
+</tests>

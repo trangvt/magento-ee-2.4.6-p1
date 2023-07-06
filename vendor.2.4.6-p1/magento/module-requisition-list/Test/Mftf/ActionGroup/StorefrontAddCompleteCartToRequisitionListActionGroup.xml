@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAddCompleteCartToRequisitionListActionGroup">
+        <annotations>
+            <description>Adds entire shopping cart to a requisition list from the checkout shopping cart page.</description>
+        </annotations>
+        <arguments>
+            <argument name="requisitionListName" type="string" defaultValue="RL1" />
+        </arguments>
+
+        <waitForElementVisible selector="{{StorefrontCartPageSection.addShoppingCartToRequisitionListButton}}" stepKey="waitForAddToRequisitionListButton1"/>
+        <click selector="{{StorefrontCartPageSection.addShoppingCartToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton1"/>
+        <waitForElementVisible selector="{{StorefrontCartPageSection.selectRequisitionListName(requisitionListName)}}" stepKey="waitForAddToRequisitionList1"/>
+        <click selector="{{StorefrontCartPageSection.selectRequisitionListName(requisitionListName)}}" stepKey="addToRequisitionList1"/>
+        <waitForPageLoad stepKey="waitForAddingToList"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.success}}" stepKey="waitForSuccessMessage"/>
+        <see selector="{{StorefrontMessagesSection.success}}" userInput="All the items in your Shopping Cart have been added to the &quot;{{requisitionListName}}&quot; requisition list." stepKey="seeSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

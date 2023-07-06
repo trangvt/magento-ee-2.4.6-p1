@@ -1,0 +1,17 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var \Magento\PurchaseOrderRule\Block\PurchaseOrder\Approval\Counter $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$toApprovalCount = $block->requiresApprovalCount();
+if (!$toApprovalCount) {
+    return;
+}
+?>
+<span class="requires-approval-counter"><?= $escaper->escapeHtml($toApprovalCount); ?></span>

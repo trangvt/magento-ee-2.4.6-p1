@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCompanyCreateFormSection">
+        <element name="companyName" type="input" selector="#company_name" timeout="30"/>
+        <element name="companyEmail" type="input" selector="#company_email" timeout="30"/>
+        <element name="streetAddress" type="input" selector="//input[contains(@name, 'company[street][0]')]" timeout="30"/>
+        <element name="city" type="input" selector="#city" timeout="30"/>
+        <element name="country" type="select" selector="#country_id" timeout="30"/>
+        <element name="region" type="select" selector="#region_id" timeout="30"/>
+        <element name="postcode" type="input" selector="#postcode" timeout="30"/>
+        <element name="telephone" type="input" selector="#telephone" timeout="30"/>
+        <element name="captchaField" type="input" selector="#captcha_company_create"/>
+        <element name="captchaImg" type="block" selector=".captcha-img"/>
+        <element name="captchaReload" type="block" selector=".captcha-reload"/>
+    </section>
+</sections>

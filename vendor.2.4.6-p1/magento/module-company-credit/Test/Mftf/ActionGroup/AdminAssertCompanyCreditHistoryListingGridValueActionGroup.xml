@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <!-- To use this action group you must be on company edit page -->
+    <actionGroup name="AdminAssertCompanyCreditHistoryListingGridValueActionGroup">
+        <annotations>
+            <description>Expands the Company Credit section in admin on the Edit Company page and verifies a specified cell in the Credit History grid</description>
+        </annotations>
+        <arguments>
+            <argument name="columnName" type="string"/>
+            <argument name="columnValue" type="string"/>
+        </arguments>
+        <conditionalClick selector="{{AdminCompanyEditSection.customerCredit}}" dependentSelector="{{AdminCompanyEditSection.creditLimit}}" visible="false" stepKey="clickOnCustomerCreditTab"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForElementVisible selector="{{AdminDataGridTableSection.column('columnName')}}" stepKey="waitForColumnVisible"/>
+        <grabTextFrom selector="{{AdminDataGridTableSection.column('columnName')}}" stepKey="grabColumnValue"/>
+        <assertEquals stepKey="assertColumnValue">
+            <actualResult type="variable">grabColumnValue</actualResult>
+            <expectedResult type="string">{{columnValue}}</expectedResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

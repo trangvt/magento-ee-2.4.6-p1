@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRuleEditFormValidationTest" extends="StorefrontPurchaseOrderRuleFormValidationTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="CRUD"/>
+            <title value="Purchase Order Rule Edit Form Validation"/>
+            <description value="This test is intended to ensure that Purchase Order Rule edit form validation works on storefront."/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-33364"/>
+            <useCaseId value="B2B-515"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <!-- Create Purchase Order Rule -->
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" after="clickAddNewRule" stepKey="fillInitialRuleForm">
+            <argument name="rule" value="PurchaseOrderRule_Approver"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" after="fillInitialRuleForm" stepKey="fillInitialRuleCondition"/>
+        <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToSpecificActionGroup" after="fillInitialRuleCondition" stepKey="selectInitialSpecificRole">
+            <argument name="appliesTo" value="PurchaseOrderRuleAppliesTo_Multiple"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" after="selectInitialSpecificRole" stepKey="selectInitialApprovers">
+            <argument name="approver" value="PurchaseOrderRuleApprover_MultipleApprovers"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" after="selectInitialApprovers" stepKey="saveInitialRule"/>
+        <!-- Edit Purchase Order Rule -->
+        <actionGroup ref="StorefrontGoToEditPurchaseOrderRuleActionGroup" after="saveInitialRule" stepKey="clickEditRule"/>
+        <actionGroup ref="StorefrontSelectEmptyRuleTypeForPurchaseOrderRuleActionGroup" stepKey="selectEmptyRuleType" after="selectEmptySpecificAppliesTo"/>
+        <actionGroup ref="StorefrontSaveExistingPurchaseOrderRuleActionGroup" stepKey="saveRuleValidData"/>
+    </test>
+</tests>

@@ -1,0 +1,86 @@
+{
+    "purchase_order_rule": {
+        "column": {
+            "rule_id": true,
+            "name": true,
+            "description": true,
+            "status": true,
+            "company_id": true,
+            "conditions_serialized": true,
+            "created_at": true,
+            "updated_at": true,
+            "is_active": true,
+            "applies_to_all": true,
+            "created_by": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PURCHASE_ORDER_RULE_COMPANY_ID_COMPANY_ENTITY_ID": true,
+            "PURCHASE_ORDER_RULE_NAME": true,
+            "PURCHASE_ORDER_RULE_COMPANY_ID_NAME": true,
+            "PURCHASE_ORDER_RULE_CREATED_BY_CUSTOMER_ENTITY_ENTITY_ID": true
+        }
+    },
+    "purchase_order_rule_approver": {
+        "column": {
+            "approver_id": true,
+            "rule_id": true,
+            "role_id": true,
+            "requires_admin_approval": true,
+            "requires_manager_approval": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PURCHASE_ORDER_RULE_APPROVER_RULE_ID_PURCHASE_ORDER_RULE_RULE_ID": true,
+            "PURCHASE_ORDER_RULE_APPROVER_ROLE_ID_COMPANY_ROLES_ROLE_ID": true,
+            "PURCHASE_ORDER_RULE_APPROVER_RULE_ID_ROLE_ID": true
+        }
+    },
+    "purchase_order_applied_rule": {
+        "column": {
+            "applied_rule_id": true,
+            "purchase_order_id": true,
+            "rule_id": true,
+            "created_at": true
+        },
+        "constraint": {
+            "FK_CB68DDA8E2A2D84FD4D1D2108225A89F": true,
+            "PURCHASE_ORDER_APPLIED_RULE_RULE_ID_PURCHASE_ORDER_RULE_RULE_ID": true,
+            "PRIMARY": true,
+            "PURCHASE_ORDER_APPLIED_RULE_PURCHASE_ORDER_ID_RULE_ID": true
+        }
+    },
+    "purchase_order_applied_rule_approver": {
+        "column": {
+            "applied_rule_id": true,
+            "role_id": true,
+            "approved": true,
+            "approved_by": true,
+            "approved_at": true,
+            "applied_rule_approver_id": true,
+            "status": true,
+            "customer_id": true,
+            "updated_at": true,
+            "approver_type": true
+        },
+        "constraint": {
+            "FK_BC4840611D8686B8FACBE334C370F99D": true,
+            "FK_7B6FCE06BFC0F90422CAD1120E7E0A73": true,
+            "FK_6EFA741F20B46D6FEE97630DDD7E1AD4": true,
+            "PRIMARY": true,
+            "PURCHASE_ORDER_APPLIED_RULE_APPROVER_CSTR_ID_CSTR_ENTT_ENTT_ID": true
+        }
+    },
+    "purchase_order_rule_applies_to": {
+        "column": {
+            "rule_id": true,
+            "role_id": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_2770582793B6AFD2C67AE30F6098DA29": true,
+            "PURCHASE_ORDER_RULE_APPLIES_TO_ROLE_ID_COMPANY_ROLES_ROLE_ID": true,
+            "PURCHASE_ORDER_RULE_APPLIES_TO_RULE_ID_ROLE_ID": true
+        }
+    }
+}

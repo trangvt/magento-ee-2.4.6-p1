@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontRequisitionListNameValidationTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="CRUD"/>
+            <title value="Requisition List Form Validation"/>
+            <description value="This test is intended to ensure that the Requisition List form validation works on storefront."/>
+            <severity value="MAJOR"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+            <createData entity="CustomerEntityOne" stepKey="createCustomer"/>
+        </before>
+        <after>
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="storefrontCustomerLogout"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+        <!-- Login to Storefront -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="customerLogin">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <!-- Open Create New Requisition List Form -->
+        <actionGroup ref="StorefrontGoToRequisitionListIndexPageActionGroup" stepKey="goToRequisitionListPage"/>
+        <actionGroup ref="StorefrontClickCreateRequisitionListActionGroup" stepKey="clickCreateRequisitionList"/>
+        <!-- Enter Name >40 Characters -->
+        <actionGroup ref="StorefrontFillCreateRequisitionListFormActionGroup" stepKey="fillCreateRequisitionListForm">
+            <argument name="requisitionListName" value="{{RequisitionList_InvalidData.long}}"/>
+        </actionGroup>
+        <!-- Verify Error Message -->
+        <actionGroup ref="StorefrontClickSaveRequisitionListAndVerifyErrorActionGroup" stepKey="clickSaveAndVerifyError"/>
+        <!-- Verify Requisition List Was Not Created -->
+        <actionGroup ref="StorefrontClickCancelOnRequisitionListFormActionGroup" stepKey="clickCancelButton"/>
+        <waitForElementVisible selector="{{StorefrontRequisitionListGridSection.emptyRequisitionListGrid}}" stepKey="waitForEmptyRequisitionListGrid"/>
+        <dontSeeElementInDOM selector="{{StorefrontRequisitionListGridSection.requisitionListName(RequisitionList_InvalidData.long)}}" stepKey="dontSeeRequisitionListInGrid"/>
+    </test>
+</tests>

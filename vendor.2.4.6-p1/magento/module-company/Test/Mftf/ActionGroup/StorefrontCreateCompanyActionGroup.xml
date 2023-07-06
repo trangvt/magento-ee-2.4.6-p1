@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontCreateCompanyActionGroup">
+        <arguments>
+            <argument name="company" type="entity" defaultValue="Default_Company"/>
+            <argument name="companyAdmin" type="entity" defaultValue="Simple_US_Customer"/>
+            <argument name="companyEmail" type="string" defaultValue="{{Simple_US_Customer.email}}"/>
+        </arguments>
+        <fillField selector="{{StorefrontCompanyCreateFormSection.companyName}}" userInput="{{company.company_name}}" stepKey="fillCompanyName"/>
+        <fillField selector="{{StorefrontCompanyCreateFormSection.companyEmail}}" userInput="{{companyEmail}}" stepKey="fillCompanyEmail"/>
+        <fillField selector="{{StorefrontCompanyCreateFormSection.streetAddress}}" userInput="{{company.street}}" stepKey="fillStreetAddress"/>
+        <fillField selector="{{StorefrontCompanyCreateFormSection.city}}" userInput="{{company.city}}" stepKey="fillCity"/>
+        <selectOption selector="{{StorefrontCompanyCreateFormSection.country}}" userInput="{{company.country_id}}" stepKey="selectCountry"/>
+        <selectOption selector="{{StorefrontCompanyCreateFormSection.region}}" userInput="{{company.region_id}}" stepKey="selectRegion"/>
+        <fillField selector="{{StorefrontCompanyCreateFormSection.postcode}}" userInput="{{company.postcode}}" stepKey="fillPostcode"/>
+        <fillField selector="{{StorefrontCompanyCreateFormSection.telephone}}" userInput="{{company.telephone}}" stepKey="fillTelephone"/>
+        <fillField selector="{{StorefrontCompanyCreateFormCompanyAdminSection.adminEmail}}" userInput="{{companyAdmin.email}}" stepKey="fillAdminEmail"/>
+        <fillField selector="{{StorefrontCompanyCreateFormCompanyAdminSection.adminFirstName}}" userInput="{{companyAdmin.firstname}}" stepKey="fillFirstName"/>
+        <fillField selector="{{StorefrontCompanyCreateFormCompanyAdminSection.adminLastName}}" userInput="{{companyAdmin.lastname}}" stepKey="fillLastName"/>
+        <click selector="{{StorefrontCompanyCreateMainSection.submit}}" stepKey="createCompany"/>
+        <see userInput="Thank you! We're reviewing your request and will contact you soon" stepKey="seeSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

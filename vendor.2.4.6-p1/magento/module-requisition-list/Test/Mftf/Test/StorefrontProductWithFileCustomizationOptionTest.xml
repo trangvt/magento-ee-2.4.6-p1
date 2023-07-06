@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontProductWithFileCustomizationOptionTest" extends="StorefrontCheckProductInSharedCatalogTest">
+        <annotations>
+            <features value="Requisition List"/>
+            <stories value="Requisition lists products with attachments"/>
+            <title value="Checking product with customization option of type File"/>
+            <description value="Checking product with customization option of type File"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-11669"/>
+            <useCaseId value="MAGETWO-96407"/>
+            <group value="requisitionList"/>
+        </annotations>
+        <before>
+            <!--Enable b2b requisition list configurations-->
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+        </before>
+        <after>
+            <!--Disable b2b configurations-->
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+        </after>
+        <!--Attach a valid file-->
+        <attachFile selector="{{StorefrontProductInfoMainSection.addLinkFileUploadFile(ProductOptionFile.title)}}" userInput="{{MagentoLogo.file}}" stepKey="attachValidFile" after="assertProductInStock"/>
+       <!--Add product to requisition list-->
+        <actionGroup ref="StorefrontCreateRequisitionListFromProductPageActionGroup" stepKey="createRequisitionList" after="attachValidFile">
+            <argument name="requisitionList" value="RequisitionListProduct1"/>
+        </actionGroup>
+        <!--Assert product in requisition list page-->
+        <amOnPage url="{{StorefrontRequisitionListIndexPage.url}}" stepKey="goToRequisitionListsPage" after="createRequisitionList"/>
+        <waitForPageLoad stepKey="waitForRequisitionListsIndexPageLoad" after="goToRequisitionListsPage"/>
+        <actionGroup ref="StorefrontClickViewRequisitionListActionGroup" stepKey="viewRequisitionList" after="waitForRequisitionListsIndexPageLoad">
+            <argument name="requisitionList" value="RequisitionListProduct1"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertRequisitionListProductWithFileActionGroup" stepKey="assertProductAndFile" after="viewRequisitionList">
+            <argument name="product" value="$$createProduct$$"/>
+            <argument name="productFile" value="MagentoLogo"/>
+        </actionGroup>
+    </test>
+</tests>

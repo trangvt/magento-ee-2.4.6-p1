@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCheckConfigAfterEnablingSharedCatalogTest">
+        <annotations>
+            <features value="Shared Catalog"/>
+            <stories value="Customer groups"/>
+            <title value="Check config settings after enabling shared catalog"/>
+            <description value="Verify that category permissions settings are set to correct values after enabling shared catalog"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="MC-42416"/>
+            <group value="b2b"/>
+            <group value="sharedCatalog"/>
+        </annotations>
+
+        <before>
+            <comment userInput="Enable company and shared catalog configs" stepKey="commentEnableConfigs"/>
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableSharedCatalogConfigData.path}} {{EnableSharedCatalogConfigData.value}}" stepKey="enableSharedCatalog"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <createData entity="NewSharedCatalog" stepKey="sharedCatalog"/>
+        </before>
+
+        <after>
+            <deleteData createDataKey="sharedCatalog" stepKey="deleteSharedCatalog"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdmin"/>
+            <comment userInput="Disable company and shared catalog configs" stepKey="commentDisableConfigs"/>
+            <magentoCLI command="config:set {{DisableSharedCatalogConfigData.path}} {{DisableSharedCatalogConfigData.value}}" stepKey="disableSharedCatalog"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+        </after>
+
+        <amOnPage url="{{CatalogConfigPage.url}}" stepKey="goToCatalogConfigPage"/>
+        <scrollTo selector="{{AdminConfigCatalogCategoryPermissionsSection.catalogPermissionsTab}}" stepKey="scrollToCatalogPermissionsTab"/>
+        <conditionalClick selector="{{AdminConfigCatalogCategoryPermissionsSection.catalogPermissionsTab}}" dependentSelector="{{AdminConfigCatalogCategoryPermissionsSection.checkIfTabExpand}}" visible="true" stepKey="expandCategoryPermissionsTab"/>
+        <see selector="{{AdminConfigCatalogCategoryPermissionsSection.enableSystemValue}}" userInput="Yes" stepKey="seeCategoryPermissionsIsEnabled"/>
+        <selectOption selector="{{AdminConfigCatalogCategoryPermissionsSection.allowBrowsingCategory}}" userInput="Yes, for Specified Customer Groups" stepKey="chooseAllowBrowsingCategoryToYesForSpecifiedCustomerGroups"/>
+        <dontSee selector="{{AdminConfigCatalogCategoryPermissionsSection.allowBrowsingCategoryGroups}}" userInput="NOT LOGGED IN" stepKey="dontSeeNotLoggedInGroup"/>
+        <dontSee selector="{{AdminConfigCatalogCategoryPermissionsSection.allowBrowsingCategoryGroups}}" userInput="General" stepKey="dontSeeGeneralGroup"/>
+        <dontSee selector="{{AdminConfigCatalogCategoryPermissionsSection.allowBrowsingCategoryGroups}}" userInput="{{NewSharedCatalog.name}}" stepKey="dontSeeSharedCatalogGroup"/>
+    </test>
+</tests>

@@ -1,0 +1,25 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<?php
+$link = __(
+    '<a href="%1" target="_blank"><span>%2</span></a>',
+    $block->getData('requisition_list_url'),
+    $escaper->escapeHtml($block->getData('requisition_list_name'))
+);
+?>
+<?=
+$escaper->escapeHtml(
+    __(
+        'All the items in your Shopping Cart have been added to the "%1" requisition list.',
+        $link
+    ),
+    ['a']
+);
+?>

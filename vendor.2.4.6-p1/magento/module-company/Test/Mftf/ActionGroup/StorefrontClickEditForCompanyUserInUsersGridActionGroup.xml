@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontClickEditForCompanyUserInUsersGridActionGroup">
+        <annotations>
+            <description>Clicks the Edit button for a specified company user in the Company User grid. Must be on the Company User listing page on the storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="companyUser" type="entity" defaultValue="DefaultCompanyUser"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCompanyUserListingSection.userEditLinkByEmail(companyUser.email)}}" stepKey="waitForEditButton"/>
+        <click selector="{{StorefrontCompanyUserListingSection.userEditLinkByEmail(companyUser.email)}}" stepKey="clickEditForUser"/>
+        <waitForPageLoad stepKey="waitForEditPageLoad"/>
+        <waitForElementVisible selector="{{StorefrontCompanyUserCreateFormSection.formTitle}}" stepKey="waitForEditUserModalTitle"/>
+        <see userInput="Edit User" selector="{{StorefrontCompanyUserCreateFormSection.formTitle}}" stepKey="seeEditUserModalTitle"/>
+    </actionGroup>
+</actionGroups>

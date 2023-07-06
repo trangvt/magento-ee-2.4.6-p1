@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AdminStartCreatingCompanyActionGroup">
+        <annotations>
+            <description>Navigate to the new company page and fill main comapny data</description>
+        </annotations>
+        <arguments>
+            <argument name="company" defaultValue="UniqueCompany"/>
+        </arguments>
+
+        <amOnPage url="{{AdminNewCompanyPage.url}}" stepKey="openNewCompanyPage"/>
+        <waitForElementVisible selector="{{AdminNewCompanySection.companyName}}" stepKey="waitForFormFullyLoaded"/>
+        <!-- Fill Main Info -->
+        <fillField selector="{{AdminNewCompanySection.companyName}}" userInput="{{company.companyName}}" stepKey="fillName"/>
+        <fillField selector="{{AdminNewCompanySection.companyEmail}}" userInput="{{company.companyEmail}}" stepKey="fillEmail"/>
+        <selectOption selector="{{AdminNewCompanySection.status}}" userInput="{{company.status}}" stepKey="fillStatus"/>
+        <!-- Fill Legal Address -->
+        <conditionalClick selector="{{AdminNewCompanySection.legalAddressTitle}}" dependentSelector="{{AdminNewCompanySection.legalAddressBody}}" visible="false" stepKey="openLegalAddressSection"/>
+        <scrollTo selector="{{AdminNewCompanySection.legalAddressTitle}}" stepKey="scrollIntoLegalAddressForm"/>
+        <fillField selector="{{AdminNewCompanySection.companyStreet}}" userInput="{{company.streetAddress}}" stepKey="fillStreet"/>
+        <fillField selector="{{AdminNewCompanySection.companyCity}}" userInput="{{company.city}}" stepKey="fillCity"/>
+        <selectOption selector="{{AdminNewCompanySection.companyCountry}}" userInput="{{company.country}}" stepKey="setCountry"/>
+        <fillField selector="{{AdminNewCompanySection.companyPostcode}}" userInput="{{company.zip}}" stepKey="fillPostcode"/>
+        <fillField selector="{{AdminNewCompanySection.companyTelephone}}" userInput="{{company.phone}}" stepKey="fillPhoneNumber"/>
+        <!-- Fill Company Admin -->
+        <conditionalClick selector="{{AdminNewCompanySection.companyAdminTitle}}" dependentSelector="{{AdminNewCompanySection.companyAdminBody}}" visible="false" stepKey="openCompanyAdminSection"/>
+        <scrollTo selector="{{AdminNewCompanySection.companyAdminTitle}}" stepKey="scrollIntoCompanyAdminForm"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminEmail}}" userInput="{{company.companyAdminEmail}}" stepKey="fillAdminEmail"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminFirstName}}" userInput="{{company.firstName}}" stepKey="fillAdminFirstName"/>
+        <fillField selector="{{AdminNewCompanySection.companyAdminLastName}}" userInput="{{company.lastName}}" stepKey="fillAdminLastName"/>
+    </actionGroup>
+</actionGroups>

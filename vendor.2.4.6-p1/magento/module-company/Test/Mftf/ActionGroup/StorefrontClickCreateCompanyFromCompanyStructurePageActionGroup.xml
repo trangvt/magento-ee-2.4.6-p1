@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontClickCreateCompanyFromCompanyStructurePageActionGroup">
+        <annotations>
+            <description>Clicks the 'Create a Company Account` button on the Company Structure page on the storefront. Must be logged in as a non-company user.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontCompanyUserCreateFormSection.createCompanyButton}}" stepKey="waitForCreateCompanyButton"/>
+        <click selector="{{StorefrontCompanyUserCreateFormSection.createCompanyButton}}" stepKey="clickCreateCompanyButton"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <waitForText selector="{{StorefrontCMSPageSection.mainTitle}}" userInput="New Company" stepKey="waitForPageTitle"/>
+    </actionGroup>
+</actionGroups>

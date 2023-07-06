@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontPurchaseOrderRuleFormSection">
+        <element name="active" type="input" selector="label[for='rule_active']"/>
+        <element name="activeCheckbox" type="input" selector="input[name='is_active']"/>
+        <element name="activeChecked" type="input" selector="input[name='is_active']:checked"/>
+        <element name="activeNotChecked" type="input" selector="input[name=is_active]:not(:checked)"/>
+        <element name="activeCheckboxDisabled" type="input" selector="input[name=is_active][disabled]"/>
+        <element name="name" type="input" selector="input[name='name']"/>
+        <element name="description" type="textarea" selector="textarea[name='description']"/>
+        <element name="conditionAttribute" type="select" parameterized="true" selector="select[name='conditions[{{index}}][attribute]']"/>
+        <element name="conditionOperator" type="select" parameterized="true" selector="select[name='conditions[{{index}}][operator]']"/>
+        <element name="conditionAmount" type="input" parameterized="true" selector="input[name='conditions[{{index}}][value]']"/>
+        <element name="appliesToAll" type="input" selector="input[name='applies_to_all'][value='1']"/>
+        <element name="appliesToSpecific" type="input" selector="input[name='applies_to_all'][value='0']"/>
+        <element name="appliesToAllDisabled" type="input" selector="input[name='applies_to_all'][disabled]"/>
+        <element name="appliesTo" type="multiselect" selector="div[name='applies_to'] > div.admin__action-multiselect" timeout="30"/>
+        <element name="appliesToFilter" type="input" selector="div[name='applies_to'] div.admin__action-multiselect-search-wrap > input" timeout="30"/>
+        <element name="appliesToOption" type="button" selector="div[name='applies_to'] span[title='{{customerGroupName}}']" parameterized="true"/>
+        <element name="appliesToOptions" type="button" selector="div[name='applies_to'] label.admin__action-multiselect-label span" timeout="30"/>
+        <element name="appliesToDeselectAllButton" type="button" selector="div[name='applies_to'] button[data-action='deselect-all']"/>
+        <element name="appliesToDoneButton" type="button" selector="div[name='applies_to'] button.action-secondary"/>
+        <element name="conditionCurrency" type="select" parameterized="true" selector="select[name='conditions[{{index}}][currency_code]']"/>
+        <element name="approvers" type="multiselect" selector="//div[@name='approvers']/div[contains(@class,'admin__action-multiselect')]" timeout="30"/>
+        <element name="approversFilter" type="input" selector="div[name='approvers'] div.admin__action-multiselect-search-wrap > input" timeout="30"/>
+        <element name="approversOption" type="button" selector="div[name='approvers'] span[title='{{customerGroupName}}']" parameterized="true"/>
+        <element name="approversOptions" type="button" selector="div[name='approvers'] label.admin__action-multiselect-label span" timeout="30"/>
+        <element name="approversSelectAllButton" type="button" selector="div[name='approvers'] button[data-action='select-all']" timeout="30"/>
+        <element name="approversDeselectAllButton" type="button" selector="div[name='approvers'] button[data-action='deselect-all']" timeout="30"/>
+        <element name="approversDoneButton" type="button" selector="div[name='approvers'] button.action-secondary" timeout="30"/>
+        <element name="saveRule" type="button" selector="button.action.submit.primary"/>
+        <element name="saveRuleDisabled" type="button" selector="button.action.submit.primary[disabled]" deprecated="Obsolete element"/>
+        <element name="validationErrorMessage" type="block" parameterized="true" selector="#{{elementName}}-error"/>
+        <element name="viewInfoMessage" type="text" selector=".message.info"/>
+    </section>
+</sections>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <!-- Purchase Order Rule Data -->
+    <entity name="PurchaseOrderRule_Default" type="purchase_order_rule">
+        <data key="name">Default Purchase Order Rule</data>
+        <data key="description">Default Purchase Order Rule Description</data>
+        <data key="status">Enabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Simple" type="purchase_order_rule">
+        <data key="name">Simple Purchase Order Rule</data>
+        <data key="description">Simple Purchase Order Rule Description</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Edited" type="purchase_order_rule">
+        <data key="name">Edited Purchase Order Rule</data>
+        <data key="description">Edited Purchase Order Rule Description</data>
+        <data key="status">Disabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Approver" type="purchase_order_rule">
+        <data key="name">Approver Purchase Order Rule</data>
+        <data key="description">Approver Purchase Order Rule Description</data>
+        <data key="status">Enabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Approver_2" type="purchase_order_rule">
+        <data key="name">Approver Purchase Order Rule 2</data>
+        <data key="description">Approver Purchase Order Rule 2 Description</data>
+    </entity>
+    <entity name="PurchaseOrderRule_MultipleApprovers" type="purchase_order_rule">
+        <data key="name">Multiple Approvers Purchase Order Rule</data>
+        <data key="description">Multiple Approvers Purchase Order Rule Description</data>
+        <data key="status">Enabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Manager" type="purchase_order_rule">
+        <data key="name">Manager Purchase Order Rule</data>
+        <data key="description">Manager Purchase Order Rule Description</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Admin" type="purchase_order_rule">
+        <data key="name">Admin Purchase Order Rule</data>
+        <data key="description">Admin Purchase Order Rule Description</data>
+    </entity>
+    <entity name="PurchaseOrderRule_NumberOfSKUs" type="purchase_order_rule">
+        <data key="name">Number of SKUs Purchase Order Rule</data>
+        <data key="description">Number of SKUs Purchase Order Rule Description</data>
+        <data key="status">Enabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_ShippingCost" type="purchase_order_rule">
+        <data key="name">Shipping Cost Purchase Order Rule</data>
+        <data key="description">Shipping Cost Purchase Order Rule Description</data>
+        <data key="status">Enabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Empty" type="purchase_order_rule">
+        <data key="name"/>
+        <data key="description"/>
+        <data key="status">Enabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_Invalid" type="purchase_order_rule">
+        <data key="name">LoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsum</data>
+        <data key="description">LoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsumLoremIpsum</data>
+        <data key="status">Enabled</data>
+    </entity>
+    <entity name="PurchaseOrderRule_ApproverAndOtherApprover" type="purchase_order_rule">
+        <data key="name">Approver and Other Approver Purchase Order Rule</data>
+        <data key="description">Approver and Other Approver Purchase Order Rule Description</data>
+    </entity>
+    <!-- Rule Types -->
+    <entity name="PurchaseOrderRuleCondition_Empty" type="purchase_order_rule_condition">
+        <data key="attribute"/>
+        <data key="attributeText">Please select</data>
+    </entity>
+    <!-- Rule Type - Order Total -->
+    <entity name="PurchaseOrderRuleCondition_OrderTotalMoreThan500" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is more than</data>
+        <data key="value">500</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalMoreThan1000" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is more than</data>
+        <data key="value">1000</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalMoreThan1200" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is more than</data>
+        <data key="value">1200</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalMoreThan1000EUR" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is more than</data>
+        <data key="value">1000</data>
+        <data key="currency">EUR</data>
+        <data key="currencySymbol">€</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalLessThan500" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is less than</data>
+        <data key="value">500</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalMoreThanOrEqualTo500" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is more than or equal to</data>
+        <data key="value">500</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalLessThanOrEqualTo500" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is less than or equal to</data>
+        <data key="value">500</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalEmpty" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator"/>
+        <data key="value"/>
+        <data key="currency"/>
+        <data key="currencySymbol"/>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_OrderTotalInvalid" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is more than</data>
+        <data key="value">text</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <!-- Rule Type - Shipping Cost -->
+    <entity name="PurchaseOrderRuleCondition_ShippingCostEmpty" type="purchase_order_rule_cost_condition">
+        <data key="attribute">shipping_incl_tax</data>
+        <data key="attributeText">Shipping Cost</data>
+        <data key="operator"/>
+        <data key="value"/>
+        <data key="currency"/>
+        <data key="currencySymbol"/>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_ShippingCostInvalid" type="purchase_order_rule_cost_condition">
+        <data key="attribute">shipping_incl_tax</data>
+        <data key="attributeText">Shipping Cost</data>
+        <data key="operator">is more than</data>
+        <data key="value">text</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_ShippingCostGreaterThan1" type="purchase_order_rule_cost_condition">
+        <data key="attribute">shipping_incl_tax</data>
+        <data key="attributeText">Shipping Cost</data>
+        <data key="operator">is more than</data>
+        <data key="value">1</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+    <!-- Rule Type - Number of SKUs -->
+    <entity name="PurchaseOrderRuleCondition_NumberOfSKUsMoreThan1" type="purchase_order_rule_quantity_condition">
+        <data key="attribute">number_of_skus</data>
+        <data key="attributeText">Number of SKUs</data>
+        <data key="operator">is more than</data>
+        <data key="value">1</data>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_NumberOfSKUsEmpty" type="purchase_order_rule_quantity_condition">
+        <data key="attribute">number_of_skus</data>
+        <data key="attributeText">Number of SKUs</data>
+        <data key="operator"/>
+        <data key="value"/>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_NumberOfSKUsInvalid" type="purchase_order_rule_quantity_condition">
+        <data key="attribute">number_of_skus</data>
+        <data key="attributeText">Number of SKUs</data>
+        <data key="operator">is more than</data>
+        <data key="value">text</data>
+    </entity>
+    <!-- Purchase Order Rule Applies To Data -->
+    <entity name="PurchaseOrderRuleAppliesTo_All" type="purchase_order_rule_applies_to">
+        <array key="roles">
+            <item>All</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleAppliesTo_DefaultUser" type="purchase_order_rule_applies_to">
+        <array key="roles">
+            <item>Default User</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleAppliesTo_Approver" type="purchase_order_rule_applies_to">
+        <array key="roles">
+            <item>Approver</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleAppliesTo_Multiple" type="purchase_order_rule_applies_to">
+        <array key="roles">
+            <item>Default User</item>
+            <item>Approver</item>
+        </array>
+    </entity>
+    <!-- Purchase Order Rule Approvers Data -->
+    <entity name="PurchaseOrderRuleApprover_DefaultUser" type="purchase_order_rule_approver">
+        <array key="approvers">
+            <item>Default User</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleApprover_Approver" type="purchase_order_rule_approver">
+        <array key="approvers">
+            <item>Approver</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleApprover_Manager" type="purchase_order_rule_approver">
+        <array key="approvers">
+            <item>Manager</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleApprover_CompanyAdmin" type="purchase_order_rule_approver">
+        <array key="approvers">
+            <item>Company Administrator</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleApprover_MultipleApprovers" type="purchase_order_rule_approver">
+        <array key="approvers">
+            <item>Default User</item>
+            <item>Approver</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleApprover_ApproverAndOtherApprover" type="purchase_order_rule_approver">
+        <array key="approvers">
+            <item>Approver</item>
+            <item>Other Approver</item>
+        </array>
+    </entity>
+    <entity name="PurchaseOrderRuleCondition_LongStringAmount" type="purchase_order_rule_cost_condition">
+        <data key="attribute">grand_total</data>
+        <data key="attributeText">Order total</data>
+        <data key="operator">is more than</data>
+        <data key="value">123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890</data>
+        <data key="currency">USD</data>
+        <data key="currencySymbol">$</data>
+    </entity>
+</entities>

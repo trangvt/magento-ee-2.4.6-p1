@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminValidateCustomerCustomAttributeValueInCompanyAdminTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Unable to Save customer attribute for company user"/>
+            <title value="Admin to validate custom customer attribute in company admin"/>
+            <description value="Admin to validate custom customer attribute in company admin"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="AC-6824"/>
+            <useCaseId value="ACP2E-1203"/>
+            <group value="company"/>
+            <group value="customer"/>
+            <group value="b2b"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!-- Go to customer attributes page -->
+            <actionGroup ref="AdminNavigateToCustomerAttributesPageActionGroup" stepKey="navigateToCustomerAttributePageToAdd"/>
+            <!--Create customer attribute-->
+            <actionGroup ref="AdminCreateCustomerAttribute" stepKey="createYesNoAttribute">
+                <argument name="defaultLabel" value="{{AttributeTextField.frontend_label}}"/>
+                <argument name="attributeCode" value="{{AttributeTextField.attribute_code}}"/>
+                <argument name="inputType" value="{{AttributeTextField.frontend_input}}"/>
+                <argument name="sortOrder" value="{{AttributeTextField.sort_order}}"/>
+                <argument name="formToUse" value="Customer Registration"/>
+                <argument name="message" value="You saved the customer attribute."/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <!--Delete customer attributes -->
+            <actionGroup ref="AdminNavigateToCustomerAttributesPageActionGroup" stepKey="navigateToCustomerAttributePageToDelete"/>
+            <actionGroup ref="DeleteCustomerAttribute" stepKey="adminDeleteFileAttribute">
+                <argument name="defaultLabel" value="{{AttributeTextField.frontend_label}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminDeleteCompanyActionGroup" stepKey="deleteCompany">
+                <argument name="companyName" value="{{Default_Company.company_name}}"/>
+            </actionGroup>
+            <!--Log out-->
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logOut"/>
+        </after>
+
+        <!-- Enter Company General Information and Address -->
+        <actionGroup ref="AdminStartToCreateCompanyActionGroup" stepKey="startToCreateCompany">
+            <argument name="companyName" value="{{Default_Company.company_name}}"/>
+            <argument name="companyEmail" value="{{CustomerEntityOne.email}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminFillCompanyLegalAddressActionGroup" stepKey="fillCompanyLegalAddress"/>
+        <!-- Expand company admin section and check the custom attribute is existing -->
+        <actionGroup ref="AdminAssertCompanyAdminSectionHasVisibleAttributeActionGroup" stepKey="adminExpandCompanyAdmin">
+            <argument name="companyAdminCustomElement" value="{{AttributeTextField.attribute_code}}"/>
+        </actionGroup>
+        <!-- Enter Company Admin Fields with Non-Existent Customer -->
+        <actionGroup ref="AdminFillCompanyAdminActionGroup" stepKey="fillCompanyAdminNonExistingCustomer">
+            <argument name="companyAdmin" value="UKCustomer"/>
+        </actionGroup>
+        <fillField selector="{{AdminNewCompanySection.customerCustomTextAttribute(AttributeTextField.attribute_code)}}" userInput="{{AttributeTextField.defaultValue}}" stepKey="fillCustomerCustomTextAttribute"/>
+        <!-- Save Company and Verify Company Admin Data -->
+        <actionGroup ref="AdminNewCompanySaveActionGroup" stepKey="saveCompany"/>
+        <!-- Go to Admin Company Index Page and Filter Grid by Company 1 Name and Verify Result -->
+        <actionGroup ref="AdminNavigateToCompaniesIndexPageActionGroup" stepKey="navigateToCompaniesIndexPage"/>
+        <actionGroup ref="AdminFilterCompanyByCompanyNameActionGroup" stepKey="filterByCompany">
+            <argument name="company" value="Default_Company"/>
+        </actionGroup>
+        <click selector="{{AdminCompanyGridSection.editFirstCompany}}" stepKey="clickEditCompanyLink"/>
+        <!-- Expand company admin section to update the customer custom attribute value -->
+        <actionGroup ref="AdminAssertCompanyAdminSectionHasVisibleAttributeActionGroup" stepKey="adminExpandCompanyAdminInEdit">
+            <argument name="companyAdminCustomElement" value="{{AttributeTextField.attribute_code}}"/>
+        </actionGroup>
+        <fillField selector="{{AdminNewCompanySection.customerCustomTextAttribute(AttributeTextField.attribute_code)}}" userInput="{{AttributeTextField.defaultValue}}-update-value" stepKey="fillCustomerCustomTextAttributeInEditPage"/>
+        <!-- Save Company and Verify Company Admin Data -->
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="updateCompany"/>
+        <!-- Expand company admin section to validate the updated customer custom attribute value -->
+        <actionGroup ref="AdminAssertCompanyAdminSectionHasVisibleAttributeActionGroup" stepKey="adminExpandCompanyAdminToValidate">
+            <argument name="companyAdminCustomElement" value="{{AttributeTextField.attribute_code}}"/>
+        </actionGroup>
+        <seeInField userInput="{{AttributeTextField.defaultValue}}-update-value" selector="{{AdminNewCompanySection.customerCustomTextAttribute(AttributeTextField.attribute_code)}}" stepKey="ValidateCustomerCustomAttributeValue"/>
+    </test>
+</tests>

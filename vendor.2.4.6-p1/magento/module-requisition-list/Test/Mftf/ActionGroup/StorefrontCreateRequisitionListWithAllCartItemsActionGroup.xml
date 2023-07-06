@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontCreateRequisitionListWithAllCartItemsActionGroup">
+        <annotations>
+            <description>Create requisition list from storefront shopping cart page with all cart items.</description>
+        </annotations>
+        <arguments>
+            <argument name="requisitionListName" type="string" defaultValue="RL1"/>
+        </arguments>
+
+        <waitForElementVisible selector="{{StorefrontCartPageSection.addShoppingCartToRequisitionListButton}}" stepKey="waitForAddToRequisitionListButton"/>
+        <click selector="{{StorefrontCartPageSection.addShoppingCartToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton"/>
+        <waitForElementVisible selector="{{StorefrontCartPageSection.createNewRequisitionListButton}}" stepKey="waitForCreateNewRequisitionListButton"/>
+        <click selector="{{StorefrontCartPageSection.createNewRequisitionListButton}}" stepKey="clickCreateNewRequisitionListButton"/>
+        <waitForElementVisible selector="{{StorefrontCartPageSection.requisitionListName}}" stepKey="waitForNameInputElementVisible"/>
+        <fillField selector="{{StorefrontCartPageSection.requisitionListName}}" userInput="{{requisitionListName}}" stepKey="fillRequisitionListNameField"/>
+        <waitForElementVisible selector="{{StorefrontCreateRequisitionListSection.saveButton}}" stepKey="waitForSaveButton"/>
+        <click selector="{{StorefrontCreateRequisitionListSection.saveButton}}" stepKey="clickSaveButton"/>
+        <waitForPageLoad stepKey="waitForSave"/>
+        <waitForElementVisible selector="{{StorefrontMessagesSection.success}}" stepKey="waitForElementSuccessMsg"/>
+        <see selector="{{StorefrontMessagesSection.success}}" userInput="All the items in your Shopping Cart have been added to the &quot;{{requisitionListName}}&quot; requisition list." stepKey="seeSuccessMessage"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRuleListingMultipleAppliesToTest" extends="StorefrontPurchaseOrderRuleListingTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="CRUD"/>
+            <title value="Purchase Order Rule Grid - Selecting Multiple Applies to Values"/>
+            <description value="Verify the listing page functions as expected when selecting multiple applies to values."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-33228"/>
+            <useCaseId value="B2B-506"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <!-- Create Approver Role from Default User Role -->
+            <actionGroup ref="StorefrontNavigateToRolesAndPermissionsPageActionGroup" stepKey="navigateToRolesAndPermissionsPage" after="loginCompanyAdmin"/>
+            <actionGroup ref="StorefrontClickDuplicateForRoleInRolesGridActionGroup" stepKey="clickDuplicateForDefaultUserRole" after="navigateToRolesAndPermissionsPage">
+                <argument name="roleName" value="Default User"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontEditRoleInformationActionGroup" stepKey="editApproverRole" after="clickDuplicateForDefaultUserRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+            <actionGroup ref="StorefrontSaveCompanyRoleActionGroup" stepKey="saveApproverRole" after="editApproverRole">
+                <argument name="roleName" value="Approver"/>
+            </actionGroup>
+        </before>
+        <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToSpecificActionGroup" stepKey="selectAppliesTo">
+            <argument name="appliesTo" value="PurchaseOrderRuleAppliesTo_Multiple"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleCreated">
+            <argument name="appliesTo" value="{{PurchaseOrderRuleAppliesTo_Multiple.roles[0]}}, {{PurchaseOrderRuleAppliesTo_Multiple.roles[1]}}"/>
+        </actionGroup>
+    </test>
+</tests>

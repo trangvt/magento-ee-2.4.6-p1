@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidatePurchaseOrderRuleConditionEditFormActionGroup">
+        <annotations>
+            <description>Validate the form fields for a purchase order rule condition.</description>
+        </annotations>
+        <arguments>
+            <argument name="condition" defaultValue="PurchaseOrderRuleCondition_OrderTotalMoreThan1000"/>
+            <argument name="index" type="string" defaultValue="0"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAttribute(index)}}" stepKey="waitRuleBasedOnField"/>
+        <seeOptionIsSelected selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAttribute(index)}}" userInput="{{condition.attributeText}}" stepKey="validateRuleBasedOn"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionOperator(index)}}" stepKey="waitRuleOperatorField"/>
+        <seeOptionIsSelected selector="{{StorefrontPurchaseOrderRuleFormSection.conditionOperator(index)}}" userInput="{{condition.operator}}" stepKey="validateRuleOperator"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAmount(index)}}" stepKey="waitRuleAmountField"/>
+        <seeInField selector="{{StorefrontPurchaseOrderRuleFormSection.conditionAmount(index)}}" userInput="{{condition.value}}" stepKey="validateRuleAmount"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.conditionCurrency(index)}}" stepKey="waitRuleCurrencyField"/>
+        <seeOptionIsSelected selector="{{StorefrontPurchaseOrderRuleFormSection.conditionCurrency(index)}}" userInput="{{condition.currencySymbol}}" stepKey="validateRuleCurrency"/>
+    </actionGroup>
+</actionGroups>

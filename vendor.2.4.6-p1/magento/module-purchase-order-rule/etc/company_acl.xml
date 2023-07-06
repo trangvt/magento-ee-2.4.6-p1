@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Company::index">
+                <resource id="Magento_PurchaseOrder::all">
+                    <resource id="Magento_PurchaseOrderRule::super_approve_purchase_order"
+                              title="Approve Purchase Orders without other approvals" translate="title" sortOrder="50">
+                    </resource>
+                    <resource id="Magento_PurchaseOrderRule::view_approval_rules"
+                              title="View Approval Rules" translate="title" sortOrder="60">
+                        <resource id="Magento_PurchaseOrderRule::manage_approval_rules"
+                                  title="Create, Edit and Delete" translate="title" sortOrder="60"/>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

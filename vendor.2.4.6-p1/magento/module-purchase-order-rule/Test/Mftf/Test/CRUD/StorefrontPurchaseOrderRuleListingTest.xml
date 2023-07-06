@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontPurchaseOrderRuleListingTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="CRUD"/>
+            <title value="Purchase Order Rule Grid - Display New Rules"/>
+            <description value="Verify the listing page functions as expected with empty states and displaying new rules."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-32399"/>
+            <useCaseId value="B2B-463"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="CustomerEntityOne" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <!-- Enable Company Order Approvals -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+                <argument name="companyId" value="$createCompany.id$"/>
+                <argument name="companyName" value="$createCompany.company_name$"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnablePurchaseOrderForCompanyActionGroup" stepKey="enablePurchaseOrderForCompany"/>
+            <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+            <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginCompanyAdmin">
+                <argument name="Customer" value="$$createCompanyAdmin$$"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutStorefront"/>
+            <deleteData createDataKey="createCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteAdminCustomer"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <comment userInput="BIC workaround" stepKey="storefrontCustomerLogout"/>
+        </after>
+        <!-- Verify Empty Message on PO Rule Listing Page -->
+        <actionGroup ref="StorefrontNavigateToApprovalRulesPageActionGroup" stepKey="navigateToRuleListing"/>
+        <actionGroup ref="StorefrontValidateEmptyPurchaseOrderRulesGridActionGroup" stepKey="verifyListingDisplaysEmptyMessage"/>
+        <!-- Create PO Rule -->
+        <actionGroup ref="StorefrontClickAddNewPurchaseOrderRuleActionGroup" stepKey="clickAddNewRole"/>
+        <actionGroup ref="StorefrontEnablePurchaseOrderRuleActionGroup" stepKey="toggleStatus"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleNameAndDescriptionActionGroup" stepKey="fillRuleForm"/>
+        <actionGroup ref="StorefrontAddMonetaryConditionToPurchaseOrderRuleActionGroup" stepKey="fillRuleCondition"/>
+        <actionGroup ref="StorefrontSelectPurchaseOrderRuleAppliesToAllActionGroup" stepKey="selectAppliesTo"/>
+        <actionGroup ref="StorefrontFillPurchaseOrderRuleApproversActionGroup" stepKey="selectApprovers"/>
+        <actionGroup ref="StorefrontSaveNewPurchaseOrderRuleActionGroup" stepKey="saveRule"/>
+        <!-- Verify Rule in Grid -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderRuleRowInGridActionGroup" stepKey="verifyRuleCreated"/>
+        <!-- Delete PO Rule and verify Empty Message on PO Rule Listing Page -->
+        <actionGroup ref="StorefrontDeletePurchaseOrderRuleActionGroup" stepKey="deleteOrderRule"/>
+        <actionGroup ref="StorefrontValidateEmptyPurchaseOrderRulesGridActionGroup" stepKey="verifyListingDisplaysEmptyMessage2"/>
+    </test>
+</tests>

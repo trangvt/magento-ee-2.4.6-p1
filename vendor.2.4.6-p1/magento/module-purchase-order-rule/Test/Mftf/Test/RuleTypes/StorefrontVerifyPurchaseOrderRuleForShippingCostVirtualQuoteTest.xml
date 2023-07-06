@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyPurchaseOrderRuleForShippingCostVirtualQuoteTest" extends="StorefrontVerifyPurchaseOrderRuleForShippingCostTest">
+        <annotations>
+            <features value="Purchase Order Rule"/>
+            <stories value="Rule Types"/>
+            <title value="Purchase Order Rule For Shipping Cost Virtual Quote"/>
+            <description value="Verify that a purchase order rule applies correctly when created for the shipping cost applied rules with a virtual quote. Virtual products should have a $0 shipping cost regardless of the shipping settings."/>
+            <severity value="BLOCKER"/>
+            <testCaseId value="MC-33852"/>
+            <useCaseId value="B2B-510"/>
+            <group value="purchase_orders"/>
+            <group value="purchase_orders_rule"/>
+        </annotations>
+        <before>
+            <createData entity="VirtualProduct" stepKey="product1">
+                <requiredEntity createDataKey="category"/>
+            </createData>
+        </before>
+        <remove keyForRemoval="selectFirstShippingMethod"/>
+        <remove keyForRemoval="clickNextOnShippingStep"/>
+        <!-- Verify Purchase Order is Approved -->
+        <actionGroup ref="StorefrontValidatePurchaseOrderStatusActionGroup" stepKey="validatePurchaseOrderApprovalRequired">
+            <argument name="status" value="{{PurchaseOrderStatuses.approved}}"/>
+        </actionGroup>
+        <remove keyForRemoval="clickApprovalFlowTab"/>
+        <remove keyForRemoval="seeShippingCostRuleInApprovalFlow"/>
+        <!-- Verify No Approval Flow Tab is Present -->
+        <actionGroup ref="StorefrontValidateNoApprovalFlowTabActionGroup" stepKey="verifyNoApprovalFlowTab" after="validatePurchaseOrderApprovalRequired"/>
+    </test>
+</tests>

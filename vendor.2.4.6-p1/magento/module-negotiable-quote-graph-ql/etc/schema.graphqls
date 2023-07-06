@@ -1,0 +1,405 @@
+# Copyright © Magento, Inc. All rights reserved.
+# See COPYING.txt for license details.
+
+type Query {
+    negotiableQuote(uid: ID!): NegotiableQuote @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\GetNegotiableQuote") @doc(description: "Retrieve the specified negotiable quote.")
+    negotiableQuotes(
+        filter: NegotiableQuoteFilterInput @doc(description: "The filter to use to determine which negotiable quotes to return."),
+        pageSize: Int = 20 @doc(description: "The maximum number of results to return at once. The default value is 20."),
+        currentPage: Int = 1 @doc(description: "The page of results to return. The default value is 1."),
+        sort: NegotiableQuoteSortInput @doc(description: "The field to use for sorting results.")
+    ): NegotiableQuotesOutput @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\GetNegotiableQuotes") @doc(description: "Return a list of negotiable quotes that can be viewed by the logged-in customer.")
+}
+
+type Mutation {
+    requestNegotiableQuote(
+        input: RequestNegotiableQuoteInput! @doc(description: "An input object that contains a request to initiate a negotiable quote.")
+    ): RequestNegotiableQuoteOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\RequestNegotiableQuote") @doc(description: "Request a new negotiable quote on behalf of the buyer.")
+
+    updateNegotiableQuoteQuantities(
+        input: UpdateNegotiableQuoteQuantitiesInput! @doc(description: "An input object that changes the quantity of one or more items in a negotiable quote.")
+    ): UpdateNegotiableQuoteItemsQuantityOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\UpdateNegotiableQuoteItemsQuantity") @doc(description: "Change the quantity of one or more items in an existing negotiable quote.")
+
+    setNegotiableQuoteShippingAddress(
+        input: SetNegotiableQuoteShippingAddressInput! @doc(description: "An input object that defines the shipping address to be assigned to a negotiable quote.")
+    ): SetNegotiableQuoteShippingAddressOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\SetNegotiableQuoteShippingAddress") @doc(description: "Assign a previously-defined address as the shipping address for a negotiable quote.")
+
+    setNegotiableQuoteBillingAddress(
+        input: SetNegotiableQuoteBillingAddressInput! @doc(description: "An input object that defines the billing address to be assigned to a negotiable quote.")
+    ): SetNegotiableQuoteBillingAddressOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\SetNegotiableQuoteBillingAddress") @doc(description: "Assign a billing address to a negotiable quote.")
+
+    sendNegotiableQuoteForReview(
+        input: SendNegotiableQuoteForReviewInput! @doc(description: "An input object that sends a request for the merchant to review a negotiable quote.")
+    ) : SendNegotiableQuoteForReviewOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\SendNegotiableQuoteForReview") @doc(description: "Send the negotiable quote to the seller for review.")
+
+    removeNegotiableQuoteItems(
+        input: RemoveNegotiableQuoteItemsInput! @doc(description: "An input object that removes one or more items from a negotiable quote.")
+    ): RemoveNegotiableQuoteItemsOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\RemoveNegotiableQuoteItems") @doc(description: "Remove one or more products from a negotiable quote.")
+
+    closeNegotiableQuotes(
+        input: CloseNegotiableQuotesInput! @doc(description: "An input object that closes a negotiable quote.")
+    ): CloseNegotiableQuotesOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\CloseNegotiableQuotes") @doc(description: "Mark a negotiable quote as closed. The negotiable quote is still visible on the storefront.")
+
+    deleteNegotiableQuotes(
+        input: DeleteNegotiableQuotesInput! @doc(description: "An input object that deletes a negotiable quote.")
+    ): DeleteNegotiableQuotesOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\DeleteNegotiableQuotes") @doc(description: "Delete a negotiable quote. The negotiable quote will not be displayed on the storefront.")
+
+    setNegotiableQuotePaymentMethod(
+        input: SetNegotiableQuotePaymentMethodInput! @doc(description: "An input object that defines the payment method for the specified negotiable quote.")
+    ): SetNegotiableQuotePaymentMethodOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\SetNegotiableQuotePaymentMethod") @doc(description: "Set the payment method on a negotiable quote.")
+
+    setNegotiableQuoteShippingMethods(
+        input: SetNegotiableQuoteShippingMethodsInput! @doc(description: "An input object that defines the shipping methods to be assigned to a negotiable quote.")
+    ): SetNegotiableQuoteShippingMethodsOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\SetNegotiableQuoteShippingMethods") @doc(description: "Assign the shipping methods on the negotiable quote.")
+
+    placeNegotiableQuoteOrder(
+        input: PlaceNegotiableQuoteOrderInput! @doc(description: "An input object that specifies the negotiable quote.")
+    ): PlaceNegotiableQuoteOrderOutput @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\PlaceNegotiableQuoteOrder") @doc(description: "Convert a negotiable quote into an order.")
+}
+
+input RequestNegotiableQuoteInput @doc(description: "Defines properties of a negotiable quote request.") {
+    cart_id: ID! @doc(description: "The cart ID of the buyer requesting a new negotiable quote.")
+    quote_name: String! @doc(description: "The name the buyer assigned to the negotiable quote request.")
+    comment: NegotiableQuoteCommentInput! @doc(description: "Comments the buyer entered to describe the request.")
+}
+
+input UpdateNegotiableQuoteQuantitiesInput @doc(description: "Specifies the items to update.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    items: [NegotiableQuoteItemQuantityInput!]! @doc(description: "An array of items to update.")
+}
+
+input NegotiableQuoteItemQuantityInput @doc(description: "Specifies the updated quantity of an item.") {
+    quote_item_uid: ID! @doc(description: "The unique ID of a `CartItemInterface` object.")
+    quantity: Float! @doc(description: "The new quantity of the negotiable quote item.")
+}
+
+type UpdateNegotiableQuoteItemsQuantityOutput @doc(description: "Contains the updated negotiable quote.") {
+    quote: NegotiableQuote @doc(description: "The updated negotiable quote.")
+}
+
+input PlaceNegotiableQuoteOrderInput @doc(description: "Specifies the negotiable quote to convert to an order.")  {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+}
+
+type PlaceNegotiableQuoteOrderOutput @doc(description: "An output object that returns the generated order.") {
+    order: Order! @doc(description: "Contains the generated order number.")
+}
+
+input SendNegotiableQuoteForReviewInput @doc(description: "Specifies which negotiable quote to send for review.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    comment: NegotiableQuoteCommentInput @doc(description: "A comment for the seller to review.")
+}
+
+type SendNegotiableQuoteForReviewOutput @doc(description: "Contains the negotiable quote.") {
+    quote: NegotiableQuote @doc(description: "The negotiable quote after sending for seller review.")
+}
+
+input SetNegotiableQuoteShippingAddressInput @doc(description: "Defines the shipping address to assign to the negotiable quote.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    customer_address_id: ID @deprecated(reason: "Use `NegotiableQuoteShippingAddressInput.customer_address_uid` instead") @doc(description: "The unique ID of a `CustomerAddress` object.")
+    shipping_addresses: [NegotiableQuoteShippingAddressInput!] @doc(description: "An array of shipping addresses to apply to the negotiable quote.")
+}
+
+input NegotiableQuoteShippingAddressInput @doc(description: "Defines shipping addresses for the negotiable quote.") {
+    customer_address_uid: ID @doc(description: "An ID from the company user's address book that uniquely identifies the address to be used for shipping.")
+    address: NegotiableQuoteAddressInput @doc(description: "A shipping address.")
+    customer_notes: String @doc(description: "Text provided by the company user.")
+}
+
+input SetNegotiableQuoteBillingAddressInput @doc(description: "Sets the billing address.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    billing_address: NegotiableQuoteBillingAddressInput! @doc(description: "The billing address to be added.")
+}
+
+input NegotiableQuoteBillingAddressInput @doc(description: "Defines the billing address.") {
+    customer_address_uid: ID @doc(description: "The unique ID of a `CustomerAddress` object.")
+    address: NegotiableQuoteAddressInput @doc(description: "Defines a billing address.")
+    use_for_shipping: Boolean @doc(description: "Indicates whether to set the shipping address to be the same as this billing address.")
+    same_as_shipping: Boolean @doc(description: "Indicates whether to set the billing address to be the same as the existing shipping address on the negotiable quote.")
+}
+
+input NegotiableQuoteAddressInput @doc(description: "Defines the billing or shipping address to be applied to the cart.") {
+    firstname: String! @doc(description: "The first name of the company user.")
+    lastname: String! @doc(description: "The last name of the company user.")
+    company: String @doc(description: "The company name.")
+    street: [String!]! @doc(description: "An array containing the street for the billing or shipping address.")
+    city: String! @doc(description: "The city specified for the billing or shipping address.")
+    region: String @doc(description: "A string that defines the state or province of the billing or shipping address.")
+    region_id: Int @doc(description: "An integer that defines the state or province of the billing or shipping address.")
+    postcode: String @doc(description: "The ZIP or postal code of the billing or shipping address.")
+    country_code: String! @doc(description: "The country code and label for the billing or shipping address.")
+    telephone: String @doc(description: "The telephone number for the billing or shipping address.")
+    save_in_address_book: Boolean @doc(description: "Determines whether to save the address in the customer's address book. The default value is true.")
+}
+
+input SetNegotiableQuoteShippingMethodsInput @doc(description: "Defines the shipping method to apply to the negotiable quote.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    shipping_methods: [ShippingMethodInput!]! @doc(description: "An array of shipping methods to apply to the negotiable quote.")
+}
+
+type SetNegotiableQuoteShippingMethodsOutput @doc(description: "Contains the negotiable quote.") {
+    quote: NegotiableQuote @doc(description: "The negotiable quote after applying shipping methods.")
+}
+
+type SetNegotiableQuoteShippingAddressOutput @doc(description: "Contains the negotiable quote.") {
+    quote: NegotiableQuote @doc(description: "The negotiable quote after assigning a shipping address.")
+}
+
+type SetNegotiableQuoteBillingAddressOutput @doc(description: "Contains the negotiable quote.") {
+    quote: NegotiableQuote @doc(description: "The negotiable quote after assigning a billing address.")
+}
+
+input RemoveNegotiableQuoteItemsInput @doc(description: "Defines the items to remove from the specified negotiable quote.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    quote_item_uids: [ID!]! @doc(description: "An array of IDs indicating which items to remove from the negotiable quote.")
+}
+
+type RemoveNegotiableQuoteItemsOutput @doc(description: "Contains the negotiable quote.") {
+    quote: NegotiableQuote @doc(description: "The negotiable quote after removing items.")
+}
+
+input CloseNegotiableQuotesInput @doc(description: "Defines the negotiable quotes to mark as closed.") {
+    quote_uids: [ID!]! @doc(description: "A list of unique IDs from `NegotiableQuote` objects.")
+}
+
+type CloseNegotiableQuotesOutput @doc(description: "Contains the closed negotiable quotes and other negotiable quotes the company user can view.") {
+    result_status: BatchMutationStatus! @doc(description: "The status of the request to close one or more negotiable quotes.")
+    operation_results: [CloseNegotiableQuoteOperationResult!]! @doc(description: "An array of closed negotiable quote UIDs and details about any errors.")
+    closed_quotes: [NegotiableQuote!] @deprecated(reason: "Use `operation_results` instead.") @doc(description: "An array containing the negotiable quotes that were just closed.")
+    negotiable_quotes(
+        filter: NegotiableQuoteFilterInput @doc(description: "The filter to use to determine which negotiable quotes to close."),
+        pageSize: Int = 20 @doc(description: "The maximum number of results to return at once. The default value is 20."),
+        currentPage: Int = 1 @doc(description: "The page of results to return. The default value is 1."),
+        sort: NegotiableQuoteSortInput @doc(description: "The field to use for sorting results.")
+    ): NegotiableQuotesOutput @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\GetNegotiableQuotes") @doc(description: "A list of negotiable quotes that can be viewed by the logged-in customer")
+}
+
+union CloseNegotiableQuoteOperationResult @typeResolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\OperationResult\\CloseNegotiableQuoteOperationResultTypeResolver") = NegotiableQuoteUidOperationSuccess | CloseNegotiableQuoteOperationFailure
+
+type CloseNegotiableQuoteOperationFailure @doc(description: "Contains details about a failed close operation on a negotiable quote.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    errors: [CloseNegotiableQuoteError!]! @doc(description: "An array of errors encountered while attempting close the negotiable quote.")
+}
+
+union CloseNegotiableQuoteError @typeResolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\OperationResult\\CloseNegotiableQuoteErrorTypeResolver") = NegotiableQuoteInvalidStateError | NoSuchEntityUidError | InternalError
+
+input DeleteNegotiableQuotesInput {
+    quote_uids: [ID!]! @doc(description: "A list of unique IDs for `NegotiableQuote` objects to delete.")
+}
+
+type DeleteNegotiableQuotesOutput @doc(description: "Contains a list of undeleted negotiable quotes the company user can view.") {
+    result_status: BatchMutationStatus! @doc(description: "The status of the request to delete one or more negotiable quotes.")
+    operation_results: [DeleteNegotiableQuoteOperationResult!]! @doc(description: "An array of deleted negotiable quote UIDs and details about any errors.")
+    negotiable_quotes(
+        filter: NegotiableQuoteFilterInput @doc(description: "The filter to use to determine which negotiable quotes to delete."),
+        pageSize: Int = 20 @doc(description: "The maximum number of results to return at once. The default value is 20."),
+        currentPage: Int = 1 @doc(description: "The page of results to return. The default value is 1."),
+        sort: NegotiableQuoteSortInput @doc(description: "The field to use for sorting results.")
+    ): NegotiableQuotesOutput @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\GetNegotiableQuotes") @doc(description: "A list of negotiable quotes that the customer can view")
+}
+
+union DeleteNegotiableQuoteOperationResult @typeResolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\OperationResult\\DeleteNegotiableQuoteOperationResultTypeResolver") = NegotiableQuoteUidOperationSuccess | DeleteNegotiableQuoteOperationFailure
+
+type DeleteNegotiableQuoteOperationFailure @doc(description: "Contains details about a failed delete operation on a negotiable quote.") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    errors: [DeleteNegotiableQuoteError!]!
+}
+
+union DeleteNegotiableQuoteError @typeResolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\OperationResult\\DeleteNegotiableQuoteErrorTypeResolver") = NegotiableQuoteInvalidStateError | NoSuchEntityUidError | InternalError
+
+input SetNegotiableQuotePaymentMethodInput @doc(description: "Defines the payment method of the specified negotiable quote."){
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    payment_method: NegotiableQuotePaymentMethodInput! @doc(description: "The payment method to be assigned to the negotiable quote.")
+}
+
+input NegotiableQuotePaymentMethodInput @doc(description: "Defines the payment method to be applied to the negotiable quote.") {
+    code: String! @doc(description:"Payment method code")
+    purchase_order_number: String @doc(description:"The purchase order number. Optional for most payment methods.")
+}
+
+type SetNegotiableQuotePaymentMethodOutput @doc(description:"Contains details about the negotiable quote after setting the payment method."){
+    quote: NegotiableQuote @doc(description: "The updated negotiable quote.")
+}
+
+type NegotiableQuotesOutput @doc(description: "Contains a list of negotiable that match the specified filter.") {
+    items: [NegotiableQuote]! @doc(description: "A list of negotiable quotes")
+    page_info: SearchResultPageInfo! @doc(description: "Contains pagination metadata")
+    total_count: Int! @doc(description: "The number of negotiable quotes returned")
+    sort_fields: SortFields @doc(description: "Contains the default sort field and all available sort fields.")
+}
+
+input NegotiableQuoteSortInput @doc(description: "Defines the field to use to sort a list of negotiable quotes.") {
+    sort_field: NegotiableQuoteSortableField! @doc(description: "The specified sort field.")
+    sort_direction: SortEnum! @doc(description: "Whether to return results in ascending or descending order.")
+}
+
+enum NegotiableQuoteSortableField {
+    QUOTE_NAME @doc(description: "Sorts negotiable quotes by name.")
+    CREATED_AT @doc(description: "Sorts negotiable quotes by the dates they were created.")
+    UPDATED_AT @doc(description: "Sorts negotiable quotes by the dates they were last modified.")
+}
+
+input NegotiableQuoteCommentInput @doc(description: "Contains the commend provided by the buyer.") {
+    comment: String! @doc(description: "The comment provided by the buyer.")
+}
+
+type NegotiableQuoteComment @doc(description: "Contains a single plain text comment from either the buyer or seller.") {
+    uid: ID! @doc(description: "The unique ID of a `NegotiableQuoteComment` object.")
+    created_at: String! @doc(description: "Timestamp indicating when the comment was created.")
+    author: NegotiableQuoteUser! @doc(description: "The first and last name of the commenter.")
+    creator_type: NegotiableQuoteCommentCreatorType!  @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\CreatorType")  @doc(description: "Indicates whether a buyer or seller commented.")
+    text: String! @doc(description: "The plain text comment.")
+}
+
+enum NegotiableQuoteCommentCreatorType {
+    BUYER
+    SELLER
+}
+
+type NegotiableQuote @doc(description: "Contains details about a negotiable quote.") {
+    uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+    name: String! @doc(description: "The title assigned to the negotiable quote.")
+    items: [CartItemInterface!] @resolver(class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\CartItems") @doc(description: "The list of items in the negotiable quote.")
+    comments: [NegotiableQuoteComment!] @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\QuoteComments") @doc(description: "A list of comments made by the buyer and seller.")
+    history: [NegotiableQuoteHistoryEntry!]  @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\QuoteHistory") @doc(description: "A list of status and price changes for the negotiable quote.")
+    shipping_addresses: [NegotiableQuoteShippingAddress]! @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\ShippingAddresses") @doc(description: "A list of shipping addresses applied to the negotiable quote.")
+    billing_address: NegotiableQuoteBillingAddress @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\BillingAddress") @doc(description: "The billing address applied to the negotiable quote.")
+    email: String @resolver (class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\CartEmail") @doc(description: "The email address of the company user.")
+    available_payment_methods: [AvailablePaymentMethod] @resolver(class: "Magento\\QuoteGraphQl\\Model\\Resolver\\AvailablePaymentMethods") @doc(description: "An array of payment methods that can be applied to the negotiable quote.")
+    selected_payment_method: SelectedPaymentMethod @resolver(class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\SelectedPaymentMethod") @doc(description: "The payment method that was applied to the negotiable quote.")
+    prices: CartPrices @resolver(class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\CartPrices") @doc(description: "A set of subtotals and totals applied to the negotiable quote.")
+    buyer: NegotiableQuoteUser! @resolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\Buyer") @doc(description: "The first and last name of the buyer.")
+    created_at: String @doc(description: "Timestamp indicating when the negotiable quote was created.")
+    updated_at: String @doc(description: "Timestamp indicating when the negotiable quote was updated.")
+    status: NegotiableQuoteStatus! @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\Status")  @doc(description: "The status of the negotiable quote.")
+    total_quantity: Float! @resolver(class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\CartTotalQuantity") @doc(description: "The total number of items in the negotiable quote.")
+    is_virtual: Boolean! @resolver(class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\CartIsVirtual") @doc(description: "Indicates whether the negotiable quote contains only virtual products.")
+}
+
+enum NegotiableQuoteStatus {
+    SUBMITTED
+    PENDING
+    UPDATED
+    OPEN
+    ORDERED
+    CLOSED
+    DECLINED
+    EXPIRED
+}
+
+input NegotiableQuoteFilterInput @doc(description: "Defines a filter to limit the negotiable quotes to return.") {
+    ids: FilterEqualTypeInput @doc(description: "Filter by the ID of one or more negotiable quotes.")
+    name: FilterMatchTypeInput @doc(description: "Filter by the negotiable quote name.")
+}
+
+type NegotiableQuoteHistoryEntry @doc(description: "Contains details about a change for a negotiable quote.") {
+    uid: ID! @doc(description: "The unique ID of a `NegotiableQuoteHistoryEntry` object.")
+    author: NegotiableQuoteUser! @doc(description: "The person who made a change in the status of the negotiable quote.")
+    change_type: NegotiableQuoteHistoryEntryChangeType! @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\HistoryEntryChangeType")  @doc(description: "An enum that describes the why the entry in the negotiable quote history changed status.")
+    created_at: String @doc(description: "Timestamp indicating when the negotiable quote entry was created.")
+    changes: NegotiableQuoteHistoryChanges @doc(description: "The set of changes in the negotiable quote.")
+}
+
+type NegotiableQuoteHistoryChanges @doc(description: "Contains a list of changes to a negotiable quote.") {
+    statuses: NegotiableQuoteHistoryStatusesChange @doc(description: "The status before and after a change in the negotiable quote history.")
+    comment_added: NegotiableQuoteHistoryCommentChange @doc(description: "The comment provided with a change in the negotiable quote history.")
+    total: NegotiableQuoteHistoryTotalChange @doc(description: "The total amount of the negotiable quote before and after a change in the quote history.")
+    expiration: NegotiableQuoteHistoryExpirationChange @doc(description: "The expiration date of the negotiable quote before and after a change in the quote history.")
+    products_removed: NegotiableQuoteHistoryProductsRemovedChange @doc(description: "Lists products that were removed as a result of a change in the quote history.")
+    custom_changes: NegotiableQuoteCustomLogChange @doc(description: "Lists log entries added by third-party extensions.")
+}
+
+type NegotiableQuoteHistoryStatusChange @doc(description: "Lists a new status change applied to a negotiable quote and the previous status.") {
+    old_status: NegotiableQuoteStatus @doc(description: "The previous status. The value will be null for the first history entry in a negotiable quote.")
+    new_status: NegotiableQuoteStatus! @doc(description: "The updated status.")
+}
+
+type NegotiableQuoteHistoryStatusesChange @doc(description: "Contains a list of status changes that occurred for the negotiable quote.") {
+    changes: [NegotiableQuoteHistoryStatusChange!]! @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\HistoryStatusChange") @doc(description: "A list of status changes.")
+}
+
+type NegotiableQuoteHistoryCommentChange @doc(description: "Contains a comment submitted by a seller or buyer.") {
+    comment: String! @doc(description: "A plain text comment submitted by a seller or buyer.")
+}
+
+type NegotiableQuoteHistoryTotalChange @doc(description: "Contains a new price and the previous price.") {
+    old_price: Money @doc(description: "The previous total price on the negotiable quote.")
+    new_price: Money @doc(description: "The total price as a result of the change.")
+}
+
+type NegotiableQuoteHistoryExpirationChange @doc(description: "Contains a new expiration date and the previous date.") {
+    old_expiration: String @doc(description: "The previous expiration date. The value will be 'null' if not previously set.")
+    new_expiration: String @doc(description: "The expiration date after the change. The value will be 'null' if not set.")
+}
+
+type NegotiableQuoteHistoryProductsRemovedChange @doc(description: "Contains lists of products that have been removed from the catalog and negotiable quote.") {
+    products_removed_from_catalog: [ID!] @doc(description: "A list of product IDs the seller removed from the catalog.")
+    products_removed_from_quote: [ProductInterface!] @resolver(class: "Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\QuoteProducts") @doc(description: "A list of products removed from the negotiable quote by either the buyer or the seller.")
+}
+
+type NegotiableQuoteCustomLogChange @doc(description: "Contains custom log entries added by third-party extensions.") {
+    title: String! @doc(description: "The title of the custom log entry.")
+    old_value: String @doc(description: "The previous entry in the custom log.")
+    new_value: String! @doc(description: "The new entry content.")
+}
+
+enum NegotiableQuoteHistoryEntryChangeType {
+    CREATED
+    UPDATED
+    CLOSED
+    UPDATED_BY_SYSTEM
+}
+
+type RequestNegotiableQuoteOutput @doc(description: "Contains the `NegotiableQuote` object generated when a buyer requests a negotiable quote.") {
+    quote: NegotiableQuote @doc(description: "Details about the negotiable quote.")
+}
+
+interface NegotiableQuoteAddressInterface @typeResolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\NegotiableQuoteAddressTypeResolver") {
+    firstname: String! @doc(description: "The first name of the company user.")
+    lastname: String! @doc(description: "The last name of the company user.")
+    company: String @doc(description: "The company name associated with the shipping/billing address.")
+    street: [String!]! @doc(description: "An array of strings that define the street number and name.")
+    city: String! @doc(description: "The company's city or town.")
+    region: NegotiableQuoteAddressRegion @doc(description: "An object containing the region name, region code, and region ID.")
+    postcode: String @doc(description: "The company's ZIP or postal code.")
+    country: NegotiableQuoteAddressCountry! @doc(description: "The company's country.")
+    telephone: String @doc(description: "The customer's telephone number.")
+}
+
+type NegotiableQuoteAddressRegion @doc(description: "Defines the company's state or province.") {
+    code: String @doc(description: "The address region code.")
+    label: String @doc(description: "The display name of the region.")
+    region_id: Int @doc(description: "The unique ID for a pre-defined region.")
+}
+
+type NegotiableQuoteAddressCountry @doc(description: "Defines the company's country.") {
+    code: String! @doc(description: "The address country code.")
+    label: String! @doc(description: "The display name of the region.")
+}
+
+type NegotiableQuoteShippingAddress implements NegotiableQuoteAddressInterface {
+    available_shipping_methods: [AvailableShippingMethod] @resolver(class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\ShippingAddress\\AvailableShippingMethods") @doc(description: "An array of shipping methods available to the buyer.")
+    selected_shipping_method: SelectedShippingMethod @resolver(class: "\\Magento\\QuoteGraphQl\\Model\\Resolver\\ShippingAddress\\SelectedShippingMethod") @doc(description: "The selected shipping method.")
+}
+
+type NegotiableQuoteBillingAddress implements NegotiableQuoteAddressInterface {
+}
+
+type NegotiableQuoteUser @doc(description: "A limited view of a Buyer or Seller in the negotiable quote process.") {
+    firstname: String! @doc(description: "The first name of the buyer or seller making a change.")
+    lastname: String! @doc(description: "The buyer's or seller's last name.")
+}
+
+type StoreConfig {
+    is_negotiable_quote_active: Boolean @doc(description: "Indicates whether negotiable quote functionality is enabled.")
+}
+
+interface NegotiableQuoteUidNonFatalResultInterface @typeResolver(class: "\\Magento\\NegotiableQuoteGraphQl\\Model\\Resolver\\OperationResult\\NegotiableQuoteUidNonFatalResultTypeResolver") {
+    quote_uid: ID! @doc(description: "The unique ID of a `NegotiableQuote` object.")
+}
+
+type NegotiableQuoteUidOperationSuccess implements NegotiableQuoteUidNonFatalResultInterface @doc(description: "Contains details about a successful operation on a negotiable quote.") {
+}
+
+type NegotiableQuoteInvalidStateError implements ErrorInterface @doc(description: "An error indicating that an operation was attempted on a negotiable quote in an invalid state.") {
+}

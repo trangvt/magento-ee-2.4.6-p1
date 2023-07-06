@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontRequisitionListGridSection">
+        <element name="requesitionListViewLink" type="button" selector="//td[contains(., '{{rlName}}')]/parent::tr//a" timeout="30" parameterized="true" deprecated="Use requisitionListViewLink instead"/>
+        <element name="requisitionListViewLink" type="button" selector="//td[contains(., '{{rlName}}')]/parent::tr//a" timeout="30" parameterized="true"/>
+        <element name="emptyRequisitionListGrid" type="text" timeout="30" selector="//*[contains(@data-bind,'requisition_list_listing')]//td[.=&quot;We couldn't find any records.&quot;]"/>
+        <element name="requisitionListName" type="text" timeout="30" parameterized="true" selector="//td[@class='list-name-field']//*[@class='cell-label-line-name'][contains(., '{{requisitionListName}}')]"/>
+        <element name="createRequisitionList" type="button" selector=".add"/>
+    </section>
+</sections>

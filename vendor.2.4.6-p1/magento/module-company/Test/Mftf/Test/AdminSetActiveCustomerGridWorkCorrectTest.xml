@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminSetActiveCustomerGridWorkCorrectTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Create Company"/>
+            <title value="Create Company With Active Customer As Company Admin"/>
+            <description value="Verify that a customer set as 'Active' can have their email be used in the company email
+            when creating a company on the storefront"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-17178"/>
+            <useCaseId value="MC-17007"/>
+            <group value="company"/>
+            <group value="customer"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <comment userInput="BIC workaround" stepKey="enableSharedCatalog"/>
+            <comment userInput="BIC workaround" stepKey="enableQuote"/>
+            <comment userInput="BIC workaround" stepKey="enableQuickOrder"/>
+            <comment userInput="BIC workaround" stepKey="enableRequisitionList"/>
+            <comment userInput="BIC workaround" stepKey="runCronReindex"/>
+
+            <!-- Create Customer -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <magentoCron groups="index" stepKey="reindex"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations, Delete Data, & Clear Filters -->
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <comment userInput="BIC workaround" stepKey="disableRequisitionList"/>
+            <comment userInput="BIC workaround" stepKey="disableQuickOrder"/>
+            <comment userInput="BIC workaround" stepKey="disableQuote"/>
+            <comment userInput="BIC workaround" stepKey="disableSharedCatalog"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <comment userInput="BIC workaround" stepKey="runCronReindex"/>
+            <actionGroup ref="AdminDeleteCompanyActionGroup" stepKey="deleteCompany">
+                <argument name="companyName" value="{{Default_Company.company_name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminDeleteCustomerActionGroup" stepKey="deleteCreatedCustomer">
+                <argument name="customerEmail" value="Simple_US_Customer_CA.email"/>
+            </actionGroup>
+            <comment userInput="BIC workaround" stepKey="openCustomerIndexPage"/>
+            <comment userInput="BIC workaround" stepKey="waitToCustomerIndexPageToLoad"/>
+            <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="resetFilter"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Set Customer Status - Inactive (for no apparent reason) -->
+        <comment userInput="BIC workaround" stepKey="openCustomerEditPage"/>
+        <actionGroup ref="AdminOpenCustomersGridActionGroup" stepKey="openAllCustomersPage2"/>
+        <actionGroup ref="AdminGridFilterSearchResultsByInput" stepKey="filterCustomer">
+            <argument name="selector" value="AdminDataGridHeaderSection.filterFieldInput('email')"/>
+            <argument name="value" value="$createCustomer.email$$"/>
+        </actionGroup>
+        <actionGroup ref="AdminSuccessfullySetCustomerInactiveViaGridActionGroup" stepKey="setCustomerInactive">
+            <argument name="customerEmail" value="$createCustomer.email$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="openAllCustomersPage"/>
+        <comment userInput="BIC workaround" stepKey="waitForAllCustomersPageLoad"/>
+        <comment userInput="BIC workaround" stepKey="clickClearCustomersFilters"/>
+        <comment userInput="BIC workaround" stepKey="filterCustomerSecondTime"/>
+        <seeElement selector="{{AdminCustomerGridSection.status('$createCustomer.email$', 'Inactive')}}" stepKey="seeCustomerStatusInactive"/>
+
+        <!-- Set Customer Status - Active (even though future steps don't care if customer is active or inactive) -->
+        <actionGroup ref="AdminSuccessfullySetCustomerActiveViaGridActionGroup" stepKey="setCustomerActive">
+            <argument name="customerEmail" value="$createCustomer.email$"/>
+        </actionGroup>
+        <seeElement selector="{{AdminCustomerGridSection.status('$createCustomer.email$', 'Active')}}" stepKey="seeCustomerStatusActive"/>
+
+        <!-- Create New Company on Storefront with Not-Yet-Created Customer -->
+        <actionGroup ref="StorefrontGoToCreateCompanyPageActionGroup" stepKey="openCreateCompanyPage"/>
+        <comment userInput="BIC workaround" stepKey="waitForCreateCompanyPageLoad"/>
+        <actionGroup ref="StorefrontCreateCompanyActionGroup" stepKey="createNewCompany">
+            <argument name="company" value="Default_Company"/>
+            <argument name="companyAdmin" value="Simple_US_Customer_CA"/>
+            <argument name="companyEmail" value="$createCustomer.email$"/>
+        </actionGroup>
+
+        <!-- Verify New Customer Admin is Created -->
+        <actionGroup ref="OpenEditCustomerFromAdminActionGroup" stepKey="openAdminCustomerEditPage">
+            <argument name="customer" value="Simple_US_Customer_CA"/>
+        </actionGroup>
+        <see userInput="Company admin" stepKey="seeCompanyAdmin"/>
+
+        <!-- Assign Originally Created Customer to Company -->
+        <actionGroup ref="OpenEditCustomerFromAdminActionGroup" stepKey="editCustomer">
+            <argument name="customer" value="$createCustomer$"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddAssociateCompanyToCustomerActionGroup" stepKey="assignCompanyToCustomer">
+            <argument name="company" value="Default_Company"/>
+        </actionGroup>
+
+        <!-- Verify Customer is Assigned to Company -->
+        <actionGroup ref="AdminOpenCustomersGridActionGroup" stepKey="openCustomerIndexPageThirdTime"/>
+        <comment userInput="BIC workaround" stepKey="waitForCustomerIndexPageLoadThirdTime"/>
+        <actionGroup ref="ClearFiltersAdminDataGridActionGroup" stepKey="clearAllCustomersFilters"/>
+        <actionGroup ref="AdminGridFilterSearchResultsByInput" stepKey="filterCustomer2">
+            <argument name="selector" value="AdminDataGridHeaderSection.filterFieldInput('email')"/>
+            <argument name="value" value="$createCustomer.email$$"/>
+        </actionGroup>
+        <seeElement selector="{{AdminCustomerGridSection.associatedCompany($createCustomer.email$, Default_Company.company_name)}}" stepKey="seeAssociatedCompany"/>
+    </test>
+</tests>

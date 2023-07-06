@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AssertStorefrontNegotiableQuoteItemExcludingTaxWithWeeeAttributeActionGroup" extends="AssertStorefrontNegotiableQuoteItemExcludingTaxActionGroup">
+        <annotations>
+            <description>Validates that the provided product price, subtotal, weee attribute value excluding tax are present and correct in the Negotiable quote on storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="weeePrice" defaultValue="50" type="string"/>
+            <argument name="weeeSubtotal" defaultValue="50" type="string"/>
+        </arguments>
+
+        <click selector="{{StorefrontNegotiableQuoteViewSection.productPriceExcludingTaxByName(productName)}}" after="assertProductSubtotalExcludingTax" stepKey="clickOnItemPriceExcludingTax"/>
+        <see userInput="{{weeePrice}}" selector="{{StorefrontNegotiableQuoteItemWeeeSection.productWeeePriceExcludingTaxByName(productName)}}" after="clickOnItemPriceExcludingTax" stepKey="assertProductWeeeExcludingTax"/>
+        <click selector="{{StorefrontNegotiableQuoteViewSection.productSubtotalExcludingTaxByName(productName)}}" after="assertProductWeeeExcludingTax" stepKey="clickOnItemSubtotalExcludingTax"/>
+        <see userInput="{{weeeSubtotal}}" selector="{{StorefrontNegotiableQuoteItemWeeeSection.productWeeeSubtotalExcludingTaxByName(productName)}}" after="clickOnItemSubtotalExcludingTax" stepKey="assertProductWeeeSubtotalExcludingTax"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,52 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * @var \Magento\PurchaseOrderRule\Block\RuleFieldset\Condition $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$ruleCondition = $block->getPurchaseOrderRuleCondition();
+$nameAttribute = $block->isConditionSelected() ? 'name' : 'data-name';
+?>
+<fieldset class="fieldset condition<?= !$block->isConditionSelected() ? ' _hide' : '' ?>"
+          id="rule-condition-<?= $escaper->escapeHtmlAttr($block->getConditionKey())?>"
+          data-hasrequired="<?= $escaper->escapeHtmlAttr(__('* Required Fields')) ?>">
+    <div class="field required field-condition-order-total">
+        <label class="label" for="conditions_operator">
+            <span><?= $escaper->escapeHtml(__($block->getConditionLabel())) ?></span>
+        </label>
+        <div class="control">
+            <div class="control">
+                <select <?= /* @noEscape */ $nameAttribute?>="conditions[0][operator]"
+                        id="conditions_operator_<?= $escaper->escapeHtmlAttr($block->getConditionKey())?>"
+                        class="select required-entry"
+                        title="<?= $escaper->escapeHtml(__('Condition operator')) ?>"
+                        aria-required="true">
+                    <option value=""><?= $escaper->escapeHtml(__('Please select')) ?></option>
+                <?php foreach ($block->getOperatorsByConditionKey($block->getConditionKey()) as $operator): ?>
+                    <option value="<?= $escaper->escapeHtmlAttr($operator['value']) ?>"
+                        <?= ($ruleCondition[0]['operator'] === $operator['value'] ? ' selected' : '') ?>
+                    ><?= $escaper->escapeHtml(__($operator['label'])) ?></option>
+                <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="nested">
+                <div class="field additional">
+                    <div class="control">
+                        <input type="text"
+                            <?= /* @noEscape */ $nameAttribute?>="conditions[0][value]"
+                            id="conditions_value_<?= $escaper->escapeHtmlAttr($block->getConditionKey())?>"
+                            title="<?= $escaper->escapeHtmlAttr(__('Condition quantity')) ?>"
+                            value="<?= $escaper->escapeHtmlAttr($ruleCondition[0]['value']) ?>"
+                            placeholder="<?= $escaper->escapeHtmlAttr(__('Enter quantity')) ?>"
+                            class="input-text validate-digits validate-zero-or-greater validate-number
+                                    required-entry">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>

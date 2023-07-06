@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AssertStorefrontNegotiableQuoteTotalsWithWeeeAttributeActionGroup" extends="AssertStorefrontNegotiableQuoteTotalsActionGroup">
+        <annotations>
+            <description>Validates that the provided Subtotal/Total, weee subtotal are present and correct on storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="weeeCatalogSubtotal" defaultValue="100" type="string"/>
+            <argument name="weeeSubtotal" defaultValue="100" type="string"/>
+        </arguments>
+
+        <waitForElementVisible selector="{{StorefrontNegotiableQuoteWeeeTotalsSection.quoteWeeeCatalogSubtotal}}" after="assertCatalogSubtotal" stepKey="waitForWeeeCatalogSubtotal"/>
+        <see selector="{{StorefrontNegotiableQuoteWeeeTotalsSection.quoteWeeeCatalogSubtotal}}" userInput="{{weeeCatalogSubtotal}}" after="waitForWeeeCatalogSubtotal" stepKey="assertWeeeCatalogSubtotal"/>
+        <see selector="{{StorefrontNegotiableQuoteWeeeTotalsSection.quoteWeeeSubtotal}}" userInput="{{weeeSubtotal}}" after="assertWeeeCatalogSubtotal" stepKey="assertWeeeSubtotal"/>
+    </actionGroup>
+</actionGroups>

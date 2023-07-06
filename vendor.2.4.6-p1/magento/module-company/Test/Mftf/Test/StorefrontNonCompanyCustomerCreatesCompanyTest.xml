@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontNonCompanyCustomerCreatesCompanyTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Create Company"/>
+            <title value="Create Company From Storefront Company Structure Page"/>
+            <description value="Verify that a non-company customer can create a company from the Company Structure page."/>
+            <severity value="MAJOR"/>
+            <group value="company"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Create Customer -->
+            <createData entity="Simple_US_Customer_Constant_Email" stepKey="customer"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations, Delete Data, & Clear Filters -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminDeleteCompanyActionGroup" stepKey="deleteCreatedCompany">
+                <argument name="companyName" value="{{Default_Company.company_name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminDeleteCustomerActionGroup" stepKey="deleteCreatedCompanyAdmin">
+                <argument name="customerEmail" value="Simple_US_Customer.email"/>
+            </actionGroup>
+            <actionGroup ref="AdminGridFilterResetActionGroup" stepKey="clearCustomerGridFilters"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+        </after>
+
+        <!-- Go to Storefront Company Structure Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$$customer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontGoToCompanyStructurePageActionGroup" stepKey="goToCompanyStructurePage"/>
+        <comment userInput="BIC workaround" stepKey="waitForAttributePageLoad"/>
+        <waitForText userInput="You don't have a company account yet." selector="{{StorefrontCompanyUserCreateFormSection.noCompanyMessage}}" stepKey="waitForNoCompanyMessage"/>
+
+        <!-- Create Company -->
+        <comment userInput="BIC workaround" stepKey="waitForCreateCompanyButton"/>
+        <actionGroup ref="StorefrontClickCreateCompanyFromCompanyStructurePageActionGroup" stepKey="clickCreateCompanyButton"/>
+        <actionGroup ref="StorefrontCreateCompanyWithUniqueEmailCheckActionGroup" stepKey="createCompany">
+            <argument name="companyInvalidAdmin" value="Simple_US_Customer_Constant_Email"/>
+        </actionGroup>
+    </test>
+</tests>

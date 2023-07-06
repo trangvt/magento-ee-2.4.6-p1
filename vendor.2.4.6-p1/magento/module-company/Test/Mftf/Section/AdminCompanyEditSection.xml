@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminCompanyEditSection">
+        <element name="advancedSettings" type="button" selector="div[data-index='settings']" timeout="30"/>
+        <element name="customerGroups" type="button" selector="div[name='settings[customer_group_id]']" timeout="30"/>
+        <element name="allowExceedCreditLimit" type="checkbox" selector="//div[@class='admin__actions-switch']"/>
+        <element name="saveButton" type="button" selector="#save-button" timeout="30"/>
+        <element name="successMessage" type="text" selector="div[class='message message-success success']"/>
+        <element name="outstandingBalance" type="text" selector="//li[contains(.,'Outstanding Balance')]/span"/>
+        <element name="availableCredit" type="text" selector="//li[contains(.,'Available Credit')]/span"/>
+        <element name="creditLimitAmount" type="text" selector="//li[contains(.,'Credit Limit')]/span"/>
+        <element name="reimburseBalance" type="button" selector="#company-edit-reimburse-button" timeout="30"/>
+        <element name="reimburseAmount" type="input" selector="input[name='reimburse_balance[amount]']"/>
+        <element name="purchaseOrderNumber" type="input" selector="input[name='reimburse_balance[purchase_order]']" deprecated="Use customReferenceNumber"/>
+        <element name="customReferenceNumber" type="input" selector="input[name='reimburse_balance[purchase_order]']"/>
+        <element name="comment" type="input" selector="textarea[name='reimburse_balance[credit_comment]']"/>
+        <element name="reimburseButton" type="button" selector="//button[text()='Reimburse']" timeout="30"/>
+        <element name="companyCreditGrid" type="text" selector="//td/div[contains(.,'{{operation}}')]/ancestor::tr" parameterized="true"/>
+        <element name="applicableShippingMethods" type="select" timeout="30" selector="[name='settings[extension_attributes][applicable_shipping_method]']"/>
+        <element name="applicableShippingMethodsDisabled" type="select" timeout="30" selector="[disabled][name='settings[extension_attributes][applicable_shipping_method]']"/>
+        <element name="applicableShippingMethodsCheckBox" type="input" timeout="30" selector="[name='settings[extension_attributes][use_config_settings_shipping]']"/>
+        <element name="availableShippingMethods" type="select" timeout="30" selector="[name='settings[extension_attributes][available_shipping_methods]']"/>
+        <element name="availableShippingMethodsRequiredMessage" type="text" timeout="30" selector="//select[@name='settings[extension_attributes][available_shipping_methods]']/parent::div//label"/>
+        <element name="availableShippingMethodsDisabled" type="select" timeout="30" selector="[disabled][name='settings[extension_attributes][available_shipping_methods]']"/>
+        <element name="applicablePaymentMethods" type="select" timeout="30" selector="[name='settings[extension_attributes][applicable_payment_method]']"/>
+        <element name="applicablePaymentMethodsDisabled" type="select" timeout="30" selector="[disabled][name='settings[extension_attributes][applicable_payment_method]']"/>
+        <element name="applicablePaymentMethodsCheckBox" type="input" timeout="30" selector="[name='settings[extension_attributes][use_config_settings]']"/>
+        <element name="availablePaymentMethods" type="select" timeout="30" selector="[name='settings[extension_attributes][available_payment_methods]']"/>
+        <element name="availablePaymentMethodsRequiredMessage" type="text" timeout="30" selector="//select[@name='settings[extension_attributes][available_payment_methods]']/parent::div//label"/>
+        <element name="availablePaymentMethodsDisabled" type="select" timeout="30" selector="[disabled][name='settings[extension_attributes][available_payment_methods]']"/>
+    </section>
+</sections>

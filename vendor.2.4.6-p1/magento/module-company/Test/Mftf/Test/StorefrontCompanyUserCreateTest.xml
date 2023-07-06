@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontCompanyUserCreateTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Company Structure"/>
+            <title value="Create Company User With Name Prefix Attribute"/>
+            <description value="Verify company user can be created with a name prefix from the storefront Company
+            Structure page when the customer prefix attribute is required and shown."/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-22611"/>
+            <useCaseId value="MC-20208"/>
+            <group value="company"/>
+            <group value="customer"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies Configurations -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+
+            <!-- Create Company Admin -->
+            <createData entity="Simple_US_Customer" stepKey="customer"/>
+            <createData entity="Default_Company" stepKey="company">
+                <requiredEntity createDataKey="customer"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+
+            <!-- Require and Show Customer 'Name Prefix' Attribute -->
+            <actionGroup ref="AdminNavigateToCustomerAttributesPageActionGroup" stepKey="navigateToCustomerAttributes"/>
+            <comment userInput="BIC workaround" stepKey="waitForAttributePageLoad"/>
+            <actionGroup ref="AdminOpenCustomerAttributeByCodeActionGroup" stepKey="openPrefixAttribute">
+                <argument name="attributeCode" value="prefix"/>
+            </actionGroup>
+            <selectOption selector="{{AdminCustomerAttributeEditSection.valuesRequired}}" userInput="Yes" stepKey="prefixValueRequired"/>
+            <selectOption selector="{{AdminCustomerAttributeEditSection.showInSF}}" userInput="Yes" stepKey="setYesSFOption"/>
+            <actionGroup ref="ClickSaveButtonActionGroup" stepKey="clickSaveAttribute">
+                <argument name="message" value="You saved the customer attribute."/>
+            </actionGroup>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="full_page"/>
+            </actionGroup>
+        </before>
+
+        <after>
+            <!-- Revert Configurations -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+
+            <!-- Remove Requirement and Visibility for Customer 'Name Prefix' Attribute -->
+            <actionGroup ref="AdminNavigateToCustomerAttributesPageActionGroup" stepKey="navigateToCustomerAttributes"/>
+            <comment userInput="BIC workaround" stepKey="waitForAttributePageLoad"/>
+            <actionGroup ref="AdminOpenCustomerAttributeByCodeActionGroup" stepKey="openPrefixAttribute">
+                <argument name="attributeCode" value="prefix"/>
+            </actionGroup>
+            <selectOption selector="{{AdminCustomerAttributeEditSection.valuesRequired}}" userInput="No" stepKey="prefixValueNotRequired"/>
+            <selectOption selector="{{AdminCustomerAttributeEditSection.showInSF}}" userInput="No" stepKey="setNoSFOption"/>
+            <actionGroup ref="ClickSaveButtonActionGroup" stepKey="saveAttribute">
+                <argument name="message" value="You saved the customer attribute."/>
+            </actionGroup>
+
+            <!-- Reset Filters & Delete Data -->
+            <actionGroup ref="AdminGridFilterResetActionGroup" stepKey="clearCustomerAttributeGridFilters"/>
+            <deleteData createDataKey="company" stepKey="deleteCompany"/>
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+            <actionGroup ref="AdminDeleteCustomerActionGroup" stepKey="deleteCreatedCustomer">
+                <argument name="customerEmail" value="DefaultCompanyUser.email"/>
+            </actionGroup>
+            <actionGroup ref="AdminGridFilterResetActionGroup" stepKey="clearCustomerGridFilters"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="adminLogout"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="full_page"/>
+            </actionGroup>
+        </after>
+
+        <!-- Go to Company Structure Page -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$$customer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontGoToCompanyStructurePageActionGroup" stepKey="goToCompanyStructurePage"/>
+        <comment userInput="BIC workaround" stepKey="waitForAttributePageLoad"/>
+
+        <!-- Create User with 'Name Prefix' From Company Structure Page -->
+        <actionGroup ref="StorefrontClickAddUserFromCompanyStructurePageActionGroup" stepKey="addCompanyUser"/>
+        <actionGroup ref="StorefrontFillCustomerUserWithPrefixEnabledActionGroup" stepKey="fillFieldsNewCompanyUser"/>
+        <actionGroup ref="StorefrontClickSaveOnAddUserFormOnCompanyStructurePageActionGroup" stepKey="clickSave"/>
+        <comment userInput="BIC workaround" stepKey="createCompanyUser"/>
+        <comment userInput="BIC workaround" stepKey="waitForPageLoad"/>
+        <comment userInput="BIC workaround" stepKey="waitForSuccessMessage"/>
+        <comment userInput="BIC workaround" stepKey="seeCreatedNewUserSuccessMessage"/>
+    </test>
+</tests>

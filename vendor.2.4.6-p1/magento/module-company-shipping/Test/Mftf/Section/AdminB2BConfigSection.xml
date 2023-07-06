@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="AdminB2BConfigSection">
+        <element name="shippingMethodsAccordion" type="button" selector="#btob_website_configuration_default_b2b_shipping_methods-head"/>
+        <element name="applicableShippingMethods" type="select" selector="#btob_website_configuration_default_b2b_shipping_methods_applicable_shipping_methods"/>
+        <element name="availableShippingMethods" type="select" selector="#btob_website_configuration_default_b2b_shipping_methods_available_shipping_methods"/>
+        <element name="availableShippingMethodsDisabled" type="select" selector="[disabled]#btob_website_configuration_default_b2b_shipping_methods_available_shipping_methods"/>
+    </section>
+</sections>

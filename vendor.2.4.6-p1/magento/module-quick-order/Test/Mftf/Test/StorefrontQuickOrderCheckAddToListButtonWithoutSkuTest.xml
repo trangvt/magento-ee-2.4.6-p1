@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontQuickOrderCheckAddToListButtonWithoutSkuTest">
+        <annotations>
+            <features value="QuickOrder"/>
+            <stories value="Create quick order"/>
+            <title value="Storefront Quick Order Add to List button"/>
+            <description value="Storefront Quick Order check state of Add to List button"/>
+            <severity value="MAJOR"/>
+            <testCaseId value="MC-38224"/>
+            <useCaseId value="MC-37387"/>
+            <group value="quickOrder"/>
+            <group value="b2b"/>
+            <group value="cloud_smoke"/>
+        </annotations>
+        <before>
+            <!-- Enable Quick order functionality -->
+            <createData entity="B2BEnabledQuickOrderConfig" stepKey="enabledQuickOrderConfig"/>
+
+            <!-- Create product -->
+            <createData entity="simpleProductWithoutCategory" stepKey="createProduct"/>
+        </before>
+        <after>
+            <!-- Set b2b config to default -->
+            <createData entity="B2BDefaultConfig" stepKey="defaultB2BConfig"/>
+
+            <!-- Delete product -->
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+        </after>
+
+        <!-- Go to Quick order page -->
+        <amOnPage url="{{StorefrontQuickOrderPage.url}}" stepKey="goQuickOrderPage"/>
+        <waitForPageLoad stepKey="waitForQuickOrderPageLoad"/>
+
+        <!-- Check both buttons are disabled -->
+        <seeElement selector="{{StorefrontQuickOrderSection.addToCartDisabled}}" stepKey="verifyAddToCartButtonDisabled"/>
+        <seeElement selector="{{StorefrontQuickOrderSection.addToListDisabled}}" stepKey="verifyAddToListButtonDisabled"/>
+
+        <!-- Add entered SKU to List and check buttons again -->
+        <fillField selector="{{StorefrontQuickOrderSection.enterMultipleSKUs}}" userInput="$createProduct.sku$" stepKey="enterProductSku"/>
+        <waitForElementVisible selector="{{StorefrontQuickOrderSection.addToListEnabled}}" stepKey="waitForAddToListButtonEnabled"/>
+        <click selector="{{StorefrontQuickOrderSection.addToList}}" stepKey="clickAddToListButton"/>
+        <waitForAjaxLoad stepKey="waitForAjaxLoad"/>
+        <seeElement selector="{{StorefrontQuickOrderSection.addToCart}}" stepKey="verifyAddToCartEnabled"/>
+        <seeElement selector="{{StorefrontQuickOrderSection.addToListDisabled}}" stepKey="verifyAddToListDisabled"/>
+    </test>
+</tests>

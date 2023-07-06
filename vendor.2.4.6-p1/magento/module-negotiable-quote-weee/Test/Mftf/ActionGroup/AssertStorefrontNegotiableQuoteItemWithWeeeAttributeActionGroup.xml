@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="AssertStorefrontNegotiableQuoteItemWithWeeeAttributeActionGroup" extends="AssertStorefrontNegotiableQuoteItemActionGroup">
+        <annotations>
+            <description>Validates that the provided Product details (Name and Price), Product Quantity, Weee Attribute data are present and correct in the Negotiable Quote on storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="weeePrice" defaultValue="50" type="string"/>
+            <argument name="weeeSubtotal" defaultValue="50" type="string"/>
+        </arguments>
+
+        <click selector="{{StorefrontNegotiableQuoteViewSection.productPriceByName(productName)}}" after="seeProductSubtotalInNegotiableQuoteItemsGrid" stepKey="clickOnProductPriceInNegotiableQuoteItemsGrid"/>
+        <see userInput="{{weeePrice}}" selector="{{StorefrontNegotiableQuoteItemWeeeSection.productWeeePriceByName(productName)}}" after="clickOnProductPriceInNegotiableQuoteItemsGrid" stepKey="seeProductWeeeInNegotiableQuoteItemsGrid"/>
+        <click selector="{{StorefrontNegotiableQuoteViewSection.productSubtotalByName(productName)}}" after="seeProductWeeeInNegotiableQuoteItemsGrid" stepKey="clickOnItemSubtotalInNegotiableQuoteItemsGrid"/>
+        <see userInput="{{weeeSubtotal}}" selector="{{StorefrontNegotiableQuoteItemWeeeSection.productWeeeSubtotalByName(productName)}}" after="clickOnItemSubtotalInNegotiableQuoteItemsGrid" stepKey="seeProductWeeeSubtotalInNegotiableQuoteItemsGrid"/>
+    </actionGroup>
+</actionGroups>

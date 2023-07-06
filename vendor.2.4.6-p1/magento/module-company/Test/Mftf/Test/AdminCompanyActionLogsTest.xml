@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCompanyActionLogsTest">
+        <annotations>
+            <features value="Company"/>
+            <stories value="Logging"/>
+            <title value="Logging Admin Company Actions"/>
+            <description value="Verify that editing a company in admin will log the action and data in the admin Action
+            Logs Report. Functional iterations for testing company logging are written in integration tests."/>
+            <severity value="CRITICAL"/>
+            <group value="company"/>
+            <group value="logging"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies -->
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompanies"/>
+
+            <!-- Create Company Admin -->
+            <createData entity="Simple_US_Customer" stepKey="createCompanyAdmin"/>
+            <createData entity="Default_Company" stepKey="defaultCompany">
+                <requiredEntity createDataKey="createCompanyAdmin"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompanies"/>
+            <deleteData createDataKey="defaultCompany" stepKey="deleteCompany"/>
+            <deleteData createDataKey="createCompanyAdmin" stepKey="deleteCompanyAdmin"/>
+            <actionGroup ref="AdminOpenActionLogsReportPageActionGroup" stepKey="openActionLogsReportPage"/>
+            <actionGroup ref="AdminGridFilterResetActionGroup" stepKey="clearGridFilters"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Go to Company Edit Page and Save Company -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$defaultCompany.id$"/>
+            <argument name="companyName" value="$defaultCompany.company_name$"/>
+        </actionGroup>
+        <generateDate date="now" format="M j, Y, g:i" stepKey="generateLogTime"/>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+
+        <!-- Verify Saved Company Log on System > Action Log > Report Grid -->
+        <actionGroup ref="AdminOpenActionLogsReportPageActionGroup" stepKey="openActionLogsReportPage"/>
+        <actionGroup ref="AdminGridFilterResetActionGroup" stepKey="clearGridFilters"/>
+        <actionGroup ref="AdminFillInputFilterFieldActionGroup" stepKey="searchSavedCompanyInGrid">
+            <argument name="filterInputName" value="fullaction"/>
+            <argument name="filterValue" value="company_index_save"/>
+        </actionGroup>
+        <actionGroup ref="AdminClickSearchInGridActionGroup" stepKey="applyGridFilter"/>
+        <actionGroup ref="AdminAssertSystemReportGridRowDataActionGroup" stepKey="assertSystemReportGridRowData">
+            <argument name="time" value="{$generateLogTime}"/>
+            <argument name="actionGroup" value="Companies"/>
+            <argument name="action" value="Save"/>
+            <argument name="result" value="Success"/>
+            <argument name="fullActionName" value="company_index_save"/>
+            <argument name="details" value=""/>
+        </actionGroup>
+
+        <!-- Verify Data on Log Details Page -->
+        <actionGroup ref="AdminClickViewOnSystemReportGridRowActionGroup" stepKey="clickViewOnSystemReportGridRow"/>
+        <actionGroup ref="AdminAssertSystemReportDetailsDataActionGroup" stepKey="checkReportDetails"/>
+    </test>
+</tests>

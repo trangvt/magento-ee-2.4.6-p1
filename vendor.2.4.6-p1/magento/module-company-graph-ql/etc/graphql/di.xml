@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\CompanyGraphQl\Model\Company\Role\Permissions">
+        <arguments>
+            <argument name="resourceProvider" xsi:type="object">Magento\Company\Acl\AclResource\Provider</argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_view" xsi:type="string">Magento_Company::view</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company\Contacts">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_contacts_view" xsi:type="string">Magento_Company::contacts</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company\Structure">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_users_view" xsi:type="string">Magento_Company::users_view</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company\LegalAddress">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_view_address" xsi:type="string">Magento_Company::view_address</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company\PaymentInformation">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_payment_information" xsi:type="string">Magento_Company::payment_information</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company\Profile">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_view_account" xsi:type="string">Magento_Company::view_account</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company\Roles">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_roles_view" xsi:type="string">Magento_Company::roles_view</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\Company\Users">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_users_view" xsi:type="string">Magento_Company::users_view</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\CompanyRoleNameChecker">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_roles_view" xsi:type="string">Magento_Company::roles_view</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\UpdateCompany">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_edit" xsi:type="string">Magento_Company::manage</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Company\Users">
+        <arguments>
+            <argument name="companyUserStatus" xsi:type="array">
+                <item name="active" xsi:type="array">
+                    <item name="value" xsi:type="string">1</item>
+                    <item name="label" xsi:type="string" translate="true">ACTIVE</item>
+                </item>
+                <item name="inactive" xsi:type="array">
+                    <item name="value" xsi:type="string">0</item>
+                    <item name="label" xsi:type="string" translate="true">INACTIVE</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Resolver\UpdateCompanyStructure">
+        <arguments>
+            <argument name="allowedResources" xsi:type="array">
+                <item name="company_roles_edit" xsi:type="string">Magento_Company::roles_edit</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\CompanyGraphQl\Model\Company\Role\ValidateRole">
+        <arguments>
+            <argument name="resourceProvider" xsi:type="object">Magento\Company\Acl\AclResource\Provider</argument>
+        </arguments>
+    </type>
+</config>

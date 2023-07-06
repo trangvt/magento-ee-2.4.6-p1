@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyCompanyCreditStaticsForAnOrderWithOneRefundedProductTest">
+        <annotations>
+            <features value="Company Credit"/>
+            <stories value="Payment on Account"/>
+            <title value="Verify Company Credit History for Payment on Account Order, Invoice, and Refund"/>
+            <description value="Create company with credit limit, create an order with payment on account method, create
+            invoice for order, refund one product, verify company credit changes"/>
+            <severity value="CRITICAL"/>
+            <testCaseId value="MC-14601"/>
+            <group value="mtf_migrated"/>
+        </annotations>
+
+        <before>
+            <!-- Enable Companies, Payment on Account, & Set Default Order Status to Pending -->
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginToAdminPanel"/>
+            <magentoCLI command="config:set {{EnableCompanyCreditData.path}} {{EnableCompanyCreditData.value}}" stepKey="enableCompanyCredit"/>
+            <magentoCLI command="config:set {{EnableCompanyConfigData.path}} {{EnableCompanyConfigData.value}}" stepKey="enableCompany"/>
+            <magentoCLI command="config:set {{EnableCompanyCreditOrderStatusPending.path}} {{EnableCompanyCreditOrderStatusPending.value}}" stepKey="enableCompanyCreditOrderStatusPending"/>
+            <magentoCLI command="config:set {{EnableSpecificPaymentMethod.path}} {{EnableSpecificPaymentMethod.value}}" stepKey="enableSpecificPaymentMethod"/>
+            <magentoCLI command="config:set {{SelectSpecificPaymentMethodPaymentOnAccount.path}} {{SelectSpecificPaymentMethodPaymentOnAccount.value}}" stepKey="selectPaymentOnAccountMethod"/>
+
+            <!-- Create Company Admin & 2 Products -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+            <createData entity="Default_Company" stepKey="createCompany">
+                <requiredEntity createDataKey="createCustomer"/>
+            </createData>
+            <createData entity="defaultSimpleProduct" stepKey="simpleProduct">
+                <field key="price">10</field>
+            </createData>
+            <createData entity="defaultSimpleProduct" stepKey="simpleProduct1">
+                <field key="price">20</field>
+            </createData>
+        </before>
+
+        <after>
+            <!-- Revert Configurations & Delete Data -->
+            <magentoCLI command="config:set {{DisableSpecificPaymentMethod.path}} {{DisableSpecificPaymentMethod.value}}" stepKey="disableSpecificPaymentMethod"/>
+            <magentoCLI command="config:set {{DisableCompanyCreditData.path}} {{DisableCompanyCreditData.value}}" stepKey="disableCompanyCredit"/>
+            <magentoCLI command="config:set {{EnableCompanyCreditOrderStatusPending.path}} {{EnableCompanyCreditOrderStatusPending.value}}" stepKey="enableCompanyCreditOrderStatusPending"/>
+            <magentoCLI command="config:set {{DisableCompanyConfigData.path}} {{DisableCompanyConfigData.value}}" stepKey="disableCompany"/>
+            <comment userInput="BIC workaround" stepKey="openHomePage"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
+            <deleteData createDataKey="createCompany" stepKey="createCompany"/>
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="simpleProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="simpleProduct1" stepKey="deleteProduct1"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <!-- Add $100 Company Credit Limit -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage">
+            <argument name="companyId" value="$createCompany.id$"/>
+            <argument name="companyName" value="$createCompany.company_name$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="filterCompany"/>
+        <comment userInput="BIC workaround" stepKey="editCompany"/>
+        <comment userInput="BIC workaround" stepKey="waitForCompanyEditPageToLoad"/>
+        <comment userInput="BIC workaround" stepKey="addCompanyCredit"/>
+        <actionGroup ref="AdminFillCompanyCreditInformationActionGroup" stepKey="fillCompanyCreditInformation">
+            <argument name="creditLimit" value="100"/>
+        </actionGroup>
+        <actionGroup ref="AdminCompanySaveActionGroup" stepKey="saveCompany"/>
+
+        <!-- Create $40 Order with Payment on Account -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginPurchaser">
+            <argument name="Customer" value="$$createCustomer$$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct1Page">
+            <argument name="product" value="$$simpleProduct$$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="openProductPageAndVerifyProduct"/>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addProductToTheCart"/>
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="gotToProduct2Page">
+            <argument name="product" value="$$simpleProduct1$$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="openSecondProductPageAndVerifyProduct"/>
+        <actionGroup ref="StorefrontAddToTheCartActionGroup" stepKey="addSecondProductToTheCart"/>
+        <comment userInput="BIC workaround" stepKey="clickMiniCart"/>
+        <actionGroup ref="StorefrontOpenCheckoutPageActionGroup" stepKey="goToCheckout"/>
+        <comment userInput="BIC workaround" stepKey="waitForCustomerInformationPageToLoad"/>
+        <actionGroup ref="StorefrontSetShippingMethodActionGroup" stepKey="selectFirstShippingMethod"/>
+        <comment userInput="BIC workaround" stepKey="customerLogin"/>
+        <comment userInput="BIC workaround" stepKey="waitForNextButton"/>
+        <actionGroup ref="StorefrontCheckoutClickNextOnShippingStepActionGroup" stepKey="clickOnNextButton"/>
+        <actionGroup ref="StorefrontCheckoutSelectPaymentOnAccountActionGroup" stepKey="clickPaymentOnAccount">
+            <argument name="customReferenceNumber" value="{{CustomReferenceNumber.number}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="fillPurchaseOrderNumber"/>
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickOnPlaceOrder"/>
+        <actionGroup ref="StorefrontClickOrderLinkFromCheckoutSuccessPageActionGroup" stepKey="clickOrderLink"/>
+        <comment userInput="BIC workaround" stepKey="assertOrderLink"/>
+        <grabFromCurrentUrl regex="~/order_id/(\d+)/~" stepKey="orderId"/>
+
+        <!-- Verify Company Credit Message, Order Status, Payment Method, & Custom Reference Number on Admin Order Index Page  -->
+        <comment userInput="BIC workaround" stepKey="goToOrders"/>
+        <comment userInput="BIC workaround" stepKey="waitForPageLoad"/>
+        <comment userInput="BIC workaround" stepKey="filterOrderGridById"/>
+        <comment userInput="BIC workaround" stepKey="clickOnViewLink"/>
+        <comment userInput="BIC workaround" stepKey="waitForOrderPageToLoad"/>
+        <actionGroup ref="AdminOpenOrderByEntityIdActionGroup" stepKey="openOrderById">
+            <argument name="entityId" value="$orderId"/>
+        </actionGroup>
+        <see selector="{{NewOrderSection.successMessage}}" userInput="The credit limit for $$createCompany.company_name$$ is $100.00. Its outstanding balance, including this order, currently totals -$40.00" stepKey="seeMessage"/>
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Pending" stepKey="seeOrderStatus"/>
+        <see selector="{{AdminOrderDetailsInformationSection.paymentInformation}}" userInput="Payment on Account" stepKey="seePaymentMethod"/>
+        <see selector="{{AdminOrderDetailsInformationSection.paymentInformation}}" userInput="Custom Reference Number: {{CustomReferenceNumber.number}}" stepKey="seeCustomReferenceNumber"/>
+
+        <!-- Create Invoice for $40 & Verify Comment History -->
+        <actionGroup ref="AdminCreateInvoiceActionGroup" stepKey="createInvoice"/>
+        <comment userInput="BIC workaround" stepKey="clickOnInvoice"/>
+        <comment userInput="BIC workaround" stepKey="wsitForInvoicePageToLoad"/>
+        <comment userInput="BIC workaround" stepKey="clickOnSubmitInvoice"/>
+        <comment userInput="BIC workaround" stepKey="seeSuccessMessage1"/>
+        <see selector="{{AdminInvoiceOrderInformationSection.invoiceNoteComment}}" userInput="Invoice created for $40.00" stepKey="seeInvoiceNoteComment"/>
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Processing" stepKey="seeOrderStatus1"/>
+        <dontSeeElement selector="{{AdminOrderDetailsMainActionsSection.invoice}}" stepKey="assertCreateInvoiceIsNotVisible"/>
+        <actionGroup ref="AdminOpenOrderCommentsHistoryActionGroup" stepKey="clickOnCommentsHistory"/>
+        <comment userInput="BIC workaround" stepKey="waitForCommentHistoryToLoad"/>
+        <see selector="{{AdminOrderCommentsTabSection.orderComments}}" userInput="Invoice created for $40.00" stepKey="seeOrderHistoryNotes"/>
+
+        <!-- Create Credit Memo to Refund Second Product for $20 & Verify History -->
+        <actionGroup ref="AdminStartToCreateCreditMemoFromOrderPageActionGroup" stepKey="clickOnCreditMemos"/>
+        <comment userInput="BIC workaround" stepKey="scrollToItemsToRefund"/>
+        <fillField selector="{{AdminCreditMemoItemsSection.itemQtyToRefund('1')}}" userInput="0" stepKey="fillFirstItem"/>
+        <comment userInput="BIC workaround" stepKey="fillSecondItemToRefund"/>
+        <click selector="{{AdminCreditMemoItemsSection.updateQty}}" stepKey="clickUpdateQty"/>
+        <fillField selector="{{AdminCreditMemoTotalSection.refundShipping}}" userInput="0" stepKey="fillRefundShipping"/>
+        <actionGroup ref="UpdateCreditMemoTotalsActionGroup" stepKey="clickUpdateTotals"/>
+        <actionGroup ref="SubmitCreditMemoActionGroup" stepKey="submitCreditMemo">
+            <argument name="refundButton" value="{{AdminCreditMemoTotalSection.refundToCompanyCreditButton}}"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="clickRefundOffline"/>
+        <comment userInput="BIC workaround" stepKey="seeCreditMemoSuccess"/>
+        <see selector="{{AdminInvoiceOrderInformationSection.invoiceNoteComment}}" userInput="We refunded $20.00 to the company credit." stepKey="seeMessage5"/>
+        <actionGroup ref="AdminOpenOrderCommentsHistoryActionGroup" stepKey="clickOnCommentsHistory1"/>
+        <comment userInput="BIC workaround" stepKey="waitForCommentHistoryToLoad1"/>
+        <see selector="{{AdminOrderCommentsTabSection.orderComments}}" userInput="We refunded $20.00 to the company credit." stepKey="seeOrderHistoryNotes1"/>
+
+        <!-- Verify Outstanding Balance, Available Balance, Credit Limit, & Credit History on Edit Company Page -->
+        <actionGroup ref="AdminOpenCompanyEditPageActionGroup" stepKey="openCompanyEditPage2">
+            <argument name="companyId" value="$$createCompany.id$"/>
+            <argument name="companyName" value="$$createCompany.company_name$"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="filterCompany1"/>
+        <comment userInput="BIC workaround" stepKey="editCompany1"/>
+        <comment userInput="BIC workaround" stepKey="waitForCompanyEditPageToLoad1"/>
+        <actionGroup ref="AdminAssertCompanyCreditBalanceActionGroup" stepKey="assertCompanyCreditBalance">
+            <argument name="outstandingBalance" value="-$20.00"/>
+            <argument name="availableBalance" value="$80.00"/>
+            <argument name="creditLimit" value="$100.00"/>
+        </actionGroup>
+        <seeElement selector="{{AdminCompanyEditSection.companyCreditGrid('Refunded')}}" stepKey="assertRevertedOperation"/>
+        <seeElement selector="{{AdminCompanyEditSection.companyCreditGrid('Purchased')}}" stepKey="assertyPurchasedOperation"/>
+        <seeElement selector="{{AdminCompanyEditSection.companyCreditGrid('Allocated')}}" stepKey="assertAllocatedOperation"/>
+
+        <!-- Verify Company Credit Balance, Limit, & History on Storefront Company Credit Page -->
+        <actionGroup ref="StorefrontNavigateToCompanyCreditPageActionGroup" stepKey="openCompanyCreditHistoryPage"/>
+        <comment userInput="BIC workaround" stepKey="waitForCompanyCreditHistoryPageToLoad"/>
+        <actionGroup ref="StorefrontVerifyCompanyCreditBalanceActionGroup" stepKey="storefrontVerifyCreditHistoryData">
+            <argument name="outstandingBalance" value="-$20.00"/>
+            <argument name="availableCredit" value="$80.00"/>
+            <argument name="creditLimit" value="$100.00"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyCompanyCreditHistoryGridDataActionGroup" stepKey="storefrontVerifyCreditHistoryGridDataRow1">
+            <argument name="index" value="1"/>
+            <argument name="operation" value="Refunded"/>
+            <argument name="purchasedAmount" value="$20.00"/>
+            <argument name="outstandingBalance" value="-$20.00"/>
+            <argument name="availableCredit" value="$80.00"/>
+            <argument name="creditLimit" value="$100.00"/>
+            <argument name="customReferenceNumber" value=""/>
+            <argument name="updatedBy" value="Admin User"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyCompanyCreditHistoryGridDataActionGroup" stepKey="storefrontVerifyCreditHistoryGridDataRow2">
+            <argument name="index" value="2"/>
+            <argument name="operation" value="Purchased"/>
+            <argument name="purchasedAmount" value="-$40.00"/>
+            <argument name="outstandingBalance" value="-$40.00"/>
+            <argument name="availableCredit" value="$60.00"/>
+            <argument name="creditLimit" value="$100.00"/>
+            <argument name="customReferenceNumber" value="{{CustomReferenceNumber.number}}"/>
+            <argument name="updatedBy" value="$createCustomer.firstname$ $createCustomer.lastname$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontVerifyCompanyCreditHistoryGridDataActionGroup" stepKey="storefrontVerifyCreditHistoryGridDataRow3">
+            <argument name="index" value="3"/>
+            <argument name="operation" value="Allocated"/>
+            <argument name="purchasedAmount" value=""/>
+            <argument name="outstandingBalance" value="$0.00"/>
+            <argument name="availableCredit" value="$100.00"/>
+            <argument name="creditLimit" value="$100.00"/>
+            <argument name="customReferenceNumber" value=""/>
+            <argument name="updatedBy" value="Admin User"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="assertOutstandingBalance"/>
+        <comment userInput="BIC workaround" stepKey="assertAvailableCredit"/>
+        <comment userInput="BIC workaround" stepKey="assertCreditLimit"/>
+        <comment userInput="BIC workaround" stepKey="assertPurchasedOperation"/>
+        <comment userInput="BIC workaround" stepKey="assertPurchasedAmount"/>
+        <comment userInput="BIC workaround" stepKey="assertPurchasedOutstandingBalance"/>
+        <comment userInput="BIC workaround" stepKey="assertPurchasedAvailableCredit"/>
+        <comment userInput="BIC workaround" stepKey="assertPurchasedCreditLimit"/>
+        <comment userInput="BIC workaround" stepKey="assertPurchaseOrder"/>
+        <comment userInput="BIC workaround" stepKey="assertReimbursedOperation"/>
+        <comment userInput="BIC workaround" stepKey="assertReimbursedAmount"/>
+        <comment userInput="BIC workaround" stepKey="assertReimbursedOutstandingBalance"/>
+        <comment userInput="BIC workaround" stepKey="assertReimbursedAvailableCredit"/>
+        <comment userInput="BIC workaround" stepKey="assertReimbursedCreditLimit"/>
+        <comment userInput="BIC workaround" stepKey="assertAllocatedInGrid"/>
+        <comment userInput="BIC workaround" stepKey="assertAllocatedOutstandingBalance"/>
+        <comment userInput="BIC workaround" stepKey="assertAllocatedAvailableCredit"/>
+        <comment userInput="BIC workaround" stepKey="assertAllocatedCreditLimit"/>
+    </test>
+</tests>

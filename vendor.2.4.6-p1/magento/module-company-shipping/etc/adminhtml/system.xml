@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="btob">
+            <group id="website_configuration">
+                <group id="default_b2b_shipping_methods" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <depends>
+                        <field id="company_active">1</field>
+                    </depends>
+                    <frontend_model>Magento\CompanyShipping\Block\Adminhtml\System\Config\Form\ShippingMethodsFieldset</frontend_model>
+                    <fieldset_css>shipping-methods</fieldset_css>
+                    <label>Default B2B Shipping Methods</label>
+                    <field id="applicable_shipping_methods" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                        <label>Applicable Shipping Methods</label>
+                        <source_model>Magento\CompanyShipping\Model\Source\ApplicableShippingMethod</source_model>
+                        <config_path>btob/default_b2b_shipping_methods/applicable_shipping_methods</config_path>
+                        <frontend_class>applicable-shipping-methods</frontend_class>
+                    </field>
+                    <field id="available_shipping_methods" translate="label,tooltip" type="multiselect" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                        <label>Shipping Methods</label>
+                        <source_model>Magento\CompanyShipping\Model\Source\ShippingMethod</source_model>
+                        <config_path>btob/default_b2b_shipping_methods/available_shipping_methods</config_path>
+                        <frontend_class>shipping-methods required-entry</frontend_class>
+                    </field>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

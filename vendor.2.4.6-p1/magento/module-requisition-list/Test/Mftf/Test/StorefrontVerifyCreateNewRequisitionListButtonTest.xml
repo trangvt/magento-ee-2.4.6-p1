@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="StorefrontVerifyCreateNewRequisitionListButtonTest">
+        <annotations>
+            <features value="RequisitionList"/>
+            <stories value="Create Requisition List"/>
+            <title value="Create new Requisition List"/>
+            <description value="Storefront verify creation of new Requisition List using short text button"/>
+            <severity value="AVERAGE"/>
+            <testCaseId value="MC-39465"/>
+            <useCaseId value="MC-37915"/>
+            <group value="requisitionList"/>
+            <group value="b2b"/>
+        </annotations>
+        <before>
+            <!-- Enable Requisition List -->
+            <magentoCLI command="config:set {{EnableRequisitionListConfigData.path}} {{EnableRequisitionListConfigData.value}}" stepKey="enableRequisitionList"/>
+
+            <!-- Create Customer -->
+            <createData entity="Simple_US_Customer" stepKey="createCustomer"/>
+
+            <!-- Create Product -->
+            <createData entity="simpleProductWithoutCategory" stepKey="createProduct"/>
+        </before>
+        <after>
+            <!-- Disable Requisition List -->
+            <magentoCLI command="config:set {{DisableRequisitionListConfigData.path}} {{DisableRequisitionListConfigData.value}}" stepKey="disableRequisitionList"/>
+
+            <!-- Delete Product -->
+            <deleteData createDataKey="createProduct" stepKey="deleteProduct"/>
+
+            <!-- Logout from Storefront -->
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCustomer"/>
+
+            <!-- Delete Customer -->
+            <deleteData createDataKey="createCustomer" stepKey="deleteCustomer"/>
+        </after>
+
+        <!-- Login to Storefront -->
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginAsCustomer">
+            <argument name="Customer" value="$createCustomer$"/>
+        </actionGroup>
+
+        <!-- Navigate to Product page -->
+        <actionGroup ref="StorefrontOpenProductEntityPageActionGroup" stepKey="openProductViewPage">
+            <argument name="product" value="$createProduct$"/>
+        </actionGroup>
+
+        <!-- Change button text to short -->
+        <executeJS function="document.evaluate(&quot;{{StorefrontProductPageSection.createNewRequisitionListItem}}&quot;, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.firstElementChild.textContent = 'Create'" stepKey="setShortTextButton"/>
+
+        <!-- Open 'Add to Requisition List' drop-down and click on 'Create' button -->
+        <click selector="{{StorefrontProductPageSection.addToRequisitionListButton}}" stepKey="clickAddToRequisitionListButton"/>
+        <waitForElementVisible selector="{{StorefrontProductPageSection.createNewRequisitionListItem}}" stepKey="waitForCreateButtonVisible"/>
+        <click selector="{{StorefrontProductPageSection.createNewRequisitionListItem}}" stepKey="clickCreateButton"/>
+
+        <!-- Verify that modal window for creating new Requisition List is opened -->
+        <waitForElementVisible selector="{{StorefrontProductPageSection.requisitionListName}}" stepKey="waitForRequisitionNameButtonVisible"/>
+    </test>
+</tests>

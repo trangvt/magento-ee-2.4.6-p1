@@ -1,0 +1,18 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var $escaper \Magento\Framework\Escaper */
+?>
+<?php $approvers = $block->getApprovers() ?>
+<?php if ($approvers): ?>
+    <?php $approverList = explode(', ', $approvers); ?>
+    <ul>
+        <?php foreach ($approverList as $name): ?>
+            <li><?= $escaper->escapeHtml(__($name)) ?></li>
+        <?php endforeach; ?>
+    </ul>
+<?php endif; ?>

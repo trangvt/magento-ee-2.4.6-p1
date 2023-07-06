@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontValidatePurchaseOrderRuleEditFormActionGroup">
+        <annotations>
+            <description>Validates the form fields for name, description, and approver for a purchase order rule.</description>
+        </annotations>
+        <arguments>
+            <argument name="rule" defaultValue="PurchaseOrderRule_Default"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.name}}" stepKey="waitRuleNameField"/>
+        <seeInField selector="{{StorefrontPurchaseOrderRuleFormSection.name}}" userInput="{{rule.name}}" stepKey="validateRuleNameField"/>
+        <waitForElementVisible selector="{{StorefrontPurchaseOrderRuleFormSection.description}}" stepKey="waitRuleDescriptionField"/>
+        <seeInField selector="{{StorefrontPurchaseOrderRuleFormSection.description}}" userInput="{{rule.description}}" stepKey="validateRuleDescription"/>
+    </actionGroup>
+</actionGroups>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontSaveCompanyRoleActionGroup">
+        <annotations>
+            <description>Clicks the Save button on the company role edit page on the storefront.</description>
+        </annotations>
+        <arguments>
+            <argument name="roleName" type="string"/>
+        </arguments>
+        <waitForElementVisible selector="{{StorefrontCompanyRolePermissionsSection.collapseAllLink}}" stepKey="waitForCollapseLink"/>
+        <click selector="{{StorefrontCompanyRolePermissionsSection.collapseAllLink}}" stepKey="collapsePermissionsFields"/>
+        <waitForElementVisible selector="{{StorefrontCompanyRolePermissionsSection.saveRoleButton}}" stepKey="waitForSaveButton"/>
+        <click selector="{{StorefrontCompanyRolePermissionsSection.saveRoleButton}}" stepKey="clickSaveButton"/>
+        <waitForPageLoad stepKey="waitForSave"/>
+        <waitForElementNotVisible selector="{{StorefrontCompanyRolePermissionsSection.saveRoleButton}}" stepKey="waitForElementNotVisible"/>
+        <waitForElementVisible selector="{{StorefrontCustomerAccountMainSection.pageTitle}}" stepKey="waitForPageTitle"/>
+        <see selector="{{StorefrontCustomerAccountMainSection.pageTitle}}" userInput="Roles and Permissions" stepKey="seePageTitle"/>
+        <waitForElementVisible selector="{{StorefrontCompanyRolesSection.roleNameInGrid(roleName)}}" stepKey="waitForRoleName"/>
+    </actionGroup>
+</actionGroups>
